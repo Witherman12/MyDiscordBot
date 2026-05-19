@@ -2,12 +2,11 @@ import discord
 from discord.ext import commands
 import pymongo
 import certifi
-
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
-
 import re
+import random
 
 # --- 1. ΨΕΥΤΙΚΟΣ ΔΙΑΚΟΜΙΣΤΗΣ (ΓΙΑ ΝΑ ΜΕΙΝΕΙ ΞΥΠΝΙΟ ΤΟ RENDER) ---
 class DummyHandler(BaseHTTPRequestHandler):
@@ -127,8 +126,13 @@ async def on_message(message):
 
     # Απαραίτητο για να συνεχίσουν να δουλεύουν οι εντολές
     await bot.process_commands(message)
-   
-# --- ΕΝΤΟΛΗ report - ΚΑΤΑΓΡΑΦΗ ΑΠΟΤΕΛΕΣΜΑΤΟΣ ---
+ 
+# --- ΕΝΤΟΛΗ 1: glorious - ΚΑΤΑΓΡΑΦΗ ΦΡΑΣΗΣ ---
+@bot.command()
+async def glorious(ctx):
+    await ctx.send(f"Ο <@{TARGET_USER_ID}> έχει πει τη φράση '{TARGET_PHRASE}' {glorious_count} φορές! <:Custode:1439332561468920132>")
+
+# --- ΕΝΤΟΛΗ 2a: report - ΚΑΤΑΓΡΑΦΗ ΑΠΟΤΕΛΕΣΜΑΤΟΣ ---
 @bot.command(name="report")
 async def report_match(ctx, *, match_data: str):
     # Ελέγχουμε αν είναι ισοπαλία
@@ -166,7 +170,7 @@ async def report_match(ctx, *, match_data: str):
         factions_col.update_one({"name": faction2}, {"$inc": {"losses": 1, "wins": 0, "ties": 0}}, upsert=True)
         await ctx.send(f"🏆 Καταγράφηκε Νίκη για τους **{faction1}** εναντίον των **{faction2}**!")
 
-# --- ΕΝΤΟΛΗ stats - ΕΜΦΑΝΙΣΗ ΣΤΑΤΙΣΤΙΚΩΝ ---
+# --- ΕΝΤΟΛΗ 2b: stats - ΕΜΦΑΝΙΣΗ ΣΤΑΤΙΣΤΙΚΩΝ ---
 @bot.command(name="stats")
 async def faction_stats(ctx, *, faction_name: str):
     faction_name = faction_name.strip()
@@ -194,8 +198,79 @@ async def faction_stats(ctx, *, faction_name: str):
         f"Wins: **{wins}** | Losses: **{losses}** | Ties: **{ties}**"
     )
     
-@bot.command()
-async def glorious(ctx):
-    await ctx.send(f"Ο <@{TARGET_USER_ID}> έχει πει τη φράση '{TARGET_PHRASE}' {glorious_count} φορές! <:Custode:1439332561468920132>")
+# --- ΕΝΤΟΛΗ 3: LEADERBOARD (TOP 5) ---
+@bot.command(name="top")
+async def top_factions(ctx):
+    # Μετράμε πόσα έγγραφα (factions) υπάρχουν στη βάση
+    if factions_col.count_documents({}) == 0:
+        await ctx.send("⚠️ Δεν υπάρχουν ακόμα καταγεγραμμένοι αγώνες στη ΒΔ!")
+        return
+
+    # Ζητάμε από το MongoDB τα 5 πρώτα factions, ταξινομημένα με βάση τις Νίκες (descending)
+    top_data = factions_col.find().sort("wins", -1).limit(5)
+
+    message = "🏆 **Top 5 Factions (Με βάση τις Νίκες)** 🏆\n\n"
+    
+    for index, data in enumerate(top_data, 1):
+        name = data.get("name", "Άγνωστο")
+        wins = data.get("wins", 0)
+        losses = data.get("losses", 0)
+        ties = data.get("ties", 0)
+        
+        # Υπολογισμός Win Rate για την εμφάνιση
+        total_games = wins + losses + ties
+        win_rate = (wins / total_games * 100) if total_games > 0 else 0
+        
+        message += f"**{index}.** {name} — Wins: **{wins}** | WR: **{win_rate:.1f}%**\n"
+
+    await ctx.send(message)
+
+
+# --- ΕΝΤΟΛΗ 4: ΖΑΡΙΑ (D6) ---
+@bot.command(name="roll")
+async def roll_dice(ctx, amount: int = 1):
+    # Όριο για να μη σπαμάρουν και ρίξουν το bot
+    if amount <= 0:
+        await ctx.send("❌ Πρέπει να ρίξεις τουλάχιστον 1 ζάρι!")
+        return
+    if amount > 100:
+        await ctx.send("❌ Πολλά ζάρια! Το όριο είναι 100 τη φορά.")
+        return
+
+    # Φτιάχνουμε μια λίστα ρίχνοντας 'amount' ζάρια (από το 1 έως το 6)
+    rolls = [random.randint(1, 6) for _ in range(amount)]
+    total = sum(rolls)
+    
+    # Ενώνουμε τους αριθμούς με κόμμα για να φαίνονται ωραία (π.χ. "4, 6, 2")
+    rolls_str = ", ".join(map(str, rolls))
+
+    await ctx.send(
+        f"🎲 Ο **{ctx.author.display_name}** έριξε **{amount}** ζάρια!\n"
+        f"Αποτελέσματα: **{rolls_str}**\n"
+        f"Σύνολο: **{total}**"
+    )
+    
+# --- ΕΝΤΟΛΗ 5: LORE QUOTE ---
+@bot.command(name="quote")
+async def random_quote(ctx):
+    # Μια λίστα με διάσημα αποφθέγματα από το σύμπαν του 40k
+    quotes = [
+        "«In the grim darkness of the far future, there is only war.»",
+        "«The Emperor protects.»",
+        "«Blood for the Blood God! Skulls for the Skull Throne!»",
+        "«Hope is the first step on the road to disappointment.»",
+        "«Knowledge is power, guard it well.»",
+        "«An open mind is like a fortress with its gates unbarred and unguarded.»",
+        "«Even in death, I still serve.»",
+        "«Innocence proves nothing.»",
+        "«Walk softly, and carry a big gun.»",
+        "«Success is measured in blood; yours or your enemy's.»"
+    ]
+    
+    # Επιλέγει ένα στην τύχη
+    chosen_quote = random.choice(quotes)
+    
+    # Στέλνει το απόφθεγμα στο κανάλι
+    await ctx.send(f"📜 {chosen_quote}")
 
 bot.run(TOKEN)
