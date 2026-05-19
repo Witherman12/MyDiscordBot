@@ -36,7 +36,7 @@ MONGO_URI = os.environ.get("MONGODB_URI")
 # TOKEN = 'ΧΧΧ'
 # MONGO_URI = 'ΧΧΧ'
 TARGET_USER_ID = 994930770542084227
-TARGET_GUILD_ID = 801753238662676500  # Βάλε εδώ το ID του Server σου (χωρίς εισαγωγικά)
+TARGET_GUILD_ID = 801753238662676500
 TARGET_PHRASE = "glorious melee combat"
 
 intents = discord.Intents.default()
@@ -52,6 +52,7 @@ print("Σύνδεση με τη βάση δεδομένων...")
 client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where(), tlsAllowInvalidCertificates=True)
 db = client["GloriousDatabase"]
 collection = db["Counters"]
+factions_col = db["Factions"]
 
 def save_count(count):
     collection.update_one({"_id": "glorious_score"}, {"$set": {"count": count}}, upsert=True)
@@ -105,21 +106,18 @@ async def on_message(message):
         # Ελέγχουμε αν το μήνυμα (σε πεζά) περιέχει κάποιον χαιρετισμό
         msg_lower = message.content.lower()
         
-        # Το any() ελέγχει αν ΟΠΟΙΑΔΗΠΟΤΕ από τις λέξεις της λίστας υπάρχει στο μήνυμα
+        # Το any() ελέγχει αν οποιαδήποτε από τις λέξεις της λίστας υπάρχει στο μήνυμα
         if any(word in msg_lower for word in greetings):
             await message.channel.send("Imperial greetings! The Emperor protects.") 
-            # (Μπορείς να αλλάξεις το μήνυμα ανάμεσα στα αυτάκια σε ό,τι θέλεις!)
             
     # --- 3. Έλεγχος για το WAAAGH ---
     # Το μοτίβο r'wa+gh' σημαίνει: 'w', ακολουθούμενο από ένα ή περισσότερα 'a', και τέλος 'gh'.
     if re.search(r'wa+gh', message.content.lower()):
         await message.channel.send("# WAAAAAAGH! <:Waaagh:1432414641123885257>") 
-        # Μπορείς να αλλάξεις το τι θα απαντάει (και τα emojis) σε ό,τι θέλεις!
         
     # --- 4. Έλεγχος για τον Nurgle (Reaction με σαπούνι) ---
     if "nurgle" in message.content.lower():
         try:
-            # Το "🧼" είναι το default Unicode emoji για το σαπούνι. 
             await message.add_reaction("🧼")
         except discord.errors.Forbidden:
             # Αυτό τυπώνεται στα logs του Render αν το bot δεν έχει δικαίωμα να κάνει reacts
@@ -127,8 +125,74 @@ async def on_message(message):
         except discord.errors.NotFound:
             print("Δεν βρέθηκε το emoji (απίθανο για τα βασικά unicode).")
 
-    # Απαραίτητο για να συνεχίσουν να δουλεύουν οι εντολές (όπως το !glorious)
+    # Απαραίτητο για να συνεχίσουν να δουλεύουν οι εντολές
     await bot.process_commands(message)
+   
+# --- ΕΝΤΟΛΗ report - ΚΑΤΑΓΡΑΦΗ ΑΠΟΤΕΛΕΣΜΑΤΟΣ ---
+@bot.command(name="report")
+async def report_match(ctx, *, match_data: str):
+    # Ελέγχουμε αν είναι ισοπαλία
+    is_tie = False
+    if match_data.lower().startswith("tie "):
+        is_tie = True
+        match_data = match_data[4:] # Κόβουμε τη λέξη "tie " από την αρχή
+
+    # Ελέγχουμε αν υπάρχει το "vs"
+    if " vs " not in match_data.lower():
+        await ctx.send("❌ Λάθος μορφή! Χρησιμοποίησε: `!report FactionA vs FactionB` ή `!report tie FactionA vs FactionB`")
+        return
+
+    # Χωρίζουμε τα factions με βάση το "vs" (αγνοώντας κεφαλαία/πεζά)
+    parts = re.split(r'\s+vs\s+', match_data, flags=re.IGNORECASE)
+    if len(parts) != 2:
+        await ctx.send("❌ Λάθος μορφή! Παρακαλώ γράψε μόνο δύο Factions.")
+        return
+
+    # 
+    faction1 = parts[0].strip()
+    if not faction1.startswith("<"): faction1 = faction1.title()
+
+    faction2 = parts[1].strip()
+    if not faction2.startswith("<"): faction2 = faction2.title()
+
+    if is_tie:
+        # Ενημερώνουμε και τα δύο ως ισοπαλία (Αν δεν υπάρχουν στη βάση, τα δημιουργεί αυτόματα)
+        factions_col.update_one({"name": faction1}, {"$inc": {"ties": 1, "wins": 0, "losses": 0}}, upsert=True)
+        factions_col.update_one({"name": faction2}, {"$inc": {"ties": 1, "wins": 0, "losses": 0}}, upsert=True)
+        await ctx.send(f"⚔️ Καταγράφηκε Ισοπαλία ανάμεσα σε **{faction1}** και **{faction2}**!")
+    else:
+        # Το faction1 είναι ο νικητής, το faction2 ο ηττημένος
+        factions_col.update_one({"name": faction1}, {"$inc": {"wins": 1, "losses": 0, "ties": 0}}, upsert=True)
+        factions_col.update_one({"name": faction2}, {"$inc": {"losses": 1, "wins": 0, "ties": 0}}, upsert=True)
+        await ctx.send(f"🏆 Καταγράφηκε Νίκη για τους **{faction1}** εναντίον των **{faction2}**!")
+
+# --- ΕΝΤΟΛΗ stats - ΕΜΦΑΝΙΣΗ ΣΤΑΤΙΣΤΙΚΩΝ ---
+@bot.command(name="stats")
+async def faction_stats(ctx, *, faction_name: str):
+    faction_name = faction_name.strip()
+    if not faction_name.startswith("<"): faction_name = faction_name.title()
+    data = factions_col.find_one({"name": faction_name})
+
+    if not data:
+        await ctx.send(f"⚠️ Δεν βρέθηκαν στατιστικά για το Faction: **{faction_name}**.")
+        return
+
+    wins = data.get("wins", 0)
+    losses = data.get("losses", 0)
+    ties = data.get("ties", 0)
+    total_games = wins + losses + ties
+
+    if total_games == 0:
+        win_rate = 0
+    else:
+        win_rate = (wins / total_games) * 100
+
+    # Φτιάχνουμε το τελικό μήνυμα
+    await ctx.send(
+        f"📊 **Στατιστικά: {faction_name}**\n"
+        f"Win Rate: **{win_rate:.1f}%**\n"
+        f"Wins: **{wins}** | Losses: **{losses}** | Ties: **{ties}**"
+    )
     
 @bot.command()
 async def glorious(ctx):
