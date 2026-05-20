@@ -251,36 +251,43 @@ async def roll_dice(ctx, amount: int = 1):
     )
     
 # --- ΕΝΤΟΛΗ 5: QUOTE ---
+quotes = [
+    "«In the grim darkness of the far future, there is only war.»",
+    "«The Emperor protects.»",
+    "«Blood for the Blood God! Skulls for the Skull Throne!»",
+    "«Hope is the first step on the road to disappointment.»",
+    "«Knowledge is power, guard it well.»",
+    "«An open mind is like a fortress with its gates unbarred and unguarded.»",
+    "«Even in death, I still serve.»",
+    "«Innocence proves nothing.»",
+    "«Walk softly, and carry a big gun.»",
+    "«Success is measured in blood; yours or your enemy's.»",
+    "«To clean a component with a stained rag is a sin against the Machine God.»",
+    "«Blessed is the mind too small for doubt.»",
+    "«There is no such thing as innocence, only degrees of guilt.»",
+    "«The Orks are the pinnacle of creation. For them, the great struggle is won.»",
+    "«By the Emperor's decree, let heresy be met with fire.»",
+    "«Fear denies faith.»",
+    "«A coward dies a thousand deaths. A hero dies but once.»",
+    "«For those who seek perfection there can be no rest on this side of the grave.»",
+    "«Only the awkward questions are ever asked. The smooth ones answer themselves.»",
+    "«Burn the heretic. Kill the mutant. Purge the unclean.»"
+]
+
+random.shuffle(quotes)
+current_index = 0   
+   
 @bot.command(name="quote")
-async def random_quote(ctx):
-    # Λίστα 
-    quotes = [
-        "«In the grim darkness of the far future, there is only war.»",
-        "«The Emperor protects.»",
-        "«Blood for the Blood God! Skulls for the Skull Throne!»",
-        "«Hope is the first step on the road to disappointment.»",
-        "«Knowledge is power, guard it well.»",
-        "«An open mind is like a fortress with its gates unbarred and unguarded.»",
-        "«Even in death, I still serve.»",
-        "«Innocence proves nothing.»",
-        "«Walk softly, and carry a big gun.»",
-        "«Success is measured in blood; yours or your enemy's.»",
-        "«To clean a component with a stained rag is a sin against the Machine God.»",
-        "«Blessed is the mind too small for doubt.»",
-        "«There is no such thing as innocence, only degrees of guilt.»",
-        "«The Orks are the pinnacle of creation. For them, the great struggle is won.»",
-        "«By the Emperor's decree, let heresy be met with fire.»",
-        "«Fear denies faith.»",
-        "«A coward dies a thousand deaths. A hero dies but once.»",
-        "«For those who seek perfection there can be no rest on this side of the grave.»",
-        "«Only the awkward questions are ever asked. The smooth ones answer themselves.»",
-        "«Burn the heretic. Kill the mutant. Purge the unclean.»"
-    ]
+async def send_quote(ctx):
+    global current_index
     
-    # Επιλέγει ένα στην τύχη
-    chosen_quote = random.choice(quotes)
-    
-    # Το στέλνει στο κανάλι
-    await ctx.send(f"📜 {chosen_quote}")
+    # Αν το index έφτασε στο τέλος της λίστας ανακατεύουμε ξανά και πάμε στο 0
+    if current_index >= len(quotes):
+        random.shuffle(quotes)
+        current_index = 0
+
+    # Στέλνουμε το quote και προχωράμε το index κατά 1
+    await ctx.send(f"📜 {quotes[current_index]}")
+    current_index += 1
 
 bot.run(TOKEN)
