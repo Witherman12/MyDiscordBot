@@ -293,17 +293,19 @@ async def send_quote(ctx):
 # --- ΕΝΤΟΛΗ 6: OVERWATCH ---
 @bot.command(name="overwatch")
 async def overwatch_gif(ctx):
-    # Φτιάχνουμε το ειδικό πλαίσιο (Embed)
-    embed = discord.Embed(
-        description=f"🔥 **OVERWATCH!** Ο **{ctx.author.display_name}** ανάβει τα Flamers!",
-        color=discord.Color.orange() # Προσθέτει μια ωραία πορτοκαλί γραμμή (φωτιά!) στα αριστερά
-    )
-    
-    # Βάζουμε το URL της εικόνας μέσα στο πλαίσιο για να κρυφτεί το link
-    embed.set_image(url="https://media1.tenor.com/m/01zQCLFntfEAAAAd/warhammer-burn.gif")
-    
-    # Στέλνουμε το πλαίσιο
-    await ctx.send(embed=embed)
+    # Ελέγχουμε αν υπάρχει το αρχείο
+    if os.path.exists("flamer.gif"):
+        # Ανοίγουμε το αρχείο και το ετοιμάζουμε για το Discord
+        with open("flamer.gif", "rb") as f:
+            picture = discord.File(f)
+            
+        # Στέλνουμε το κείμενο μαζί με το αρχείο εικόνας
+        await ctx.send(
+            f"🔥 **OVERWATCH!** Ο **{ctx.author.display_name}** ανάβει τα Flamers!",
+            file=picture
+        )
+    else:
+        await ctx.send("❌ Σφάλμα: Δεν βρέθηκε το αρχείο `flamer.gif`!")
     
     
  #-----
