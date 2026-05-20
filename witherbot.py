@@ -293,12 +293,18 @@ async def send_quote(ctx):
 # --- ΕΝΤΟΛΗ 6: OVERWATCH ---
 @bot.command(name="overwatch")
 async def overwatch_gif(ctx):
-    # GIF URL
-    gif_url = "https://tenor.com/bh6Se.gif"
-    
-    # Mήνυμα που συνοδεύει το GIF
-    await ctx.send(
-        f"🔥 **OVERWATCH!** Ο **{ctx.author.display_name}** ανάβει τα Flamers!\n"
-        f"{gif_url}"
+    # Φτιάχνουμε το ειδικό πλαίσιο (Embed)
+    embed = discord.Embed(
+        description=f"🔥 **OVERWATCH!** Ο **{ctx.author.display_name}** ανάβει τα Flamers!",
+        color=discord.Color.orange() # Προσθέτει μια ωραία πορτοκαλί γραμμή (φωτιά!) στα αριστερά
     )
+    
+    # Βάζουμε το URL της εικόνας μέσα στο πλαίσιο για να κρυφτεί το link
+    embed.set_image(url="https://tenor.com/bh6Se.gif")
+    
+    # Στέλνουμε το πλαίσιο
+    await ctx.send(embed=embed)
+    
+    
+ #-----
 bot.run(TOKEN)
