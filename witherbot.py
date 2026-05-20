@@ -7,6 +7,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import re
 import random
+import secrets
 
 # --- 1. ΨΕΥΤΙΚΟΣ ΔΙΑΚΟΜΙΣΤΗΣ (ΓΙΑ ΝΑ ΜΕΙΝΕΙ ΞΥΠΝΙΟ ΤΟ RENDER) ---
 class DummyHandler(BaseHTTPRequestHandler):
@@ -237,8 +238,8 @@ async def roll_dice(ctx, amount: int = 1):
         await ctx.send("❌ Πολλά ζάρια! Το όριο είναι 100 τη φορά.")
         return
 
-    # Φτιάχνουμε μια λίστα ρίχνοντας 'amount' ζάρια (από το 1 έως το 6)
-    rolls = [random.randint(1, 6) for _ in range(amount)]
+    # Φτιάχνουμε μια λίστα ρίχνοντας 'amount' ζάρια με κρυπτογραφική τυχαιότητα
+    rolls = [secrets.choice(range(1, 7)) for _ in range(amount)]
     total = sum(rolls)
     
     # Ενώνουμε τους αριθμούς με κόμμα για να φαίνονται ωραία (π.χ. "4, 6, 2")
