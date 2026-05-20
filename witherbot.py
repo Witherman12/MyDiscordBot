@@ -264,7 +264,7 @@ async def random_quote(ctx):
         "«Even in death, I still serve.»",
         "«Innocence proves nothing.»",
         "«Walk softly, and carry a big gun.»",
-        "«Success is measured in blood; yours or your enemy's.»"
+        "«Success is measured in blood; yours or your enemy's.»",
         "«To clean a component with a stained rag is a sin against the Machine God.»",
         "«Blessed is the mind too small for doubt.»",
         "«There is no such thing as innocence, only degrees of guilt.»",
