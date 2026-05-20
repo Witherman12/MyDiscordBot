@@ -300,7 +300,7 @@ async def overwatch_gif(ctx):
     )
     
     # Βάζουμε το URL της εικόνας μέσα στο πλαίσιο για να κρυφτεί το link
-    embed.set_image(url="https://tenor.com/bh6Se.gif")
+    embed.set_image(url="https://media1.tenor.com/m/01zQCLFntfEAAAAd/warhammer-burn.gif")
     
     # Στέλνουμε το πλαίσιο
     await ctx.send(embed=embed)
