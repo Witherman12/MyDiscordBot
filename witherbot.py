@@ -290,4 +290,15 @@ async def send_quote(ctx):
     await ctx.send(f"📜 {quotes[current_index]}")
     current_index += 1
 
+# --- ΕΝΤΟΛΗ 6: OVERWATCH ---
+@bot.command(name="overwatch")
+async def overwatch_gif(ctx):
+    # GIF URL
+    gif_url = "https://tenor.com/bh6Se.gif"
+    
+    # Mήνυμα που συνοδεύει το GIF
+    await ctx.send(
+        f"🔥 **OVERWATCH!** Ο **{ctx.author.display_name}** ανάβει τα Flamers!\n"
+        f"{gif_url}"
+    )
 bot.run(TOKEN)
