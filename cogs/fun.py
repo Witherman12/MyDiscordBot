@@ -6,6 +6,7 @@
  - !roll [αριθμός] : Ρίχνει d6 ζάρια με κρυπτογραφική τυχαιότητα.
  - !quote          : Στέλνει μια τυχαία (χωρίς επανάληψη) ατάκα από το lore του 40k.
  - !overwatch      : Στέλνει το flamer gif από τοπικό αρχείο.
+ - !excuse         : Στέλνει μια τυχαία δικαιολγία.
 ========================================
 """
 
@@ -44,6 +45,24 @@ class FunCommands(commands.Cog):
         ]
         random.shuffle(self.quotes)
         self.current_index = 0
+        
+        # Λίστα με Δικαιολογίες
+        self.excuses = [
+            "Τα ζάρια μου είχαν διαφθαρεί από το Warp! 🌀",
+            "Είναι ξεκάθαρο... Ο Alpharius είχε παρεισφρήσει στα στρατεύματά μου! 🐍",
+            "Το τραπέζι έγερνε προς την πλευρά του αντιπάλου! 📐",
+            "Απλά έκανα tactical retreat για να τον παρασύρω σε παγίδα... στο επόμενο παιχνίδι! 🏃‍♂️",
+            "Τα Machine Spirits των ζαριών μου με εγκατέλειψαν. Ξέχασα το ιερό λάδι. ⚙️",
+            "Δεν έχασα, απλά ο Tzeentch άλλαξε το σχέδιο την τελευταία στιγμή! 🦅",
+            "Όλος μου ο στρατός ήταν απλά ένα ολόγραμμα του Trazyn the Infinite! 💀",
+            "Σκοπίμως έφερα άσσους, είναι όλα μέρος του Greater Good. 🐟",
+            "Ο ήλιος χτυπούσε το τραπέζι και τύφλωνε τα μοντέλα μου! ☀️",
+            "Η Ιερά Εξέταση μου απαγόρευσε να χρησιμοποιήσω την πραγματική μου στρατηγική. 👁️",
+            "Το codex μου είναι ξεπερασμένο, περιμένω το dataslate για να δείξω την πραγματική μου δύναμη! 📖",
+            "Ο Nurgle είχε αρρωστήσει τα ζάρια μου και δεν μπορούσαν να ρολάρουν πάνω από 2... 🤢"
+        ]
+        random.shuffle(self.excuses)
+        self.current_excuse_index = 0
 
     # --- ΕΝΤΟΛΗ: ΖΑΡΙΑ ---
     @commands.command(name="roll")
@@ -86,6 +105,21 @@ class FunCommands(commands.Cog):
         else:
             await ctx.send("❌ Σφάλμα: Δεν βρέθηκε το αρχείο `flamer.gif`!")
 
+    # --- ΕΝΤΟΛΗ: EXCUSE ---
+    @commands.command(name="excuse")
+    async def defeat_excuse(self, ctx):
+        # Αν τελείωσαν οι δικαιολογίες ανακατεύουμε ξανά.
+        if self.current_excuse_index >= len(self.excuses):
+            random.shuffle(self.excuses)
+            self.current_excuse_index = 0
+            
+        # Διαλέγουμε την σημερινή δικαιολογία
+        chosen_excuse = self.excuses[self.current_excuse_index]
+        self.current_excuse_index += 1
+        
+        # Στέλνουμε το τελικό μήνυμα
+        await ctx.send(f"Ο **{ctx.author.display_name}** δηλώνει υπεύθυνα ότι:\n«*{chosen_excuse}*»")
+        
 # Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
     await bot.add_cog(FunCommands(bot))
