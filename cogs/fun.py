@@ -7,6 +7,8 @@
  - !quote          : Στέλνει μια τυχαία (χωρίς επανάληψη) ατάκα από το lore του 40k.
  - !overwatch      : Στέλνει το flamer gif από τοπικό αρχείο.
  - !excuse         : Στέλνει μια τυχαία δικαιολγία.
+ - !math           : Πιθανότητες ζαριών
+ - !trivia         : Warhammer lore trivia
 ========================================
 """
 
@@ -15,6 +17,7 @@ from discord.ext import commands
 import secrets
 import random
 import os
+import asyncio
 
 class FunCommands(commands.Cog):
     def __init__(self, bot):
@@ -63,6 +66,22 @@ class FunCommands(commands.Cog):
         ]
         random.shuffle(self.excuses)
         self.current_excuse_index = 0
+        
+        # --- Λίστα με Ερωτήσεις Trivia ---
+        self.trivia_questions = [
+            {"q": "Which Primarch broke Leman Russ's back?", "a": ["magnus", "magnus the red"]},
+            {"q": "Who was the Warmaster that led the great betrayal against the Emperor?", "a": ["horus", "horus lupercal"]},
+            {"q": "Which Chaos God represents disease, decay, and despair?", "a": ["nurgle"]},
+            {"q": "Which Xenos race fights for the 'Greater Good'?", "a": ["tau", "t'au"]},
+            {"q": "Who is the famous Necron overlord who 'borrows' historical artifacts for his galleries?", "a": ["trazyn", "trazyn the infinite"]},
+            {"q": "Which Primarch killed Sanguinius aboard the Vengeful Spirit?", "a": ["horus", "horus lupercal"]},
+            {"q": "What is the name of the Chaos God of Blood, War, and Murder?", "a": ["khorne"]},
+            {"q": "Which Primarch is the genetic father of the Blood Angels?", "a": ["sanguinius"]},
+            {"q": "On which planet is the Emperor's Golden Throne located?", "a": ["terra", "holy terra"]},
+            {"q": "What is the name of the small, mischievous daemons of Nurgle?", "a": ["nurglings", "nurgling"]}
+        ]
+        random.shuffle(self.trivia_questions)
+        self.current_trivia_index = 0
 
     # --- ΕΝΤΟΛΗ: ΖΑΡΙΑ ---
     @commands.command(name="roll")
@@ -118,8 +137,80 @@ class FunCommands(commands.Cog):
         self.current_excuse_index += 1
         
         # Στέλνουμε το τελικό μήνυμα
-        await ctx.send(f"Ο **{ctx.author.display_name}** δηλώνει υπεύθυνα ότι:\n«*{chosen_excuse}*»")
+        await ctx.send(f"«*{chosen_excuse}*»")
         
+    # --- ΕΝΤΟΛΗ: MATHHAMMER ---
+    @commands.command(name="math")
+    async def mathhammer(self, ctx, attacks: int, skill: int, strength: int, toughness: int):
+        # 1. Έλεγχος αν ο χρήστης έβαλε σωστά νούμερα
+        if attacks <= 0 or skill < 2 or skill > 6 or strength <= 0 or toughness <= 0:
+            await ctx.send("❌ Λάθος δεδομένα! Δοκίμασε: `!math [A] [BS/WS] [S] [T]`")
+            return
+
+        # 2. Υπολογισμός Hits
+        # Αν το skill είναι 3+, η πιθανότητα είναι 4/6 (αφού πιάνουν τα 3, 4, 5, 6). Ο τύπος είναι (7 - skill) / 6.
+        hit_chance = (7 - skill) / 6.0
+        expected_hits = attacks * hit_chance
+
+        # 3. Υπολογισμός Wounds (Κανόνες 10th Edition)
+        if strength >= toughness * 2:
+            wound_target = 2
+        elif strength > toughness:
+            wound_target = 3
+        elif strength == toughness:
+            wound_target = 4
+        elif strength * 2 <= toughness:
+            wound_target = 6
+        else: # strength < toughness
+            wound_target = 5
+            
+        wound_chance = (7 - wound_target) / 6.0
+        expected_wounds = expected_hits * wound_chance
+
+        # 4. Εμφάνιση του τελικού αποτελέσματος στο Discord
+        message = (
+            f"🧮 **Γρήγορο Mathhammer Report** 🧮\n"
+            f"**Επιθέσεις:** {attacks} | **Hit σε:** {skill}+ | **S:** {strength} vs **T:** {toughness} (Wound σε: {wound_target}+)\n"
+            f"----------\n"
+            f"🎯 Αναμενόμενα Hits: **{expected_hits:.2f}**\n"
+            f"🩸 Αναμενόμενα Wounds: **{expected_wounds:.2f}**\n"
+        )
+        await ctx.send(message)
+        
+    # --- ΕΝΤΟΛΗ: TRIVIA ---
+    @commands.command(name="trivia")
+    async def trivia_game(self, ctx):
+        # Αν τελείωσαν οι ερωτήσεις, ανακατεύουμε ξανά!
+        if self.current_trivia_index >= len(self.trivia_questions):
+            random.shuffle(self.trivia_questions)
+            self.current_trivia_index = 0
+            
+        # Διαλέγουμε τη σημερινή ερώτηση και προχωράμε τον μετρητή
+        q_data = self.trivia_questions[self.current_trivia_index]
+        self.current_trivia_index += 1
+        
+        await ctx.send(
+            f"🧠 **Warhammer 40k Trivia!** 🧠\n"
+            f"Έχετε **30 δευτερόλεπτα** να γράψετε τη σωστή απάντηση στο chat!\n\n"
+            f"**Question:** {q_data['q']}"
+        )
+        
+        # Η συνάρτηση που ελέγχει αν η απάντηση που γράφτηκε είναι η σωστή
+        def check(m):
+            if m.channel != ctx.channel or m.author.bot:
+                return False
+            user_ans = m.content.lower().strip()
+            return any(correct_ans in user_ans for correct_ans in q_data['a'])
+            
+        try:
+            # Το bot περιμένει την απάντηση
+            msg = await self.bot.wait_for('message', timeout=30.0, check=check)
+        except asyncio.TimeoutError:
+            correct_answers = " / ".join(q_data['a']).title()
+            await ctx.send(f"⏳ Τέλος χρόνου! Κανείς δεν βρήκε την απάντηση.\nΤο σωστή ήταν: **{correct_answers}**.")
+        else:
+            await ctx.send(f"🎉 Ο **{msg.author.display_name}**! Έδωσε τη σωστή απάντηση! 🦅")
+            
 # Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
     await bot.add_cog(FunCommands(bot))
