@@ -141,16 +141,16 @@ class FunCommands(commands.Cog):
         
     # --- ΕΝΤΟΛΗ: MATHHAMMER ---
     @commands.command(name="math")
-    async def mathhammer(self, ctx, attacks: int, skill: int, strength: int, toughness: int):
+    async def mathhammer(self, ctx, attacks: int = 0, skill: int = 0, strength: int = 0, toughness: int = 0):
         # 1. Έλεγχος αν ο χρήστης έβαλε σωστά νούμερα
         if attacks <= 0 or skill < 2 or skill > 6 or strength <= 0 or toughness <= 0:
-            await ctx.send("❌ Λάθος δεδομένα! Δοκίμασε: `!math [A] [BS/WS] [S] [T]`")
+            await ctx.send("❌ Λάθος! Δοκίμασε: `!math [A] [BS/WS] [S] [T]`")
             return
 
         # 2. Υπολογισμός Hits
-        # Αν το skill είναι 3+, η πιθανότητα είναι 4/6 (αφού πιάνουν τα 3, 4, 5, 6). Ο τύπος είναι (7 - skill) / 6.
         hit_chance = (7 - skill) / 6.0
         expected_hits = attacks * hit_chance
+       
 
         # 3. Υπολογισμός Wounds (Κανόνες 10th Edition)
         if strength >= toughness * 2:
@@ -169,7 +169,7 @@ class FunCommands(commands.Cog):
 
         # 4. Εμφάνιση του τελικού αποτελέσματος στο Discord
         message = (
-            f"🧮 **Γρήγορο Mathhammer Report** 🧮\n"
+            f"🧮 **Mathhammer Report** 🧮\n"
             f"**Επιθέσεις:** {attacks} | **Hit σε:** {skill}+ | **S:** {strength} vs **T:** {toughness} (Wound σε: {wound_target}+)\n"
             f"----------\n"
             f"🎯 Αναμενόμενα Hits: **{expected_hits:.2f}**\n"
@@ -191,7 +191,7 @@ class FunCommands(commands.Cog):
         
         await ctx.send(
             f"🧠 **Warhammer 40k Trivia!** 🧠\n"
-            f"Έχετε **30 δευτερόλεπτα** να γράψετε τη σωστή απάντηση στο chat!\n\n"
+            f"Έχετε **30 sec** να γράψετε τη σωστή απάντηση στο chat!\n\n"
             f"**Question:** {q_data['q']}"
         )
         
@@ -209,7 +209,7 @@ class FunCommands(commands.Cog):
             correct_answers = " / ".join(q_data['a']).title()
             await ctx.send(f"⏳ Τέλος χρόνου! Κανείς δεν βρήκε την απάντηση.\nΤο σωστή ήταν: **{correct_answers}**.")
         else:
-            await ctx.send(f"🎉 Ο **{msg.author.display_name}**! Έδωσε τη σωστή απάντηση! 🦅")
+            await ctx.send(f"🎉 Ο **{msg.author.display_name}**! Έδωσε τη σωστή απάντηση!")
             
 # Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
