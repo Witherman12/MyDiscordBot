@@ -5,7 +5,7 @@
            τηω ΒΔ (MongoDB), τα events μηνυμάτων και τα στατιστικά.
            
 ΠΕΡΙΕΧΟΜΕΝΑ / ΕΝΤΟΛΕΣ:
- - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle).
+ - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle, Mods).
  - !glorious  : Δείχνει πόσες φορές έχει ειπωθεί η μυστική φράση.
  - !report    : Καταγράφει το αποτέλεσμα μιας μάχης στη βάση (Νίκη/Ήττα ή Ισοπαλία).
  - !stats     : Εμφανίζει το Win Rate και το ιστορικό ενός Faction.
@@ -146,6 +146,18 @@ async def on_message(message):
             print("Δεν έχω άδεια για να βάλω reaction (add_reactions permission).")
         except discord.errors.NotFound:
             print("Δεν βρέθηκε το emoji.")
+            
+    # [Ε] - Έλεγχος για Mod/Mods
+    # Το \b σημαίνει "όριο λέξης", άρα πιάνει μόνο το σκέτο mod/mods
+    if re.search(r'\b(mod|mods)\b', message.content.lower()):
+        # ROLE ID ΤΩΝ MODERATORS
+        MOD_ROLE_ID = 802082482320703489  
+        
+        # Το message.reply απαντάει απευθείας στον χρήστη. 
+        # Το <@&ID> είναι ο τρόπος να κάνει tag ένα Role.
+        await message.reply(
+            f"🚨 <@&{MOD_ROLE_ID}>!"
+        )
 
     # Απαραίτητο για να συνεχίσουν να δουλεύουν οι !εντολές
     await bot.process_commands(message)
