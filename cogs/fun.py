@@ -9,6 +9,7 @@
  - !excuse         : Στέλνει μια τυχαία δικαιολγία.
  - !math           : Πιθανότητες ζαριών
  - !trivia         : Warhammer lore trivia
+ - !void           : Στέλνει κάποιον στο Custodes Void
 ========================================
 """
 
@@ -191,7 +192,7 @@ class FunCommands(commands.Cog):
         
         await ctx.send(
             f"🧠 **Warhammer 40k Trivia!** 🧠\n"
-            f"Έχετε **30 sec** να γράψετε τη σωστή απάντηση στο chat!\n\n"
+            f"Έχετε **30 sec** να γράψετε τη σωστή απάντηση!\n\n"
             f"**Question:** {q_data['q']}"
         )
         
@@ -207,9 +208,65 @@ class FunCommands(commands.Cog):
             msg = await self.bot.wait_for('message', timeout=30.0, check=check)
         except asyncio.TimeoutError:
             correct_answers = " / ".join(q_data['a']).title()
-            await ctx.send(f"⏳ Τέλος χρόνου! Κανείς δεν βρήκε την απάντηση.\nΤο σωστή ήταν: **{correct_answers}**.")
+            await ctx.send(f"⏳ Τέλος χρόνου! Κανείς δεν βρήκε την απάντηση.\nΤο σωστό ήταν: **{correct_answers}**.")
         else:
             await ctx.send(f"🎉 Ο **{msg.author.display_name}**! Έδωσε τη σωστή απάντηση!")
+            
+    # --- ΕΝΤΟΛΗ: VOID ---
+    @commands.command(name="void")
+    async def send_to_void(self, ctx, target: discord.Member):
+        # 1. ΕΛΕΓΧΟΣ ΑΔΕΙΑΣ
+        allowed_inquisitors = [802082482320703489] # Mods ID
+        
+        if ctx.author.id not in allowed_inquisitors:
+            await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
+            return
+            
+        if target.bot:
+            await ctx.send("🤖 Δεν μπορείς να στείλεις ένα Bot στο Void!")
+            return
+
+        # 2. ΤΟ ID ΤΟΥ ΕΤΟΙΜΟΥ THREAD
+        VOID_THREAD_ID = 1512502090667397162  # ID PRIVATE THREAD
+        
+        try:
+            # Το bot ψάχνει να βρει το συγκεκριμένο thread
+            thread = await self.bot.fetch_channel(VOID_THREAD_ID)
+        except discord.NotFound:
+            await ctx.send("❌ Σφάλμα: Δεν βρέθηκε το Void Thread! Έλεγξε το ID.")
+            return
+
+        # 3. Ανακοίνωση
+        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** καταδικάζεται σε 10 δευτερόλεπτα με τους Custodes...")
+
+        try:
+            # 4. Βάζουμε το θύμα μέσα στο thread
+            await thread.add_user(target)
+            
+            custodes_gifs = [
+                "https://tenor.com/view/tts-custodes-pillar-men-gif-15519847",
+                "https://tenor.com/view/oh-no-40k-40k-tts-tts-if-the-emperor-had-a-text-to-speech-device-gif-25047215",
+                "https://tenor.com/view/emperor-text-to-speech-custodes-erogenous-metaphors-gif-27361743",
+                "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
+            ]
+            
+            # 5. Spam Thread (~10 δευτερόλεπτα)
+            end_time = asyncio.get_event_loop().time() + 10.0
+            
+            while asyncio.get_event_loop().time() < end_time:
+                gif = secrets.choice(custodes_gifs)
+                await thread.send(f"<@{target.id}> ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ!\n{gif}")
+                # Περιμένουμε 2 sec για να μη φάμε ban για spam
+                await asyncio.sleep(2) 
+                
+            # 6. Τέλος τιμωρίας - Τον βγάζουμε από το thread
+            await thread.remove_user(target)
+            
+            # Ανακοίνωση Επιστροφής
+            await ctx.send(f"✅ Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του.")
+            
+        except discord.errors.Forbidden:
+            await ctx.send("❌ Σφάλμα: Το bot δεν έχει δικαίωμα να προσθέτει/αφαιρεί άτομα από αυτό το Thread!")
             
 # Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
