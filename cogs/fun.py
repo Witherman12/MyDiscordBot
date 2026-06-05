@@ -264,7 +264,7 @@ class FunCommands(commands.Cog):
                 
             # --- Το bot καθαρίζει το ιστορικό ---
             try:
-                await thread.purge(limit=4)
+                await thread.purge(limit=5)
             except discord.Forbidden:
                 pass
                 
