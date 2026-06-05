@@ -249,17 +249,23 @@ class FunCommands(commands.Cog):
                 "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
             ]
             
-            # 5. Spam Thread (~10 δευτερόλεπτα)
+            # 5. Spam Thread (~12 sec)
             for gif in custodes_gifs:
                 await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ**[!]({gif}) <:Hammer:1416864558869516423>\n")
                 # Περιμένουμε 2 sec για να μη φάμε ban για spam
                 await asyncio.sleep(2.5) 
                 
+            # Περιμένουμε ακόμα 3 sec πριν τον πετάξουμε
+            await asyncio.sleep(3.0)
+                
             # 6. Τέλος τιμωρίας - Τον βγάζουμε από το thread
             await thread.remove_user(target)
             
+            # Το bot διαγράφει τα τελευταία 10 μηνύματα του Thread
+            await thread.purge(limit=4)
+            
             # Ανακοίνωση Επιστροφής
-            await ctx.send(f"✅ Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του.")
+            await ctx.send(f"✅ Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
             
         except discord.errors.Forbidden:
             await ctx.send("❌ Σφάλμα: Το bot δεν έχει δικαίωμα να προσθέτει/αφαιρεί άτομα από αυτό το Thread!")
