@@ -215,15 +215,14 @@ class FunCommands(commands.Cog):
     # --- ΕΝΤΟΛΗ: VOID ---
     @commands.command(name="void")
     async def send_to_void(self, ctx, target: discord.Member):
-        # 1. ΕΛΕΓΧΟΣ ΑΔΕΙΑΣ
-        allowed_inquisitors = [802082482320703489] # Mods ID
-        
-        if ctx.author.id not in allowed_inquisitors:
+        # 1. ΕΛΕΓΧΟΣ ΑΔΕΙΑΣ (Με βάση τον Ρόλο)
+        MOD_ROLE_ID = 802082482320703489  # Mods ID
+
+        # Ελέγχουμε αν ο χρήστης έχει τον ρόλο του Moderator
+        has_permission = any(role.id == MOD_ROLE_ID for role in ctx.author.roles)
+
+        if not has_permission:
             await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
-            return
-            
-        if target.bot:
-            await ctx.send("🤖 Δεν μπορείς να στείλεις ένα Bot στο Void!")
             return
 
         # 2. ΤΟ ID ΤΟΥ ΕΤΟΙΜΟΥ THREAD
