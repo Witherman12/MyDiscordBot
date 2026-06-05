@@ -252,18 +252,23 @@ class FunCommands(commands.Cog):
             # 5. Spam Thread (~12 sec)
             for gif in custodes_gifs:
                 await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ**[!]({gif}) <:Hammer:1416864558869516423>\n")
-                # Περιμένουμε 2 sec για να μη φάμε ban για spam
+                # Περιμένουμε 2.5 sec για να μη φάμε ban για spam
                 await asyncio.sleep(2.5) 
                 
             # Περιμένουμε ακόμα 3 sec πριν τον πετάξουμε
             await asyncio.sleep(3.0)
                 
-            # 6. Τέλος τιμωρίας - Τον βγάζουμε από το thread
-            await thread.remove_user(target)
-            
-            # Το bot διαγράφει τα τελευταία 10 μηνύματα του Thread
+            # Το bot διαγράφει τα τελευταία 4 μηνύματα του Thread ΠΡΩΤΑ
             await thread.purge(limit=4)
-            
+            await asyncio.sleep(1.0) # Μικρή παύση για να προλάβει το Discord να τα σβήσει
+                
+            # 6. Τέλος τιμωρίας - Τον βγάζουμε από το thread (Με ασπίδα για Mods)
+            try:
+                await thread.remove_user(target)
+            except discord.Forbidden:
+                # Αν ο χρήστης είναι Mod/Admin δεν μπορεί να τον πετάξει. Το αγνοούμε σιωπηλά.
+                pass
+                
             # Ανακοίνωση Επιστροφής
             await ctx.send(f"✅ Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
             
