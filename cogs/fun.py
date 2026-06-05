@@ -256,26 +256,23 @@ class FunCommands(commands.Cog):
                 
             await asyncio.sleep(3.0)
                 
-            # --- ΚΑΘΑΡΙΣΜΑ ΙΣΤΟΡΙΚΟΥ ΜΕ DEBUG ---
+            # --- Καθάρισμα ιστορικού ---
             try:
                 await thread.purge(limit=4)
                 await asyncio.sleep(1.0)
             except discord.Forbidden:
-                await ctx.send("🔧 **Debug:** Το Discord ΔΕΝ με αφήνει να διαγράψω μηνύματα στο Thread! Χρειάζομαι το 'Manage Messages' στο κανάλι.")
+                pass
                 
-            # --- ΕΞΩΣΗ ΠΑΙΚΤΗ ΜΕ DEBUG ---
+            # --- Αφαίρεση χρήστη ---
             try:
                 await thread.remove_user(target)
             except discord.Forbidden:
-                await ctx.send("🔧 **Debug:** Το Discord ΔΕΝ με αφήνει να βγάλω τον παίκτη! Χρειάζομαι το 'Manage Threads' (Διαχείριση Νημάτων) **στο κανάλι** που ανήκει το Thread.")
+                pass
                 
-            await ctx.send(f"✅ Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
+            await ctx.send(f"Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
             
         except discord.errors.Forbidden:
             await ctx.send("❌ Error: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")
-            
-async def setup(bot):
-    await bot.add_cog(FunCommands(bot))
             
 # Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
