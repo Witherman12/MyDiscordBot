@@ -236,7 +236,7 @@ class FunCommands(commands.Cog):
             return
 
         # 3. Ανακοίνωση
-        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** καταδικάζεται σε 10 δευτερόλεπτα με τους Custodes...")
+        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** καταδικάζεται σε 10sec με τους Custodes...<:Custode:1439332561468920132>")
 
         try:
             # 4. Βάζουμε το θύμα μέσα στο thread
