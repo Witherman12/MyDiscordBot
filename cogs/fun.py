@@ -226,7 +226,7 @@ class FunCommands(commands.Cog):
             return
 
         # 2. ΤΟ ID ΤΟΥ ΕΤΟΙΜΟΥ THREAD
-        VOID_THREAD_ID = 1512502090667397162  # ID PRIVATE THREAD
+        VOID_THREAD_ID = 1512544435508871208  # ID PRIVATE THREAD
         
         try:
             # Το bot ψάχνει να βρει το συγκεκριμένο thread
