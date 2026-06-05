@@ -232,7 +232,7 @@ class FunCommands(commands.Cog):
             # Το bot ψάχνει να βρει το συγκεκριμένο thread
             thread = await self.bot.fetch_channel(VOID_THREAD_ID)
         except discord.NotFound:
-            await ctx.send("❌ Σφάλμα: Δεν βρέθηκε το Void Thread! Έλεγξε το ID.")
+            await ctx.send("❌ Error: Δεν βρέθηκε το Void Thread! Έλεγξε το ID.")
             return
 
         # 3. Ανακοίνωση
@@ -243,10 +243,10 @@ class FunCommands(commands.Cog):
             await thread.add_user(target)
             
             custodes_gifs = [
-                "https://tenor.com/view/adeptus-custodes-warhammer40k-pillar-men-gif-20556214",
-                "https://tenor.com/view/warhammer-40k-custodes-gif-25660855",
-                "https://tenor.com/view/custodes-gif-26521566",
-                "https://tenor.com/view/warhammer-40k-warhammer-gif-25660851" # (ή όποιο 4ο link έχεις βάλει)
+                "https://tenor.com/view/tts-custodes-pillar-men-gif-15519847",
+                "https://tenor.com/view/oh-no-40k-40k-tts-tts-if-the-emperor-had-a-text-to-speech-device-gif-25047215",
+                "https://tenor.com/view/emperor-text-to-speech-custodes-erogenous-metaphors-gif-27361743",
+                "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
             ]
             
             # 5. Spam Thread (~12 sec)
@@ -274,7 +274,7 @@ class FunCommands(commands.Cog):
             await ctx.send(f"✅ Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
             
         except discord.errors.Forbidden:
-            await ctx.send("❌ Σφάλμα: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")
+            await ctx.send("❌ Error: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")
             
 # Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
