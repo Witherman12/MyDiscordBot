@@ -251,7 +251,7 @@ class FunCommands(commands.Cog):
             
             # 5. Spam Thread (~10 δευτερόλεπτα)
             for gif in custodes_gifs:
-                await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ[!]({gif})** <:Hammer:1416864558869516423>\n")
+                await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ**[!]({gif}) <:Hammer:1416864558869516423>\n")
                 # Περιμένουμε 2 sec για να μη φάμε ban για spam
                 await asyncio.sleep(2.5) 
                 
