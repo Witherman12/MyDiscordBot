@@ -249,30 +249,29 @@ class FunCommands(commands.Cog):
                 "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
             ]
             
-            # 5. Spam Thread (~12 sec)
+        # 5. Spam Thread (~12 sec)
             for gif in custodes_gifs:
                 await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ**[!]({gif}) <:Hammer:1416864558869516423>\n")
                 await asyncio.sleep(2.5) 
                 
             await asyncio.sleep(3.0)
                 
-            # --- Καθάρισμα ιστορικού ---
-            try:
-                await thread.purge(limit=4)
-                await asyncio.sleep(1.0)
-            except discord.Forbidden:
-                pass
-                
-            # --- Αφαίρεση χρήστη ---
+            # --- Πρώτα πετάμε έξω τον χρήστη ---
             try:
                 await thread.remove_user(target)
             except discord.Forbidden:
                 pass
                 
-            await ctx.send(f"Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
+            # --- Το bot καθαρίζει το ιστορικό ---
+            try:
+                await thread.purge(limit=4)
+            except discord.Forbidden:
+                pass
+                
+            await ctx.send(f"--> Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
             
         except discord.errors.Forbidden:
-            await ctx.send("❌ Error: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")
+            await ctx.send("❌ Error: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")   
             
 # Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
