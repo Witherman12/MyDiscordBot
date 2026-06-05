@@ -250,13 +250,10 @@ class FunCommands(commands.Cog):
             ]
             
             # 5. Spam Thread (~10 δευτερόλεπτα)
-            end_time = asyncio.get_event_loop().time() + 10.0
-            
-            while asyncio.get_event_loop().time() < end_time:
-                gif = secrets.choice(custodes_gifs)
-                await thread.send(f"<@{target.id}> ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ!\n{gif}")
+            for gif in custodes_gifs:
+                await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ[!]({gif})** <:Hammer:1416864558869516423>\n")
                 # Περιμένουμε 2 sec για να μη φάμε ban για spam
-                await asyncio.sleep(2) 
+                await asyncio.sleep(2.5) 
                 
             # 6. Τέλος τιμωρίας - Τον βγάζουμε από το thread
             await thread.remove_user(target)
