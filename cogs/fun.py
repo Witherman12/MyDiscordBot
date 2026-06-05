@@ -243,37 +243,38 @@ class FunCommands(commands.Cog):
             await thread.add_user(target)
             
             custodes_gifs = [
-                "https://tenor.com/view/tts-custodes-pillar-men-gif-15519847",
-                "https://tenor.com/view/oh-no-40k-40k-tts-tts-if-the-emperor-had-a-text-to-speech-device-gif-25047215",
-                "https://tenor.com/view/emperor-text-to-speech-custodes-erogenous-metaphors-gif-27361743",
-                "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
+                "https://tenor.com/view/adeptus-custodes-warhammer40k-pillar-men-gif-20556214",
+                "https://tenor.com/view/warhammer-40k-custodes-gif-25660855",
+                "https://tenor.com/view/custodes-gif-26521566",
+                "https://tenor.com/view/warhammer-40k-warhammer-gif-25660851" # (ή όποιο 4ο link έχεις βάλει)
             ]
             
             # 5. Spam Thread (~12 sec)
             for gif in custodes_gifs:
                 await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ**[!]({gif}) <:Hammer:1416864558869516423>\n")
-                # Περιμένουμε 2.5 sec για να μη φάμε ban για spam
                 await asyncio.sleep(2.5) 
                 
             # Περιμένουμε ακόμα 3 sec πριν τον πετάξουμε
             await asyncio.sleep(3.0)
                 
-            # Το bot διαγράφει τα τελευταία 4 μηνύματα του Thread ΠΡΩΤΑ
-            await thread.purge(limit=4)
-            await asyncio.sleep(1.0) # Μικρή παύση για να προλάβει το Discord να τα σβήσει
+            # --- ΚΑΘΑΡΙΣΜΑ ΙΣΤΟΡΙΚΟΥ (Με Ασπίδα) ---
+            try:
+                await thread.purge(limit=4)
+                await asyncio.sleep(1.0)
+            except discord.Forbidden:
+                pass # Αν δεν έχει "Διαχείριση Μηνυμάτων", απλά αφήνει τα μηνύματα εκεί και συνεχίζει
                 
-            # 6. Τέλος τιμωρίας - Τον βγάζουμε από το thread (Με ασπίδα για Mods)
+            # 6. Τέλος τιμωρίας - Τον βγάζουμε από το thread (Με Ασπίδα)
             try:
                 await thread.remove_user(target)
             except discord.Forbidden:
-                # Αν ο χρήστης είναι Mod/Admin δεν μπορεί να τον πετάξει. Το αγνοούμε σιωπηλά.
-                pass
+                pass # Αν είναι Admin/Mod δεν μπορεί να τον πετάξει. Το αγνοούμε σιωπηλά.
                 
             # Ανακοίνωση Επιστροφής
             await ctx.send(f"✅ Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
             
         except discord.errors.Forbidden:
-            await ctx.send("❌ Σφάλμα: Το bot δεν έχει δικαίωμα να προσθέτει/αφαιρεί άτομα από αυτό το Thread!")
+            await ctx.send("❌ Σφάλμα: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")
             
 # Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
