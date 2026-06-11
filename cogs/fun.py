@@ -79,7 +79,7 @@ class FunCommands(commands.Cog):
             {"q": "What is the name of the Chaos God of Blood, War, and Murder?", "a": ["khorne"]},
             {"q": "Which Primarch is the genetic father of the Blood Angels?", "a": ["sanguinius"]},
             {"q": "On which planet is the Emperor's Golden Throne located?", "a": ["terra", "holy terra"]},
-            {"q": "What is the name of the small, mischievous daemons of Nurgle?", "a": ["nurglings", "nurgling"]}
+            {"q": "What is the name of the small, mischievous daemons of Nurgle?", "a": ["nurglings", "nurgling"]},
             {"q": "Who is the Primarch of the Ultramarines?", "a": ["roboute guilliman", "guilliman"]},
             {"q": "Which Chaos God is known as the Prince of Pleasure and Excess?", "a": ["slaanesh"]},
             {"q": "What is the name of the Emperor's elite personal bodyguards?", "a": ["custodes", "adeptus custodes"]},
