@@ -80,6 +80,16 @@ class FunCommands(commands.Cog):
             {"q": "Which Primarch is the genetic father of the Blood Angels?", "a": ["sanguinius"]},
             {"q": "On which planet is the Emperor's Golden Throne located?", "a": ["terra", "holy terra"]},
             {"q": "What is the name of the small, mischievous daemons of Nurgle?", "a": ["nurglings", "nurgling"]}
+            {"q": "Who is the Primarch of the Ultramarines?", "a": ["roboute guilliman", "guilliman"]},
+            {"q": "Which Chaos God is known as the Prince of Pleasure and Excess?", "a": ["slaanesh"]},
+            {"q": "What is the name of the Emperor's elite personal bodyguards?", "a": ["custodes", "adeptus custodes"]},
+            {"q": "Which Xenos race travels the galaxy in massive living ships called Hive Fleets?", "a": ["tyranids", "tyranid"]},
+            {"q": "What is the primary, deafening battle cry of the Orks?", "a": ["waaagh", "waaagh!"]},
+            {"q": "Which Primarch is known as the Lord of Iron?", "a": ["perturabo"]},
+            {"q": "What is the name of the dangerous, psychic dimension used for faster-than-light travel?", "a": ["warp", "the warp", "immaterium"]},
+            {"q": "Who is the last Silent King of the Necrons?", "a": ["szarekh", "the silent king", "silent king"]},
+            {"q": "Who was the powerful psyker and the Emperor's closest advisor that founded the Inquisition?", "a": ["malcador", "malcador the sigillite"]},
+            {"q": "What is the name of the heavily armored planetary defense forces of the Imperium (often called the 'Hammer of the Emperor')?", "a": ["astra militarum", "imperial guard"]}
         ]
         random.shuffle(self.trivia_questions)
         self.current_trivia_index = 0
