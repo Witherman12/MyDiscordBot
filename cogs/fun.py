@@ -335,13 +335,13 @@ class FunCommands(commands.Cog):
     # --- Η ΛΟΥΠΑ ΠΟΥ ΤΡΕΧΕΙ ΚΑΘΕ ΜΕΡΑ ---
     # Η Python τρέχει σε ώρα UTC, 
     # Το 16:00 UTC είναι 19:00 ώρα Ελλάδος το καλοκαίρι και 18:00 ώρα Ελλάδος τον χειμώνα.
-    target_time = datetime.time(hour=16, minute=0, tzinfo=datetime.timezone.utc)
+    target_time = datetime.time(hour=16, minute=15, tzinfo=datetime.timezone.utc)
 
     @tasks.loop(time=target_time)
     async def daily_lore(self):
         channel = self.bot.get_channel(self.daily_lore_channel_id)
         if channel:
-            # Αν τελείωσαν τα 30 facts τα ανακατεύουμε ξανά
+            # Αν τελείωσαν τα facts, τα ανακατεύουμε ξανά (Reset)
             if self.current_lore_index >= len(self.lore_facts):
                 random.shuffle(self.lore_facts)
                 self.current_lore_index = 0
@@ -350,9 +350,16 @@ class FunCommands(commands.Cog):
             fact = self.lore_facts[self.current_lore_index]
             self.current_lore_index += 1
             
+            next_run = self.daily_lore.next_iteration
+            if next_run:
+                timestamp = int(next_run.timestamp())
+                next_timer_str = f"\n\n-# ⏳ Next archive unlocks: <t:{timestamp}:R>"
+            else:
+                next_timer_str = ""
+
             await channel.send(
                 f"📜 **Imperial Archive: Daily Lore Fact** 📜\n\n"
-                f"*{fact}*"
+                f"*{fact}*{next_timer_str}"
             )
 
     # Περιμένει το bot να συνδεθεί πλήρως στο Discord πριν ξεκινήσει να μετράει
