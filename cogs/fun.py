@@ -130,6 +130,10 @@ class FunCommands(commands.Cog):
             "Tzeentch is the Chaos God of magic, change, and manipulation. His schemes are so impossibly complex and contradictory that he will often intentionally sabotage his own plans just to see what happens.",
             "To the Adeptus Mechanicus, an STC (Standard Template Construct) is a holy grail. Even finding an STC fragment for something as mundane as a slightly better combat knife can earn a tech-priest a planetary governorship."
         ]
+        # Ανακατεύουμε τα facts και βάζουμε μετρητή
+        random.shuffle(self.lore_facts)
+        self.current_lore_index = 0
+        
         # Το ID του καναλιού όπου θα στέλνει το Lore
         self.daily_lore_channel_id = 850011185314267177 
         # Ξεκινάμε την λούπα αυτόματα μόλις φορτώσει το bot
@@ -337,7 +341,15 @@ class FunCommands(commands.Cog):
     async def daily_lore(self):
         channel = self.bot.get_channel(self.daily_lore_channel_id)
         if channel:
-            fact = random.choice(self.lore_facts)
+            # Αν τελείωσαν τα 30 facts τα ανακατεύουμε ξανά
+            if self.current_lore_index >= len(self.lore_facts):
+                random.shuffle(self.lore_facts)
+                self.current_lore_index = 0
+                
+            # Παίρνουμε το σημερινό fact και προχωράμε τον μετρητή
+            fact = self.lore_facts[self.current_lore_index]
+            self.current_lore_index += 1
+            
             await channel.send(
                 f"📜 **Imperial Archive: Daily Lore Fact** 📜\n\n"
                 f"*{fact}*"
