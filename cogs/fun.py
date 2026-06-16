@@ -7,9 +7,10 @@
  - !quote          : Στέλνει μια τυχαία (χωρίς επανάληψη) ατάκα από το lore του 40k.
  - !overwatch      : Στέλνει το flamer gif από τοπικό αρχείο.
  - !excuse         : Στέλνει μια τυχαία δικαιολγία.
- - !math           : Πιθανότητες ζαριών
- - !trivia         : Warhammer lore trivia
- - !void           : Στέλνει κάποιον στο Custodes Void
+ - !math           : Πιθανότητες ζαριών.
+ - !trivia         : Warhammer lore trivia.
+ - !void           : Στέλνει κάποιον στο Custodes Void.
+ - lore facts      : Lore Facts κάθε μέρα.
 ========================================
 """
 
@@ -19,6 +20,8 @@ import secrets
 import random
 import os
 import asyncio
+from discord.ext import tasks
+import datetime
 
 class FunCommands(commands.Cog):
     def __init__(self, bot):
@@ -68,7 +71,7 @@ class FunCommands(commands.Cog):
         random.shuffle(self.excuses)
         self.current_excuse_index = 0
         
-        # --- Λίστα με Ερωτήσεις Trivia ---
+        # Λίστα με Ερωτήσεις Trivia
         self.trivia_questions = [
             {"q": "Which Primarch broke Leman Russ's back?", "a": ["magnus", "magnus the red"]},
             {"q": "Who was the Warmaster that led the great betrayal against the Emperor?", "a": ["horus", "horus lupercal"]},
@@ -93,7 +96,49 @@ class FunCommands(commands.Cog):
         ]
         random.shuffle(self.trivia_questions)
         self.current_trivia_index = 0
-
+        
+        # Λίστα με Lore Facts
+        self.lore_facts = [
+            "The Emperor of Mankind has been sitting on the Golden Throne for 10,000 years. To keep the Astronomican burning and guide Imperial ships through the Warp, 1,000 psykers must be sacrificed to him every single day.",
+            "Ork technology is effectively junk, but it works largely because they collectively believe it should work. This latent gestalt psychic field is known as the 'Waaagh!'.",
+            "The Tyranid Hive Mind doesn't just consume biomass; its sheer presence creates a 'Shadow in the Warp,' a psychic static that drives psykers mad and cuts off entire star systems from astropathic communication and travel.",
+            "A standard Adeptus Astartes (Space Marine) is implanted with 19 additional genetically engineered organs, including a second heart, a third lung, and an organ that allows them to spit blinding acid.",
+            "During the 13th Black Crusade, the planet of Cadia was completely shattered by Abaddon. However, its Imperial Guard defenders fought so fiercely that the famous saying was born: 'The planet broke before the Guard did.'",
+            "The terrifying Necrons were once a flesh-and-blood race called the Necrontyr. Desperate for immortality and victory in war, they traded their souls to the C'tan (Star Gods), becoming soulless machines of living metal.",
+            "The Adeptus Mechanicus views technological innovation as a strict heresy. They believe all worthwhile knowledge was already discovered in the dark age of technology and merely needs to be recovered, not invented.",
+            "Commorragh, the Dark City of the Drukhari (Dark Eldar), is not a planet. It is a massive, impossibly complex realm hidden deep within the Webway, powered by stolen suns and feeding on the pain of millions of slaves.",
+            "The Grey Knights are a highly secretive chapter of Space Marines specifically tasked with hunting Daemons. Every single member is a powerful psyker, and their existence is a secret kept even from the rest of the Imperium.",
+            "The Alpha Legion's Primarch, Alpharius, supposedly had an identical twin brother named Omegon. To this day, due to their masterful use of deception and espionage, no one truly knows whose side they are on.",
+            "Space Marines do not need to sleep like normal humans. Thanks to the Catalepsean Node implant, they can shut down half of their brain at a time, allowing them to remain awake and alert for weeks.",
+            "The birth of Slaanesh, the Chaos God of Excess, created a massive tear in reality known as the Eye of Terror and instantly wiped out trillions of Aeldari, causing the fall of their ancient empire.",
+            "When a Space Marine is mortally wounded but still draws breath, they can be entombed inside a Dreadnought. This heavily armored walking sarcophagus allows them to continue fighting for the Imperium for millennia.",
+            "The Imperium's ultimate sanction is the 'Exterminatus'. When a planet is deemed lost to Chaos or Tyranids, the Inquisition will order the complete atmospheric and biological destruction of the entire world.",
+            "The Sisters of Battle (Adepta Sororitas) were created due to a legal loophole. The Ecclesiarchy was forbidden by Imperial law from holding 'men under arms,' so they bypassed this by creating an entirely female holy army.",
+            "Individuals known as 'Blanks' or 'Pariahs' are born completely without a soul. They emit an aura of negative psychic energy that causes extreme nausea to normal humans and can completely sever a psyker's connection to the Warp.",
+            "The Leman Russ battle tank is so robustly designed that its engine can run on almost any combustible liquid, including promethium, crude oil, high-octane rocket fuel, or even crushed organic matter.",
+            "Genestealer Cults spend generations secretly infecting a planet's population and infiltrating its governments. They believe they are preparing for the arrival of 'Star Saviors', only to be eagerly consumed by the Tyranid Hive Fleet they attracted.",
+            "Unlike Space Marines who share the gene-seed of their Primarch, every single member of the Adeptus Custodes is genetically handcrafted on a cellular level by the Emperor's own ancient bio-alchemy.",
+            "Khorne, the Chaos God of Blood and War, does not care whose blood is spilled, only that it flows. His followers will happily slaughter each other in his name if there are no enemies left to fight.",
+            "The Warp is a mirror dimension formed by the collective emotions and thoughts of all sentient beings. Every act of rage, hope, despair, and excess in the real world directly feeds the entities of the Immaterium.",
+            "Grandfather Nurgle, the Chaos God of Disease, genuinely loves his followers. He doesn't see his plagues as curses, but as 'gifts' of life, and his daemons are almost always joyful and affectionate.",
+            "Imperial Titans are god-machines that stand hundreds of feet tall and carry weapons capable of leveling cities. They are piloted by a 'Princeps' who must constantly battle the machine's aggressive 'Machine Spirit' for control.",
+            "The Inquisition is divided into three main branches: the Ordo Malleus hunts Daemons, the Ordo Xenos purges alien threats, and the Ordo Hereticus destroys mutants, witches, and internal traitors.",
+            "Orks reproduce through fungal spores. When an Ork dies, or even just bleeds, it releases spores that will eventually grow into squigs, snotlings, gretchin, and eventually more Orks, making them nearly impossible to eradicate.",
+            "A Space Marine's 'Omophagea' implant allows them to literally absorb the memories and knowledge of a creature by eating its brain or flesh.",
+            "The Leagues of Votann rely on ancient, incredibly powerful AI mainframes known as Votann to guide their civilization, a practice that the Imperium would consider the highest form of tech-heresy.",
+            "The Webway is a labyrinthine network of ancient tunnels between reality and the Warp. Built millions of years ago by the Old Ones, it is now primarily used by the Aeldari to travel safely without risking demonic possession.",
+            "Tzeentch is the Chaos God of magic, change, and manipulation. His schemes are so impossibly complex and contradictory that he will often intentionally sabotage his own plans just to see what happens.",
+            "To the Adeptus Mechanicus, an STC (Standard Template Construct) is a holy grail. Even finding an STC fragment for something as mundane as a slightly better combat knife can earn a tech-priest a planetary governorship."
+        ]
+        # Το ID του καναλιού όπου θα στέλνει το Lore
+        self.daily_lore_channel_id = 850011185314267177 
+        # Ξεκινάμε την λούπα αυτόματα μόλις φορτώσει το bot
+        self.daily_lore.start()
+        
+    # Συνάρτηση για να κλείνει η λούπα αν κλείσουμε το bot
+    def cog_unload(self):
+        self.daily_lore.cancel()
+        
     # --- ΕΝΤΟΛΗ: ΖΑΡΙΑ ---
     @commands.command(name="roll")
     async def roll_dice(self, ctx, amount: int = 1):  # Προστέθηκε το self
@@ -259,7 +304,7 @@ class FunCommands(commands.Cog):
                 "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
             ]
             
-        # 5. Spam Thread (~12 sec)
+            # 5. Spam Thread (~12 sec)
             for gif in custodes_gifs:
                 await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ**[!]({gif}) <:Hammer:1416864558869516423>\n")
                 await asyncio.sleep(2.5) 
@@ -282,6 +327,26 @@ class FunCommands(commands.Cog):
             
         except discord.errors.Forbidden:
             await ctx.send("❌ Error: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")   
+            
+    # --- Η ΛΟΥΠΑ ΠΟΥ ΤΡΕΧΕΙ ΚΑΘΕ ΜΕΡΑ ---
+    # Η Python τρέχει σε ώρα UTC, 
+    # Το 16:00 UTC είναι 19:00 ώρα Ελλάδος το καλοκαίρι και 18:00 ώρα Ελλάδος τον χειμώνα.
+    target_time = datetime.time(hour=16, minute=0, tzinfo=datetime.timezone.utc)
+
+    @tasks.loop(time=target_time)
+    async def daily_lore(self):
+        channel = self.bot.get_channel(self.daily_lore_channel_id)
+        if channel:
+            fact = random.choice(self.lore_facts)
+            await channel.send(
+                f"📜 **Imperial Archive: Daily Lore Fact** 📜\n\n"
+                f"*{fact}*"
+            )
+
+    # Περιμένει το bot να συνδεθεί πλήρως στο Discord πριν ξεκινήσει να μετράει
+    @daily_lore.before_loop
+    async def before_daily_lore(self):
+        await self.bot.wait_until_ready()
             
 # Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
