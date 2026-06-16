@@ -135,7 +135,7 @@ class FunCommands(commands.Cog):
         self.current_lore_index = 0
         
         # Το ID του καναλιού όπου θα στέλνει το Lore
-        self.daily_lore_channel_id = 850011185314267177 
+        self.daily_lore_channel_id = 1416479181860110436
         # Ξεκινάμε την λούπα αυτόματα μόλις φορτώσει το bot
         self.daily_lore.start()
         
@@ -334,8 +334,8 @@ class FunCommands(commands.Cog):
             
     # --- Η ΛΟΥΠΑ ΠΟΥ ΤΡΕΧΕΙ ΚΑΘΕ ΜΕΡΑ ---
     # Η Python τρέχει σε ώρα UTC, 
-    # Το 16:00 UTC είναι 19:00 ώρα Ελλάδος το καλοκαίρι και 18:00 ώρα Ελλάδος τον χειμώνα.
-    target_time = datetime.time(hour=16, minute=15, tzinfo=datetime.timezone.utc)
+    # Το 12:00 UTC είναι 15:00 ώρα Ελλάδος το καλοκαίρι και 14:00 ώρα Ελλάδος τον χειμώνα.
+    target_time = datetime.time(hour=13, minute=0, tzinfo=datetime.timezone.utc)
 
     @tasks.loop(time=target_time)
     async def daily_lore(self):
