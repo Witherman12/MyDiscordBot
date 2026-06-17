@@ -145,7 +145,7 @@ class FunCommands(commands.Cog):
         
     # --- ΕΝΤΟΛΗ: ΖΑΡΙΑ ---
     @commands.command(name="roll")
-    async def roll_dice(self, ctx, amount: int = 1):  # Προστέθηκε το self
+    async def roll_dice(self, ctx, amount: int = 1):  
         if amount <= 0:
             await ctx.send("❌ Πρέπει να ρίξεις τουλάχιστον 1 ζάρι!")
             return
@@ -165,8 +165,7 @@ class FunCommands(commands.Cog):
 
     # --- ΕΝΤΟΛΗ: QUOTE ---
     @commands.command(name="quote")
-    async def send_quote(self, ctx):  # Προστέθηκε το self
-        # Χρησιμοποιούμε παντού το self για να καλέσουμε τις μεταβλητές μας
+    async def send_quote(self, ctx):  
         if self.current_index >= len(self.quotes):
             random.shuffle(self.quotes)
             self.current_index = 0
@@ -176,7 +175,7 @@ class FunCommands(commands.Cog):
 
     # --- ΕΝΤΟΛΗ: OVERWATCH ---
     @commands.command(name="overwatch")
-    async def overwatch_gif(self, ctx):  # Προστέθηκε το self
+    async def overwatch_gif(self, ctx):  
         if os.path.exists("flamer.gif"):
             with open("flamer.gif", "rb") as f:
                 picture = discord.File(f)
@@ -187,32 +186,25 @@ class FunCommands(commands.Cog):
     # --- ΕΝΤΟΛΗ: EXCUSE ---
     @commands.command(name="excuse")
     async def defeat_excuse(self, ctx):
-        # Αν τελείωσαν οι δικαιολογίες ανακατεύουμε ξανά.
         if self.current_excuse_index >= len(self.excuses):
             random.shuffle(self.excuses)
             self.current_excuse_index = 0
             
-        # Διαλέγουμε την σημερινή δικαιολογία
         chosen_excuse = self.excuses[self.current_excuse_index]
         self.current_excuse_index += 1
         
-        # Στέλνουμε το τελικό μήνυμα
         await ctx.send(f"«*{chosen_excuse}*»")
         
     # --- ΕΝΤΟΛΗ: MATHHAMMER ---
     @commands.command(name="math")
     async def mathhammer(self, ctx, attacks: int = 0, skill: int = 0, strength: int = 0, toughness: int = 0):
-        # 1. Έλεγχος αν ο χρήστης έβαλε σωστά νούμερα
         if attacks <= 0 or skill < 2 or skill > 6 or strength <= 0 or toughness <= 0:
             await ctx.send("❌ Λάθος! Δοκίμασε: `!math [A] [BS/WS] [S] [T]`")
             return
 
-        # 2. Υπολογισμός Hits
         hit_chance = (7 - skill) / 6.0
         expected_hits = attacks * hit_chance
-       
-
-        # 3. Υπολογισμός Wounds (Κανόνες 10th Edition)
+        
         if strength >= toughness * 2:
             wound_target = 2
         elif strength > toughness:
@@ -221,13 +213,12 @@ class FunCommands(commands.Cog):
             wound_target = 4
         elif strength * 2 <= toughness:
             wound_target = 6
-        else: # strength < toughness
+        else: 
             wound_target = 5
             
         wound_chance = (7 - wound_target) / 6.0
         expected_wounds = expected_hits * wound_chance
 
-        # 4. Εμφάνιση του τελικού αποτελέσματος στο Discord
         message = (
             f"🧮 **Mathhammer Report** 🧮\n"
             f"**Επιθέσεις:** {attacks} | **Hit σε:** {skill}+ | **S:** {strength} vs **T:** {toughness} (Wound σε: {wound_target}+)\n"
@@ -240,12 +231,10 @@ class FunCommands(commands.Cog):
     # --- ΕΝΤΟΛΗ: TRIVIA ---
     @commands.command(name="trivia")
     async def trivia_game(self, ctx):
-        # Αν τελείωσαν οι ερωτήσεις, ανακατεύουμε ξανά!
         if self.current_trivia_index >= len(self.trivia_questions):
             random.shuffle(self.trivia_questions)
             self.current_trivia_index = 0
             
-        # Διαλέγουμε τη σημερινή ερώτηση και προχωράμε τον μετρητή
         q_data = self.trivia_questions[self.current_trivia_index]
         self.current_trivia_index += 1
         
@@ -255,7 +244,6 @@ class FunCommands(commands.Cog):
             f"**Question:** {q_data['q']}"
         )
         
-        # Η συνάρτηση που ελέγχει αν η απάντηση που γράφτηκε είναι η σωστή
         def check(m):
             if m.channel != ctx.channel or m.author.bot:
                 return False
@@ -263,7 +251,6 @@ class FunCommands(commands.Cog):
             return any(correct_ans in user_ans for correct_ans in q_data['a'])
             
         try:
-            # Το bot περιμένει την απάντηση
             msg = await self.bot.wait_for('message', timeout=30.0, check=check)
         except asyncio.TimeoutError:
             correct_answers = " / ".join(q_data['a']).title()
@@ -274,31 +261,25 @@ class FunCommands(commands.Cog):
     # --- ΕΝΤΟΛΗ: VOID ---
     @commands.command(name="void")
     async def send_to_void(self, ctx, target: discord.Member):
-        # 1. ΕΛΕΓΧΟΣ ΑΔΕΙΑΣ (Με βάση τον Ρόλο)
-        MOD_ROLE_ID = 802082482320703489  # Mods ID
+        MOD_ROLE_ID = 802082482320703489  
 
-        # Ελέγχουμε αν ο χρήστης έχει τον ρόλο του Moderator
         has_permission = any(role.id == MOD_ROLE_ID for role in ctx.author.roles)
 
         if not has_permission:
             await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
             return
 
-        # 2. ΤΟ ID ΤΟΥ ΕΤΟΙΜΟΥ THREAD
-        VOID_THREAD_ID = 1512544435508871208  # ID PRIVATE THREAD
+        VOID_THREAD_ID = 1512544435508871208  
         
         try:
-            # Το bot ψάχνει να βρει το συγκεκριμένο thread
             thread = await self.bot.fetch_channel(VOID_THREAD_ID)
         except discord.NotFound:
             await ctx.send("❌ Error: Δεν βρέθηκε το Void Thread! Έλεγξε το ID.")
             return
 
-        # 3. Ανακοίνωση
         await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** καταδικάζεται σε 10sec με τους Custodes...<:Custode:1439332561468920132>")
 
         try:
-            # 4. Βάζουμε το θύμα μέσα στο thread
             await thread.add_user(target)
             
             custodes_gifs = [
@@ -308,20 +289,17 @@ class FunCommands(commands.Cog):
                 "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
             ]
             
-            # 5. Spam Thread (~12 sec)
             for gif in custodes_gifs:
                 await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ**[!]({gif}) <:Hammer:1416864558869516423>\n")
                 await asyncio.sleep(2.5) 
                 
             await asyncio.sleep(3.0)
                 
-            # --- Πρώτα πετάμε έξω τον χρήστη ---
             try:
                 await thread.remove_user(target)
             except discord.Forbidden:
                 pass
                 
-            # --- Το bot καθαρίζει το ιστορικό ---
             try:
                 await thread.purge(limit=5)
             except discord.Forbidden:
@@ -333,20 +311,16 @@ class FunCommands(commands.Cog):
             await ctx.send("❌ Error: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")   
             
     # --- Η ΛΟΥΠΑ ΠΟΥ ΤΡΕΧΕΙ ΚΑΘΕ ΜΕΡΑ ---
-    # Η Python τρέχει σε ώρα UTC, 
-    # Το 12:00 UTC είναι 15:00 ώρα Ελλάδος το καλοκαίρι και 14:00 ώρα Ελλάδος τον χειμώνα.
     target_time = datetime.time(hour=13, minute=0, tzinfo=datetime.timezone.utc)
 
     @tasks.loop(time=target_time)
     async def daily_lore(self):
         channel = self.bot.get_channel(self.daily_lore_channel_id)
         if channel:
-            # Αν τελείωσαν τα facts, τα ανακατεύουμε ξανά (Reset)
             if self.current_lore_index >= len(self.lore_facts):
                 random.shuffle(self.lore_facts)
                 self.current_lore_index = 0
                 
-            # Παίρνουμε το σημερινό fact και προχωράμε τον μετρητή
             fact = self.lore_facts[self.current_lore_index]
             self.current_lore_index += 1
             
@@ -362,11 +336,9 @@ class FunCommands(commands.Cog):
                 f"*{fact}*{next_timer_str}"
             )
 
-    # Περιμένει το bot να συνδεθεί πλήρως στο Discord πριν ξεκινήσει να μετράει
     @daily_lore.before_loop
     async def before_daily_lore(self):
         await self.bot.wait_until_ready()
             
-# Απαραίτητη συνάρτηση για να φορτώσει το Discord το αρχείο
 async def setup(bot):
     await bot.add_cog(FunCommands(bot))
