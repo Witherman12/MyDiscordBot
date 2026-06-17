@@ -2,7 +2,7 @@
 ========================================
 ΑΡΧΕΙΟ: witherbot.py (Main)
 ΠΕΡΙΓΡΑΦΗ: Το κεντρικό αρχείο του bot. Διαχειρίζεται τη σύνδεση με το Discord, 
-           τηω ΒΔ (MongoDB), τα events μηνυμάτων και τα στατιστικά.
+           τη ΒΔ (MongoDB), τα events μηνυμάτων και τα στατιστικά.
            
 ΠΕΡΙΕΧΟΜΕΝΑ / ΕΝΤΟΛΕΣ:
  - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle, Mods).
@@ -117,6 +117,10 @@ async def on_ready():
 async def on_message(message):
     global glorious_count
     
+    # [Ασπίδα] Αγνοούμε τα μηνύματα του ίδιου του bot για να αποφύγουμε λούπες (spam)!
+    if message.author == bot.user:
+        return
+
     # Αγνοούμε μηνύματα από άλλα bots ή από λάθος server
     if message.author.bot or message.guild.id != TARGET_GUILD_ID:
         return
