@@ -261,9 +261,10 @@ class FunCommands(commands.Cog):
     # --- ΕΝΤΟΛΗ: VOID ---
     @commands.command(name="void")
     async def send_to_void(self, ctx, target: discord.Member):
-        MOD_ROLE_ID = 802082482320703489  
 
-        has_permission = any(role.id == MOD_ROLE_ID for role in ctx.author.roles)
+        ALLOWED_ROLE_IDS = [802082482320703489, 994930770542084227]
+
+        has_permission = any(role.id in ALLOWED_ROLE_IDS for role in ctx.author.roles)
 
         if not has_permission:
             await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
@@ -311,7 +312,7 @@ class FunCommands(commands.Cog):
             await ctx.send("❌ Error: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")   
             
     # --- Η ΛΟΥΠΑ ΠΟΥ ΤΡΕΧΕΙ ΚΑΘΕ ΜΕΡΑ ---
-    target_time = datetime.time(hour=13, minute=0, tzinfo=datetime.timezone.utc)
+    target_time = datetime.time(hour=14, minute=0, tzinfo=datetime.timezone.utc)
 
     @tasks.loop(time=target_time)
     async def daily_lore(self):
