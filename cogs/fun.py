@@ -1,8 +1,9 @@
 """
 ========================================
-ΑΡΧΕΙΟ: fun.py (Cog)
+ΑΡΧΕΙΟ: fun.py (Cogs)
 ΠΕΡΙΓΡΑΦΗ: Διαχειρίζεται τις ψυχαγωγικές και wargaming εντολές του bot.
 ΕΝΤΟΛΕΣ:
+ - !help           : Εμφανίζει την λίστα με όλες τις εντολές (Μενού Βοήθειας).
  - !roll [αριθμός] : Ρίχνει d6 ζάρια με κρυπτογραφική τυχαιότητα.
  - !quote          : Στέλνει μια τυχαία (χωρίς επανάληψη) ατάκα από το lore του 40k.
  - !overwatch      : Στέλνει το flamer gif από τοπικό αρχείο.
@@ -142,6 +143,90 @@ class FunCommands(commands.Cog):
     # Συνάρτηση για να κλείνει η λούπα αν κλείσουμε το bot
     def cog_unload(self):
         self.daily_lore.cancel()
+
+
+
+
+
+
+    # --- ΕΝΤΟΛΗ: HELP ---
+    @commands.command(name="help")
+    async def custom_help(self, ctx):
+        embed = discord.Embed(
+            title="📜 **Αρχείο Εντολών (Help)**",
+            description="Όλες οι διαθέσιμες εντολές του συστήματος και η λειτουργία τους:",
+            color=discord.Color.from_rgb(150, 10, 10)
+        )
+   
+        # !glorious
+        embed.add_field(
+            name="🏆 `!glorious`", 
+            value="Δείχνει πόσες φορές έχει ειπωθεί μία φράση στον server.", 
+            inline=True
+        )
+        # !report
+        #embed.add_field(
+        #    name="⚔️ `!report (Pinned Instructions)`", 
+        #    value="Καταγράφει το αποτέλεσμα μιας μάχης στη βάση δεδομένων (Νίκη, Ήττα ή Ισοπαλία).", 
+        #    inline=False
+        #)
+        # !stats
+        embed.add_field(
+            name="📊 `!stats [Faction Emoji]`", 
+            value="Εμφανίζει το Win Rate και το ιστορικό αγώνων ενός Faction.", 
+            inline=False
+        )  
+        # !top
+        embed.add_field(
+            name="🏅 `!top`", 
+            value="Εμφανίζει το Leaderboard με τα 5 καλύτερα Factions του server.", 
+            inline=False
+        )    
+        # !roll
+        embed.add_field(
+            name="🎲 `!roll [αριθμός]`", 
+            value="Ρίχνει ζάρια. Ιδανικό για να λύνετε τις διαφορές σας.", 
+            inline=False
+        )    
+        # !quote
+        embed.add_field(
+            name="📖 `!quote`", 
+            value="Στέλνει μια τυχαία ατάκα από το lore του 40k.", 
+            inline=False
+        )     
+        # !overwatch
+        embed.add_field(
+            name="🔥 `!overwatch`", 
+            value="Όταν τα λόγια δεν αρκούν, το bot επιστρατεύει τα Heavy Flamers.", 
+            inline=False
+        )     
+        # !excuse
+        embed.add_field(
+            name="🤡 `!excuse`", 
+            value="Το bot σου δίνει την τέλεια δικαιολογία.", 
+            inline=False
+        )        
+        # !math
+        embed.add_field(
+            name="🧮 `!math [A] [BS/WS] [S] [T]`", 
+            value="Υπολογίζει τις πιθανότητες στο Mathhammer (Expected Hits/Wounds).", 
+            inline=False
+        )  
+        # !trivia
+        embed.add_field(
+            name="🧠 `!trivia`", 
+            value="Ξεκινάει ένα γρήγορο παιχνίδι Warhammer 40k lore trivia.", 
+            inline=False
+        )        
+        # !void
+        embed.add_field(
+            name="🌀 `!void @user`", 
+            value="Στέλνει έναν χρήστη στο Void για ανανέωση όρκου στους Custodes. *(Απαιτείται ειδική εξουσιοδότηση)*", 
+            inline=False
+        )
+
+        embed.set_footer(text=f"Αίτημα από τον: {ctx.author.display_name} • The Emperor Protects.")
+        await ctx.send(embed=embed)
         
     # --- ΕΝΤΟΛΗ: ΖΑΡΙΑ ---
     @commands.command(name="roll")
