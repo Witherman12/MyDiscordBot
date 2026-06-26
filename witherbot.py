@@ -59,7 +59,7 @@ intents.message_content = True
 intents.messages = True
 intents.guilds = True
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
 # Φόρτωση των εξωτερικών αρχείων (Cogs)
 @bot.event
