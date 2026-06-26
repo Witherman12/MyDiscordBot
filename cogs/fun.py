@@ -144,18 +144,13 @@ class FunCommands(commands.Cog):
     def cog_unload(self):
         self.daily_lore.cancel()
 
-
-
-
-
-
     # --- ΕΝΤΟΛΗ: HELP ---
     @commands.command(name="help")
     async def custom_help(self, ctx):
         embed = discord.Embed(
             title="📜 **Αρχείο Εντολών (Help)**",
             description="Όλες οι διαθέσιμες εντολές του συστήματος και η λειτουργία τους:",
-            color=discord.Color.from_rgb(150, 10, 10)
+            color=discord.Color.from_rgb(0, 102, 204)
         )
    
         # !glorious
@@ -219,13 +214,13 @@ class FunCommands(commands.Cog):
             inline=False
         )        
         # !void
-        embed.add_field(
-            name="🌀 `!void @user`", 
-            value="Στέλνει έναν χρήστη στο Void για ανανέωση όρκου στους Custodes. *(Απαιτείται ειδική εξουσιοδότηση)*", 
-            inline=False
-        )
+        #embed.add_field(
+        #    name="🌀 `!void @user`", 
+        #    value="Στέλνει έναν χρήστη στο Void για ανανέωση όρκου στους Custodes. *(Απαιτείται ειδική εξουσιοδότηση)*", 
+        #    inline=False
+        #)
 
-        embed.set_footer(text=f"Αίτημα από τον: {ctx.author.display_name} • The Emperor Protects.")
+        embed.set_footer(text=f"Αίτημα από τον {ctx.author.display_name} - The Emperor Protects.")
         await ctx.send(embed=embed)
         
     # --- ΕΝΤΟΛΗ: ΖΑΡΙΑ ---
