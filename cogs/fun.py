@@ -262,11 +262,18 @@ class FunCommands(commands.Cog):
     @commands.command(name="void")
     async def send_to_void(self, ctx, target: discord.Member):
 
-        ALLOWED_ROLE_IDS = [802082482320703489, 994930770542084227]
+        # IDs των ΡΟΛΩΝ
+        ALLOWED_ROLE_IDS = [802082482320703489]
+        
+        # IDs συγκεκριμένων ΧΡΗΣΤΩΝ
+        ALLOWED_USER_IDS = [994930770542084227]
 
-        has_permission = any(role.id in ALLOWED_ROLE_IDS for role in ctx.author.roles)
+        # Ελέγχει αν ο χρήστης έχει τον Ρόλο ή αν το User ID του είναι στη λίστα
+        has_role_perm = any(role.id in ALLOWED_ROLE_IDS for role in ctx.author.roles)
+        has_user_perm = ctx.author.id in ALLOWED_USER_IDS
 
-        if not has_permission:
+        # Αν δεν έχει τίποτα από τα δύο, τρώει πόρτα
+        if not (has_role_perm or has_user_perm):
             await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
             return
 
