@@ -167,16 +167,27 @@ async def on_message(message):
         except:
             pass
 
-    # [Η] - Charge (30% GIF, 70% Emoji)
+    # [Η] - Charge (50% GIF, 50% Emoji)
     if re.search(r'\b(charge|charges|charged)\b', msg_lower):
-        if random.randint(1, 10) <= 3:
+        if random.randint(1, 10) <= 5:
             await message.reply("https://tenor.com/view/orc-boyz-total-war-warhammer-greenskins-charge-warhammer-total-war-gif-19312099")
         else:
             try:
                 await message.add_reaction("🏇")
             except:
                 pass
-
+    # [Θ] - Femboy Radar (Roast & GIF)
+    if re.search(r'\b(femboy|femboys)\b', msg_lower):
+        try:
+            # Emoji Reacts
+            await message.add_reaction("<scream:829005859727212547>")
+            
+            # 50% πιθανότητα να απαντήσει με GIF για να μην γίνει υπερβολικό spam
+            if random.randint(1, 2) == 1:
+                await message.reply("https://tenor.com/view/the-office-no-angry-steve-carell-michael-scott-gif-5606969")
+        except:
+            pass
+            
     # Απαραίτητο για να συνεχίσουν να δουλεύουν οι !εντολές
     await bot.process_commands(message)
  
