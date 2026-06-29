@@ -5,7 +5,7 @@
            τη ΒΔ (MongoDB), τα events μηνυμάτων και τα στατιστικά.
            
 ΠΕΡΙΕΧΟΜΕΝΑ / ΕΝΤΟΛΕΣ:
- - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle, Mods, Heresy, Charge).
+ - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle, Mods, Heresy, Charge, Femboy).
  - !glorious  : Δείχνει πόσες φορές έχει ειπωθεί η μυστική φράση.
  - !report    : Καταγράφει το αποτέλεσμα μιας μάχης στη βάση (Νίκη/Ήττα ή Ισοπαλία).
  - !stats     : Εμφανίζει το Win Rate και το ιστορικό ενός Faction.
@@ -126,8 +126,11 @@ async def on_message(message):
     if message.author.bot or message.guild.id != TARGET_GUILD_ID:
         return
 
+    # Ορίζουμε το μήνυμα σε πεζά μια φορά στην αρχή για να το χρησιμοποιούν όλοι οι έλεγχοι
+    msg_lower = message.content.lower()
+
     # [Α] - Έλεγχος για την φράση
-    if message.author.id == TARGET_USER_ID and TARGET_PHRASE.lower().strip() in message.content.lower():
+    if message.author.id == TARGET_USER_ID and TARGET_PHRASE.lower().strip() in msg_lower:
         glorious_count += 1
         save_count(glorious_count)
         print(f"Το είπε ξανά! Νέο σύνολο: {glorious_count} (Σώθηκε στο MongoDB)")
@@ -135,16 +138,18 @@ async def on_message(message):
     # [Β] - Έλεγχος για Tag και Χαιρετισμό
     if bot.user in message.mentions:
         greetings = ["hi", "hello", "γεια", "γειά", "hello there"]
-        msg_lower = message.content.lower()
         if any(word in msg_lower for word in greetings):
             await message.channel.send("Imperial greetings! The Emperor protects.") 
             
-    # [Γ] - Έλεγχος για το WAAAGH
-    if re.search(r'wa+gh', message.content.lower()):
-        await message.channel.send("# WAAAAAAGH! <:Waaagh:1432414641123885257>") 
+    # [Γ] - Έλεγχος για το WAAAGH (Δυναμικό μέγεθος)
+    if re.search(r'wa+gh', msg_lower):
+        # Δημιουργεί τυχαίο αριθμό από Α (από 7 έως 21)
+        a_count = random.randint(7, 21)
+        waaagh_text = f"# W{'A' * a_count}GH! <:Waaagh:1432414641123885257>"
+        await message.channel.send(waaagh_text) 
         
     # [Δ] - Έλεγχος για τον Nurgle (Reaction με σαπούνι)
-    if "nurgle" in message.content.lower():
+    if "nurgle" in msg_lower:
         try:
             await message.add_reaction("🧼")
         except discord.errors.Forbidden:
@@ -153,12 +158,9 @@ async def on_message(message):
             print("Δεν βρέθηκε το emoji.")
             
     # [Ε] - Έλεγχος για Mod/Mods
-    if re.search(r'\b(mod|mods)\b', message.content.lower()):
+    if re.search(r'\b(mod|mods)\b', msg_lower):
         MOD_ROLE_ID = 802082482320703489  
         await message.reply(f"🚨 <@&{MOD_ROLE_ID}>!")
-        
-    # Ορίζουμε το μήνυμα σε πεζά μια φορά για τα επόμενα
-    msg_lower = message.content.lower()
 
     # [Ζ] - Έλεγχος για Heresy (Reaction με μάτι)
     if re.search(r'\b(heresy|heretic|heretics)\b', msg_lower):
@@ -169,20 +171,21 @@ async def on_message(message):
 
     # [Η] - Charge (50% GIF, 50% Emoji)
     if re.search(r'\b(charge|charges|charged)\b', msg_lower):
-        if random.randint(1, 10) <= 5:
+        if random.randint(1, 2) == 1:
             await message.reply("https://tenor.com/view/orc-boyz-total-war-warhammer-greenskins-charge-warhammer-total-war-gif-19312099")
         else:
             try:
                 await message.add_reaction("🏇")
             except:
                 pass
-    # [Θ] - Femboy Radar (Roast & GIF)
+
+    # [Θ] - Femboy
     if re.search(r'\b(femboy|femboys)\b', msg_lower):
         try:
-            # Emoji Reacts
-            await message.add_reaction("<scream:829005859727212547>")
+            # Emoji React πάντα
+            await message.add_reaction("<:scream:829005859727212547>")
             
-            # 50% πιθανότητα να απαντήσει με GIF για να μην γίνει υπερβολικό spam
+            # 50% πιθανότητα (1 στις 2) να απαντήσει με GIF
             if random.randint(1, 2) == 1:
                 await message.reply("https://tenor.com/view/the-office-no-angry-steve-carell-michael-scott-gif-5606969")
         except:
