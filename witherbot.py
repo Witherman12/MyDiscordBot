@@ -5,7 +5,7 @@
            τη ΒΔ (MongoDB), τα events μηνυμάτων και τα στατιστικά.
            
 ΠΕΡΙΕΧΟΜΕΝΑ / ΕΝΤΟΛΕΣ:
- - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle, Mods).
+ - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle, Mods, Heresy, Charge).
  - !glorious  : Δείχνει πόσες φορές έχει ειπωθεί η μυστική φράση.
  - !report    : Καταγράφει το αποτέλεσμα μιας μάχης στη βάση (Νίκη/Ήττα ή Ισοπαλία).
  - !stats     : Εμφανίζει το Win Rate και το ιστορικό ενός Faction.
@@ -21,6 +21,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import re
+import random
 
 # ==========================================
 # 1. ΨΕΥΤΙΚΟΣ ΔΙΑΚΟΜΙΣΤΗΣ (KEEP-ALIVE RENDER)
@@ -152,16 +153,29 @@ async def on_message(message):
             print("Δεν βρέθηκε το emoji.")
             
     # [Ε] - Έλεγχος για Mod/Mods
-    # Το \b σημαίνει "όριο λέξης", άρα πιάνει μόνο το σκέτο mod/mods
     if re.search(r'\b(mod|mods)\b', message.content.lower()):
-        # ROLE ID ΤΩΝ MODERATORS
         MOD_ROLE_ID = 802082482320703489  
+        await message.reply(f"🚨 <@&{MOD_ROLE_ID}>!")
         
-        # Το message.reply απαντάει απευθείας στον χρήστη. 
-        # Το <@&ID> είναι ο τρόπος να κάνει tag ένα Role.
-        await message.reply(
-            f"🚨 <@&{MOD_ROLE_ID}>!"
-        )
+    # Ορίζουμε το μήνυμα σε πεζά μια φορά για τα επόμενα
+    msg_lower = message.content.lower()
+
+    # [Ζ] - Έλεγχος για Heresy (Reaction με μάτι)
+    if re.search(r'\b(heresy|heretic|heretics)\b', msg_lower):
+        try:
+            await message.add_reaction("👁️")
+        except:
+            pass
+
+    # [Η] - Charge (30% GIF, 70% Emoji)
+    if re.search(r'\b(charge|charges|charged)\b', msg_lower):
+        if random.randint(1, 10) <= 3:
+            await message.reply("https://tenor.com/view/orc-boyz-total-war-warhammer-greenskins-charge-warhammer-total-war-gif-19312099")
+        else:
+            try:
+                await message.add_reaction("🏇")
+            except:
+                pass
 
     # Απαραίτητο για να συνεχίσουν να δουλεύουν οι !εντολές
     await bot.process_commands(message)
@@ -179,24 +193,20 @@ async def glorious(ctx):
 # --- ΕΝΤΟΛΗ: report ---
 @bot.command(name="report")
 async def report_match(ctx, *, match_data: str):
-    # Ελέγχουμε αν είναι ισοπαλία
     is_tie = False
     if match_data.lower().startswith("tie "):
         is_tie = True
         match_data = match_data[4:]
 
-    # Ελέγχουμε αν υπάρχει το "vs"
     if " vs " not in match_data.lower():
         await ctx.send("❌ Λάθος μορφή! Χρησιμοποίησε: `!report FactionA vs FactionB` ή `!report tie FactionA vs FactionB`")
         return
 
-    # Χωρίζουμε τα factions με βάση το "vs"
     parts = re.split(r'\s+vs\s+', match_data, flags=re.IGNORECASE)
     if len(parts) != 2:
         await ctx.send("❌ Λάθος μορφή! Παρακαλώ γράψε μόνο δύο Factions.")
         return
 
-    # Αφαίρεση κενών και μορφοποίηση (Κεφαλαίο το πρώτο γράμμα αν δεν είναι emoji)
     faction1 = parts[0].strip()
     if not faction1.startswith("<"): faction1 = faction1.title()
 
@@ -204,12 +214,10 @@ async def report_match(ctx, *, match_data: str):
     if not faction2.startswith("<"): faction2 = faction2.title()
 
     if is_tie:
-        # Ενημέρωση ισοπαλίας (δημιουργεί το faction αν δεν υπάρχει)
         factions_col.update_one({"name": faction1}, {"$inc": {"ties": 1, "wins": 0, "losses": 0}}, upsert=True)
         factions_col.update_one({"name": faction2}, {"$inc": {"ties": 1, "wins": 0, "losses": 0}}, upsert=True)
         await ctx.send(f"⚔️ Καταγράφηκε Ισοπαλία ανάμεσα σε **{faction1}** και **{faction2}**!")
     else:
-        # faction1 (Νικητής) vs faction2 (Ηττημένος)
         factions_col.update_one({"name": faction1}, {"$inc": {"wins": 1, "losses": 0, "ties": 0}}, upsert=True)
         factions_col.update_one({"name": faction2}, {"$inc": {"losses": 1, "wins": 0, "ties": 0}}, upsert=True)
         await ctx.send(f"🏆 Καταγράφηκε Νίκη για τους **{faction1}** εναντίον των **{faction2}**!")
@@ -245,7 +253,6 @@ async def top_factions(ctx):
         await ctx.send("⚠️ Δεν υπάρχουν ακόμα καταγεγραμμένοι αγώνες στην ΒΔ!")
         return
 
-    # Ζητάμε τα 5 πρώτα factions, ταξινομημένα με βάση τις Νίκες (descending)
     top_data = factions_col.find().sort("wins", -1).limit(5)
 
     message = "🏆 **Top 5 Factions (Με βάση τις Νίκες)** 🏆\n\n"
