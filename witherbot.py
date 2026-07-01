@@ -5,7 +5,7 @@
            τη ΒΔ (MongoDB), τα events μηνυμάτων και τα στατιστικά.
            
 ΠΕΡΙΕΧΟΜΕΝΑ / ΕΝΤΟΛΕΣ:
- - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle, Mods, Heresy, Charge, Femboy).
+ - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle, Mods, Heresy, Charge, Femboy, Sun).
  - !glorious  : Δείχνει πόσες φορές έχει ειπωθεί η μυστική φράση.
  - !report    : Καταγράφει το αποτέλεσμα μιας μάχης στη βάση (Νίκη/Ήττα ή Ισοπαλία).
  - !stats     : Εμφανίζει το Win Rate και το ιστορικό ενός Faction.
@@ -190,6 +190,10 @@ async def on_message(message):
                 await message.reply("https://tenor.com/view/the-office-no-angry-steve-carell-michael-scott-gif-5606969")
         except:
             pass
+            
+    # [Ι] - Cruel Sun (Escanor)
+    if re.search(r'\bcruel sun\b', msg_lower):
+        await message.reply("https://klipy.com/gifs/seven-deadly-sins-escanor")
             
     # Απαραίτητο για να συνεχίσουν να δουλεύουν οι !εντολές
     await bot.process_commands(message)
