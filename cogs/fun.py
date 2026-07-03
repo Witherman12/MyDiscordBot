@@ -72,8 +72,9 @@ class FunCommands(commands.Cog):
         random.shuffle(self.excuses)
         self.current_excuse_index = 0
         
-        # Λίστα με Ερωτήσεις Trivia
+# Λίστα με Ερωτήσεις Trivia (50 Ερωτήσεις)
         self.trivia_questions = [
+            # --- ΑΡΧΙΚΕΣ ΕΡΩΤΗΣΕΙΣ ---
             {"q": "Which Primarch broke Leman Russ's back?", "a": ["magnus", "magnus the red"]},
             {"q": "Who was the Warmaster that led the great betrayal against the Emperor?", "a": ["horus", "horus lupercal"]},
             {"q": "Which Chaos God represents disease, decay, and despair?", "a": ["nurgle"]},
@@ -93,12 +94,45 @@ class FunCommands(commands.Cog):
             {"q": "What is the name of the dangerous, psychic dimension used for faster-than-light travel?", "a": ["warp", "the warp", "immaterium"]},
             {"q": "Who is the last Silent King of the Necrons?", "a": ["szarekh", "the silent king", "silent king"]},
             {"q": "Who was the powerful psyker and the Emperor's closest advisor that founded the Inquisition?", "a": ["malcador", "malcador the sigillite"]},
-            {"q": "What is the name of the heavily armored planetary defense forces of the Imperium (often called the 'Hammer of the Emperor')?", "a": ["astra militarum", "imperial guard"]}
+            {"q": "What is the name of the heavily armored planetary defense forces of the Imperium (often called the 'Hammer of the Emperor')?", "a": ["astra militarum", "imperial guard"]},
+            # --- ΝΕΕΣ ΕΡΩΤΗΣΕΙΣ (SPACE MARINES & IMPERIUM) ---
+            {"q": "Which Primarch is known as the 'Night Haunter'?", "a": ["konrad curze", "curze"]},
+            {"q": "What is the icy homeworld of the Space Wolves chapter?", "a": ["fenris"]},
+            {"q": "What is the homeworld of the Ultramarines?", "a": ["macragge"]},
+            {"q": "Who is the current Chapter Master of the Blood Angels, one of the oldest living Space Marines?", "a": ["dante", "commander dante"]},
+            {"q": "What is the name of the all-female order of warriors who are completely psychic blanks (soulless)?", "a": ["sisters of silence"]},
+            {"q": "Which Officio Assassinorum temple specializes in long-range sniper assassinations?", "a": ["vindicare", "vindicare temple"]},
+            {"q": "Which Primarch forged the legendary hammer known as the Dawnbringer?", "a": ["vulkan"]},
+            {"q": "What is the name of the heavily augmented cyborg infantry of the Adeptus Mechanicus?", "a": ["skitarii"]},
+            {"q": "Which Space Marine Legion is proudly known as the '1st Legion'?", "a": ["dark angels"]},
+            {"q": "Who is the Supreme Grand Master of the Grey Knights, trapped wandering the Warp?", "a": ["kaldor draigo", "draigo"]},
+            {"q": "What is the ultimate Imperial sanction that completely destroys the biosphere of a corrupted planet?", "a": ["exterminatus"]},
+            {"q": "What is the name of the ancient, walking robotic sarcophagi used by mortally wounded Space Marines?", "a": ["dreadnought", "dreadnoughts"]},
+            # --- ΝΕΕΣ ΕΡΩΤΗΣΕΙΣ (CHAOS) ---
+            {"q": "Which Chaos God is known as the Architect of Fate and Lord of Sorcery?", "a": ["tzeentch"]},
+            {"q": "Which Chaos Space Marine Legion specializes in siege warfare, trenches, and heavy artillery?", "a": ["iron warriors"]},
+            {"q": "Which Primarch is famously known as the 'Red Angel'?", "a": ["angron"]},
+            {"q": "What is the name of Abaddon the Despoiler's massive flagship, formerly commanded by Horus?", "a": ["vengeful spirit", "the vengeful spirit"]},
+            {"q": "What is the name of Nurgle's most famous, soul-corrupting plague?", "a": ["nurgle's rot", "nurgles rot"]},
+            {"q": "Which Primarch of the Emperor's Children fell to Slaanesh in his pursuit of perfection?", "a": ["fulgrim"]},
+            {"q": "Who is the Khârn the Betrayer's favored Chaos God?", "a": ["khorne"]},
+            # --- ΝΕΕΣ ΕΡΩΤΗΣΕΙΣ (XENOS) ---
+            {"q": "Who are the twin gods worshipped by the Orks?", "a": ["gork and mork", "mork and gork"]},
+            {"q": "Who is the biggest, most dangerous Ork Warboss currently leading the largest Waaagh! in the galaxy?", "a": ["ghazghkull", "ghazghkull thraka", "ghazghkull mag uruk thraka"]},
+            {"q": "What living metal forms the bodies of the Necrons?", "a": ["necrodermis"]},
+            {"q": "Who is the arrogant Necron Overlord known as the 'Stormlord'?", "a": ["imotekh", "imotekh the stormlord"]},
+            {"q": "Which Aeldari (Eldar) God of War's avatar can be summoned into battle?", "a": ["khaine", "kaela mensha khaine"]},
+            {"q": "What do Genestealer Cults commonly call the Tyranid Hive Fleet they worship?", "a": ["four armed emperor", "the four-armed emperor", "star children"]},
+            {"q": "Which ruling caste of the T'au Empire leads their entire society?", "a": ["ethereal", "ethereals", "ethereal caste"]},
+            {"q": "What is the name of the massive, labyrinthine dimension the Aeldari use to travel safely avoiding the Warp?", "a": ["webway", "the webway"]},
+            {"q": "Which Drukhari (Dark Eldar) Supreme Overlord rules the dark city of Commorragh?", "a": ["asdrubael vect", "vect"]},
+            {"q": "What is the name of the massive Tyranid bio-titans that tower over the battlefield?", "a": ["hierophant", "hierophant bio-titan"]},
+            {"q": "Which Tyranid Hive Fleet was responsible for the devastation of the Ultramarines' homeworld in the First Tyrannic War?", "a": ["behemoth", "hive fleet behemoth"]}
         ]
         random.shuffle(self.trivia_questions)
         self.current_trivia_index = 0
         
-        # Λίστα με Lore Facts
+        # Λίστα με Lore Facts (50 Facts)
         self.lore_facts = [
             "The Emperor of Mankind has been sitting on the Golden Throne for 10,000 years. To keep the Astronomican burning and guide Imperial ships through the Warp, 1,000 psykers must be sacrificed to him every single day.",
             "Ork technology is effectively junk, but it works largely because they collectively believe it should work. This latent gestalt psychic field is known as the 'Waaagh!'.",
@@ -129,7 +163,27 @@ class FunCommands(commands.Cog):
             "The Leagues of Votann rely on ancient, incredibly powerful AI mainframes known as Votann to guide their civilization, a practice that the Imperium would consider the highest form of tech-heresy.",
             "The Webway is a labyrinthine network of ancient tunnels between reality and the Warp. Built millions of years ago by the Old Ones, it is now primarily used by the Aeldari to travel safely without risking demonic possession.",
             "Tzeentch is the Chaos God of magic, change, and manipulation. His schemes are so impossibly complex and contradictory that he will often intentionally sabotage his own plans just to see what happens.",
-            "To the Adeptus Mechanicus, an STC (Standard Template Construct) is a holy grail. Even finding an STC fragment for something as mundane as a slightly better combat knife can earn a tech-priest a planetary governorship."
+            "To the Adeptus Mechanicus, an STC (Standard Template Construct) is a holy grail. Even finding an STC fragment for something as mundane as a slightly better combat knife can earn a tech-priest a planetary governorship.",
+            "The Golden Throne is slowly failing, and nobody in the Imperium knows how to fix it. If it fully breaks, the Emperor will die, the Astronomican will go out, and Terra will likely be consumed by a massive Warp rift.",
+            "Vulkan, the Primarch of the Salamanders, is a 'Perpetual'. This means he is functionally immortal and has died multiple times, including being dropped into a planetary atmosphere, only to regenerate completely.",
+            "The Eversor Assassins of the Officio Assassinorum are kept in cryo-sleep until needed. They are pumped full of so many combat drugs that if they are ever killed, their bodies violently detonate in a biological explosion.",
+            "Sly Marbo is a legendary Imperial Guard soldier of the Catachan Jungle Fighters. He is essentially the Imperium's version of Rambo, known for taking down entire enemy encampments and even a Tyranid bio-titan single-handedly.",
+            "The Geller Field, which protects Imperial ships from daemons while traveling through the Warp, is actually generated by the dreams of a comatose, mathematically-lobotomized psyker suspended in a pod.",
+            "Trazyn the Infinite, the kleptomaniac Necron Overlord, has a massive museum on Solemnace. Among his exhibits, he secretly possesses a perfect, uncorrupted clone of the Primarch Fulgrim.",
+            "Ork 'Squigs' come in countless bio-engineered varieties for every situation. There are Bomb-Squigs, Eating-Squigs, Medical-Squigs (used to sew wounds shut with their teeth), and even Hair-Squigs that Orks use as toupees.",
+            "Long before the Imperium, humanity had a golden age relying on advanced AI called the 'Men of Iron'. These machines eventually rebelled, causing a galaxy-wide war so devastating that it made the Horus Heresy look like a skirmish.",
+            "The Adepta Sororitas use a tank called the 'Exorcist' which is literally a mobile pipe organ. The 'Sister' plays hymns on the organ's keys, which triggers the launch of devastating armor-piercing missiles.",
+            "Slaanesh's Noise Marines use weapons called Sonic Blasters that fire weaponized sound. The screeching noise is so loud and discordant that it causes enemies' internal organs to rupture and their bones to shatter.",
+            "When the Tyranids conquer a world, they don't just eat the people. They consume all flora, fauna, oceans, and even the atmosphere itself, leaving nothing but a dead, barren rock floating in space.",
+            "A Custodian's name grows longer with every heroic deed they perform. Some veteran Custodes have names that take several hours to recite and are engraved on the inside of their armor.",
+            "Corvus Corax, the Primarch of the Raven Guard, spent thousands of years in the Warp hunting traitors. The Warp mutated him not into a daemon, but into a terrifying entity made of shadows and ravens that haunts Word Bearers.",
+            "The T'au Empire utilizes the 'Kroot', a carnivorous mercenary race. The Kroot are biologically capable of absorbing the DNA of whatever they eat, directing their own evolution based on their diet.",
+            "The Culexus Assassins are blanks (soulless). They wear massive animus speculums on their heads that weaponize their negative psychic aura, allowing them to shoot blasts of anti-warp energy that instantly incinerates psykers.",
+            "Space Marines have a specialized organ called the 'Betcher's Gland' which allows them to spit blinding, highly corrosive acid strong enough to eat through metal bars.",
+            "Before they were mindless berserkers, the World Eaters Legion implanted themselves with the 'Butcher's Nails', archeotech brain implants that cause agonizing pain unless the host is actively killing someone.",
+            "The Imperium uses 'Servitors' for menial labor. These are lobotomized humans, often criminals, whose brains and nervous systems have been heavily augmented with cybernetics to perform a single, repetitive task forever.",
+            "Ghazghkull Mag Uruk Thraka, the greatest living Ork Warboss, once had half his head blown off by a bolter round. A 'Painboy' replaced it with adamantium, accidentally jumpstarting his psychic connection to the Ork gods.",
+            "The 'War in Heaven' was a conflict fought 60 million years ago between the Old Ones and the Necrontyr. The weapons used were so cataclysmic that they permanently broke the calm dimension of the Immaterium, creating the chaotic Warp we know today."
         ]
         # Ανακατεύουμε τα facts και βάζουμε μετρητή
         random.shuffle(self.lore_facts)
@@ -355,6 +409,11 @@ class FunCommands(commands.Cog):
         # Αν δεν έχει τίποτα από τα δύο, τρώει πόρτα
         if not (has_role_perm or has_user_perm):
             await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
+            return
+
+        # Έλεγχος στόχου 
+        if target.id == 1307801748550844517:
+            await ctx.send("https://tenor.com/view/nuh-uh-nuh-uh-scout-tf2-gif-12750436057634665505")
             return
 
         VOID_THREAD_ID = 1512544435508871208  
