@@ -406,14 +406,14 @@ class FunCommands(commands.Cog):
         has_role_perm = any(role.id in ALLOWED_ROLE_IDS for role in ctx.author.roles)
         has_user_perm = ctx.author.id in ALLOWED_USER_IDS
 
-        # Αν δεν έχει τίποτα από τα δύο, τρώει πόρτα
+        # Αν δεν έχει τίποτα από τα δύο τρώει πόρτα
         if not (has_role_perm or has_user_perm):
             await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
             return
 
         # Έλεγχος στόχου 
         if target.id == 522869870178729985:
-            await ctx.send("https://tenor.com/view/nuh-uh-nuh-uh-scout-tf2-gif-12750436057634665505")
+            await ctx.reply("https://tenor.com/view/nuh-uh-nuh-uh-scout-tf2-gif-12750436057634665505")
             return
 
         VOID_THREAD_ID = 1512544435508871208  
