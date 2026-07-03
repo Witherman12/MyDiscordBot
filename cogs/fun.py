@@ -412,7 +412,7 @@ class FunCommands(commands.Cog):
             return
 
         # Έλεγχος στόχου 
-        if target.id == 1307801748550844517:
+        if target.id == 522869870178729985:
             await ctx.send("https://tenor.com/view/nuh-uh-nuh-uh-scout-tf2-gif-12750436057634665505")
             return
 
