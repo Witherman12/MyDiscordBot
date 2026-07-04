@@ -74,18 +74,19 @@ class NewsFeed(commands.Cog):
             embed = discord.Embed(
                 title=f"📜 {title}",
                 url=current_link,
-                color=discord.Color.from_rgb(255, 0, 0), # Κόκκινο χρώμα
+                color=discord.Color.from_rgb(255, 255, 255),
                 description="Νέο άρθρο δημοσιεύτηκε!\nΠατήστε τον τίτλο για να το διαβάσετε."
             )
             
             # Βάζουμε το logo 
-            warcom_logo = "https://cdn.discordapp.com/attachments/850011185314267177/1523030976622493716/ttb_logo_text_white.png?ex=6a4aa0a1&is=6a494f21&hm=728378f8686a35b19fbf57b82d4ef32bab760aaf1d841ff2acce3e9c96348af9&"
-            embed.set_thumbnail(url=warcom_logo)
-            embed.set_footer(text="Warhammer Community Updates", icon_url=warcom_logo)
+            main_logo = "https://cdn.discordapp.com/attachments/850011185314267177/1523030976622493716/ttb_logo_text_white.png?ex=6a4aa0a1&is=6a494f21&hm=728378f8686a35b19fbf57b82d4ef32bab760aaf1d841ff2acce3e9c96348af9&"
+            sec_logo = "https://cdn.discordapp.com/attachments/850011185314267177/1523063566675218534/sec_logo.png?ex=6a4abefb&is=6a496d7b&hm=409512ed10459af4c6bc65504c1aa38d3f5d0564ce6786e52c61fd5fdefc197f&"
+            embed.set_thumbnail(url=main_logo)
+            embed.set_footer(text="Warhammer Community Updates", icon_url=sec_logo)
             
             # Στέλνει το μήνυμα και το Embed
             await channel.send(
-                content="<:Warhammer_1:1523031488461934613> **Incoming Transmission!**", 
+                content="<:Warhammer_1:1416864475520438302> **Incoming Transmission!**", 
                 embed=embed
             )
             print(f"✅ [News Radar] Νέο άρθρο στάλθηκε: {title}")
