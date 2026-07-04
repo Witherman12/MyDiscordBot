@@ -29,7 +29,7 @@ class NewsFeed(commands.Cog):
         self.news_channel_id = 850011185314267177  
         
         # Το RSS Feed του Goonhammer (αφού το WarCom δεν έχει)
-        self.feed_url = "https://www.goonhammer.com/feed/"
+        self.feed_url = "https://www.tabletopbattles.com/feed/"
         
         # Ο Agent για να μην μας μπλοκάρει το site
         self.browser_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -79,13 +79,13 @@ class NewsFeed(commands.Cog):
             )
             
             # Βάζουμε το logo 
-            warcom_logo = "https://cdn.discordapp.com/attachments/850011185314267177/1523021068497846363/WarhammerComunityLogo.png?ex=6a4a9767&is=6a4945e7&hm=e65745367cae5fd9b7d5c3c335764b7df20ef06796cc7fce3c55a9b7442ecacc&"
+            warcom_logo = "https://cdn.discordapp.com/attachments/850011185314267177/1523030976622493716/ttb_logo_text_white.png?ex=6a4aa0a1&is=6a494f21&hm=728378f8686a35b19fbf57b82d4ef32bab760aaf1d841ff2acce3e9c96348af9&"
             embed.set_thumbnail(url=warcom_logo)
             embed.set_footer(text="Warhammer Community Updates", icon_url=warcom_logo)
             
             # Στέλνει το μήνυμα και το Embed
             await channel.send(
-                content="🚨 **Εισερχόμενη Μετάδοση!** 🚨", 
+                content="<:Warhammer_1:1523031488461934613> **Incoming Transmission!**", 
                 embed=embed
             )
             print(f"✅ [News Radar] Νέο άρθρο στάλθηκε: {title}")
