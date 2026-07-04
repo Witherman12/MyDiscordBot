@@ -67,6 +67,9 @@ bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 async def setup_hook():
     await bot.load_extension("cogs.fun")
     print("✅ Το αρχείο Fun φορτώθηκε με επιτυχία!")
+    
+    await bot.load_extension("cogs.news")
+    print("✅ Το αρχείο News (RSS) φορτώθηκε με επιτυχία!")
 
 glorious_count = 0
 
