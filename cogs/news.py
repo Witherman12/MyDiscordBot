@@ -26,7 +26,7 @@ class NewsFeed(commands.Cog):
         self.bot = bot
         
         # Το ID του καναλιού #new-updates
-        self.news_channel_id = 850011185314267177  
+        self.news_channel_id = 1416856517231116510  
         
         # Το RSS Feed του Tabletop Battles
         self.feed_url = "https://www.tabletopbattles.com/feed/"
