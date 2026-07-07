@@ -38,7 +38,7 @@ class NewsFeed(commands.Cog):
     def cog_unload(self):
         self.check_news.cancel()
 
-    @tasks.loop(minutes=15)
+    @tasks.loop(minutes=30)
     async def check_news(self):
         try:
             # 1. CACHE BUSTING: Ξεγελάμε το site ότι ζητάμε διαφορετικό URL κάθε φορά
@@ -51,7 +51,7 @@ class NewsFeed(commands.Cog):
                 print("⚠️ [News Radar] Δεν βρέθηκαν άρθρα στο feed αυτή τη στιγμή.")
                 return
 
-            recent_entries = reversed(feed.entries[:5])
+            recent_entries = reversed(feed.entries[:20])
             
             for entry in recent_entries:
                 title = entry.title
