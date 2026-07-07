@@ -24,7 +24,7 @@ news_col = db["News"]
 class NewsFeed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.news_channel_id = 850011185314267177  
+        self.news_channel_id = 1416856517231116510  
         self.feed_url = "https://www.tabletopbattles.com/feed/"
         self.browser_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
         
