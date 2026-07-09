@@ -38,46 +38,63 @@ class NewsFeed(commands.Cog):
     def cog_unload(self):
         self.check_news.cancel()
 
-    @tasks.loop(minutes=30)
+@tasks.loop(minutes=30)
     async def check_news(self):
         try:
-            # 1. CACHE BUSTING: Ξεγελάμε το site ότι ζητάμε διαφορετικό URL κάθε φορά
-            # Προσθέτουμε τον τρέχοντα χρόνο στο τέλος (π.χ. ?nocache=169000000)
+            # CACHE BUSTING
             busted_url = f"{self.feed_url}?nocache={int(time.time())}"
             
             feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
             
             if not feed.entries:
-                print("⚠️ [News Radar] Δεν βρέθηκαν άρθρα στο feed αυτή τη στιγμή.")
+                print("⚠️ [News Radar] Δεν βρέθηκαν άρθρα στο feed αυτή τη στιγμή. Ίσως το site μπλόκαρε το request.")
                 return
 
             recent_entries = reversed(feed.entries[:20])
+            
+            print("\n--- 📡 ΞΕΚΙΝΑΕΙ ΣΑΡΩΣΗ ΑΡΘΡΩΝ ---")
             
             for entry in recent_entries:
                 title = entry.title
                 title_lower = title.lower()
                 current_link = entry.link
                 
+                # 1. Παίρνουμε τα tags
                 tags_lower = []
                 if hasattr(entry, 'tags'):
                     tags_lower = [tag.term.lower() for tag in entry.tags]
+                
+                # 2. Παίρνουμε την περίληψη (summary/description)
+                summary_lower = ""
+                if hasattr(entry, 'summary'):
+                    summary_lower = entry.summary.lower()
+                elif hasattr(entry, 'description'):
+                    summary_lower = entry.description.lower()
                     
+                # 🛠️ DEBUG PRINT: Για να βλέπεις στα Logs του Render τι διαβάζει το bot!
+                print(f"🔎 Ελέγχω: '{title}'")
+                print(f"   ┣ Tags: {tags_lower}")
+                    
+                # 3. Έλεγχος Λέξεων-Κλειδιών σε ΤΙΤΛΟ, TAGS ΚΑΙ ΠΕΡΙΛΗΨΗ!
                 is_relevant = False
                 for kw in self.valid_keywords:
-                    if kw in title_lower or any(kw in tag for tag in tags_lower):
+                    if kw in title_lower or kw in summary_lower or any(kw in tag for tag in tags_lower):
                         is_relevant = True
                         break 
                 
                 if not is_relevant:
+                    print("   ┗ ❌ Απορρίφθηκε (Άσχετο παιχνίδι/Χωρίς keywords)")
                     continue 
                     
-                # Έλεγχος αν το έχουμε ξαναστείλει
+                # 4. Έλεγχος Βάσης Δεδομένων
                 article_exists = news_col.find_one({"_id": current_link})
                 
                 if article_exists:
+                    print("   ┗ ⏭️ Προσπεράστηκε (Υπάρχει ήδη στη MongoDB)")
                     continue 
                     
                 # --- ΝΕΟ ΑΡΘΡΟ ΒΡΕΘΗΚΕ! ---
+                print("   ┗ ✅ ΕΓΚΡΙΘΗΚΕ! Αποθήκευση και αποστολή...")
                 news_col.insert_one({"_id": current_link, "title": title})
                 
                 channel = self.bot.get_channel(self.news_channel_id)
@@ -98,13 +115,13 @@ class NewsFeed(commands.Cog):
                         content="<:Warhammer_1:1416864475520438302> **Incoming Transmission!**", 
                         embed=embed
                     )
-                    print(f"✅ [News Radar] Νέο άρθρο στάλθηκε: {title}")
                     
-                    await asyncio.sleep(2)
+                await asyncio.sleep(2)
+                
+            print("--- 🏁 ΤΕΛΟΣ ΣΑΡΩΣΗΣ ---\n")
                     
         except Exception as e:
-            # Αν κάτι πάει στραβά, το τυπώνει στα logs αλλά Η ΛΟΥΠΑ ΣΥΝΕΧΙΖΕΙ να ζει!
-            print(f"❌ [News Radar] Σφάλμα κατά τον έλεγχο (Η λούπα επέζησε): {e}")
+            print(f"❌ [News Radar] Σφάλμα κατά τον έλεγχο: {e}")
 
     @check_news.before_loop
     async def before_check_news(self):
