@@ -25,6 +25,7 @@ class NewsFeed(commands.Cog):
             "aos", "age of sigmar", "kill team", "warhammer", "old world", "horus heresy"
         ]
         
+    async def cog_load(self):
         self.check_news.start()
 
     def cog_unload(self):
