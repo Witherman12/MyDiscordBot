@@ -62,16 +62,22 @@ intents.guilds = True
 
 bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
-# Φόρτωση των εξωτερικών αρχείων (Cogs)
-@bot.event
-async def setup_hook():
-    await bot.load_extension("cogs.fun")
-    print("✅ Το αρχείο Fun φορτώθηκε με επιτυχία!")
-    
-    await bot.load_extension("cogs.news")
-    print("✅ Το αρχείο News (RSS) φορτώθηκε με επιτυχία!")
+# ==========================================
+# ΦΟΡΤΩΣΗ ΤΩΝ COGS
+async def load_all_cogs():
+    try:
+        await bot.load_extension("cogs.fun")
+        print("✅ Το cogs.fun φορτώθηκε!")
+    except Exception as e:
+        print(f"❌ Σφάλμα στο fun: {e}")
+        
+    try:
+        await bot.load_extension("cogs.news")
+        print("✅ Το cogs.news φορτώθηκε!")
+    except Exception as e:
+        print(f"❌ Σφάλμα στο news: {e}")
 
-glorious_count = 0
+bot.setup_hook = load_all_cogs
 
 
 # ==========================================
