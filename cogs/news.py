@@ -39,16 +39,16 @@ class NewsFeed(commands.Cog):
         self.check_news.cancel()
 
 @tasks.loop(minutes=30)
-    async def check_news(self):
-        try:
-            # CACHE BUSTING
-            busted_url = f"{self.feed_url}?nocache={int(time.time())}"
-            
-            feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
-            
-            if not feed.entries:
-                print("⚠️ [News Radar] Δεν βρέθηκαν άρθρα στο feed αυτή τη στιγμή. Ίσως το site μπλόκαρε το request.")
-                return
+ async def check_news(self):
+    try:
+        # CACHE BUSTING
+        busted_url = f"{self.feed_url}?nocache={int(time.time())}"
+                
+        feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
+                
+        if not feed.entries:
+            print("⚠️ [News Radar] Δεν βρέθηκαν άρθρα στο feed αυτή τη στιγμή. Ίσως το site μπλόκαρε το request.")
+            return
 
             recent_entries = reversed(feed.entries[:20])
             
@@ -120,12 +120,12 @@ class NewsFeed(commands.Cog):
                 
             print("--- 🏁 ΤΕΛΟΣ ΣΑΡΩΣΗΣ ---\n")
                     
-        except Exception as e:
-            print(f"❌ [News Radar] Σφάλμα κατά τον έλεγχο: {e}")
-
-    @check_news.before_loop
-    async def before_check_news(self):
-        await self.bot.wait_until_ready()
+    except Exception as e:
+        print(f"❌ [News Radar] Σφάλμα κατά τον έλεγχο: {e}")
+            
+@check_news.before_loop
+async def before_check_news(self):
+    await self.bot.wait_until_ready()
 
 async def setup(bot):
     await bot.add_cog(NewsFeed(bot))
