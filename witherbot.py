@@ -92,7 +92,6 @@ def load_count():
         return doc.get("count", 0)
     return None
 
-
 # ==========================================
 # 4. EVENTS (ON READY & ON MESSAGE)
 # ==========================================
@@ -100,10 +99,6 @@ def load_count():
 async def on_ready():
     global glorious_count
     print(f'Logged in as {bot.user.name}')
-    
-    # Ελέγχει αν τρέχει ήδη η λούπα για να μην κρασάρει σε τυχόν reconnect του Discord
-    if not check_warhammer_news.is_running():
-        check_warhammer_news.start()
     
     guild = bot.get_guild(TARGET_GUILD_ID)
     if guild is None:
