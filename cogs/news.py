@@ -1,11 +1,3 @@
-"""
-========================================
-ΑΡΧΕΙΟ: news.py (Cogs)
-ΠΕΡΙΓΡΑΦΗ: Ελέγχει το RSS Feed του Tabletop Battles.
-           Έχει Anti-Crash προστασία και Cache-Buster.
-========================================
-"""
-
 import discord
 from discord.ext import commands, tasks
 import feedparser
@@ -13,7 +5,7 @@ import asyncio
 import pymongo
 import certifi
 import os
-import time 
+import time
 
 # Σύνδεση με τη βάση
 MONGO_URI = os.environ.get("MONGODB_URI")
@@ -24,12 +16,12 @@ news_col = db["News"]
 class NewsFeed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.news_channel_id = 1416856517231116510  
+        self.news_channel_id = 850011185314267177  
         self.feed_url = "https://www.tabletopbattles.com/feed/"
         self.browser_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
         
         self.valid_keywords = [
-            "40k", "40K", "warhammer 40k", "warhammer 40000", "warhammer 40,000",
+            "40k", "warhammer 40k", "warhammer 40000", "warhammer 40,000",
             "aos", "age of sigmar", "kill team", "warhammer", "old world", "horus heresy"
         ]
         
@@ -38,17 +30,17 @@ class NewsFeed(commands.Cog):
     def cog_unload(self):
         self.check_news.cancel()
 
-@tasks.loop(minutes=30)
- async def check_news(self):
-    try:
-        # CACHE BUSTING
-        busted_url = f"{self.feed_url}?nocache={int(time.time())}"
-                
-        feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
-                
-        if not feed.entries:
-            print("⚠️ [News Radar] Δεν βρέθηκαν άρθρα στο feed αυτή τη στιγμή. Ίσως το site μπλόκαρε το request.")
-            return
+    @tasks.loop(minutes=30)
+    async def check_news(self):
+        try:
+            # CACHE BUSTING
+            busted_url = f"{self.feed_url}?nocache={int(time.time())}"
+            
+            feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
+            
+            if not feed.entries:
+                print("⚠️ [News Radar] Δεν βρέθηκαν άρθρα στο feed αυτή τη στιγμή. Ίσως το site μπλόκαρε το request.")
+                return
 
             recent_entries = reversed(feed.entries[:20])
             
@@ -75,7 +67,7 @@ class NewsFeed(commands.Cog):
                 print(f"🔎 Ελέγχω: '{title}'")
                 print(f"   ┣ Tags: {tags_lower}")
                     
-                # 3. Έλεγχος Λέξεων-Κλειδιών σε ΤΙΤΛΟ, TAGS ΚΑΙ ΠΕΡΙΛΗΨΗ!
+                # 3. Έλεγχος Λέξεων-Κλειδιών σε ΤΙΤΛΟ, TAGS ΚΑΙ ΠΕΡΙΛΗΨΗ
                 is_relevant = False
                 for kw in self.valid_keywords:
                     if kw in title_lower or kw in summary_lower or any(kw in tag for tag in tags_lower):
@@ -115,17 +107,16 @@ class NewsFeed(commands.Cog):
                         content="<:Warhammer_1:1416864475520438302> **Incoming Transmission!**", 
                         embed=embed
                     )
+                    print(f"✅ [News Radar] Νέο άρθρο στάλθηκε: {title}")
                     
-                await asyncio.sleep(2)
-                
-            print("--- 🏁 ΤΕΛΟΣ ΣΑΡΩΣΗΣ ---\n")
+                    await asyncio.sleep(2)
                     
-    except Exception as e:
-        print(f"❌ [News Radar] Σφάλμα κατά τον έλεγχο: {e}")
-            
-@check_news.before_loop
-async def before_check_news(self):
-    await self.bot.wait_until_ready()
+        except Exception as e:
+            print(f"❌ [News Radar] Σφάλμα κατά τον έλεγχο (Η λούπα επέζησε): {e}")
+
+    @check_news.before_loop
+    async def before_check_news(self):
+        await self.bot.wait_until_ready()
 
 async def setup(bot):
     await bot.add_cog(NewsFeed(bot))
