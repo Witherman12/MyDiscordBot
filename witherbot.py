@@ -1,18 +1,3 @@
-"""
-========================================
-ΑΡΧΕΙΟ: witherbot.py (Main)
-ΠΕΡΙΓΡΑΦΗ: Το κεντρικό αρχείο του bot. Διαχειρίζεται τη σύνδεση με το Discord, 
-           τη ΒΔ (MongoDB), τα events μηνυμάτων και τα στατιστικά.
-           
-ΠΕΡΙΕΧΟΜΕΝΑ / ΕΝΤΟΛΕΣ:
- - on_message : Ακούει για auto-replies (glorious phrase, tags, Waaagh, Nurgle, Mods, Heresy, Charge, Femboy, Sun).
- - !glorious  : Δείχνει πόσες φορές έχει ειπωθεί η μυστική φράση.
- - !report    : Καταγράφει το αποτέλεσμα μιας μάχης στη βάση (Νίκη/Ήττα ή Ισοπαλία).
- - !stats     : Εμφανίζει το Win Rate και το ιστορικό ενός Faction.
- - !top       : Εμφανίζει το Leaderboard με τα 5 καλύτερα Factions.
-========================================
-"""
-
 import discord
 from discord.ext import commands
 import pymongo
@@ -45,7 +30,6 @@ def run_dummy_server():
 
 threading.Thread(target=run_dummy_server, daemon=True).start()
 
-
 # ==========================================
 # 2. ΡΥΘΜΙΣΕΙΣ & ΠΑΡΑΜΕΤΡΟΙ DISCORD
 # ==========================================
@@ -60,12 +44,31 @@ intents.message_content = True
 intents.messages = True
 intents.guilds = True
 
-bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
+# --- Ο ΕΠΙΣΗΜΟΣ ΤΡΟΠΟΣ ΦΟΡΤΩΣΗΣ (Discord.py v2.0+) ---
+class WitherBot(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix='!', intents=intents, help_command=None)
+
+    async def setup_hook(self):
+        print("⏳ Ξεκινάει η φόρτωση των Cogs...", flush=True)
+        try:
+            await self.load_extension("cogs.fun")
+            print("✅ Το cogs.fun φορτώθηκε!", flush=True)
+        except Exception as e:
+            print(f"❌ Σφάλμα στο fun: {e}", flush=True)
+            
+        try:
+            await self.load_extension("cogs.news")
+            print("✅ Το cogs.news φορτώθηκε!", flush=True)
+        except Exception as e:
+            print(f"❌ Σφάλμα στο news: {e}", flush=True)
+
+bot = WitherBot()
 
 # ==========================================
 # 3. ΣΥΝΔΕΣΗ ΜΕ ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ (MONGODB)
 # ==========================================
-print("Σύνδεση με τη βάση δεδομένων...")
+print("Σύνδεση με τη βάση δεδομένων...", flush=True)
 client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where(), tlsAllowInvalidCertificates=True)
 db = client["GloriousDatabase"]
 collection = db["Counters"]
@@ -86,94 +89,66 @@ def load_count():
 @bot.event
 async def on_ready():
     global glorious_count
-    print(f'Logged in as {bot.user.name}')
+    print(f'Logged in as {bot.user.name}', flush=True)
     
-    # ΦΟΡΤΩΣΗ Cogs ΟΤΑΝ ΤΟ BOT ΕΙΝΑΙ ΕΤΟΙΜΟ
-    try:
-        await bot.load_extension("cogs.fun")
-        print("✅ Το cogs.fun φορτώθηκε!")
-    except Exception as e:
-        print(f"❌ Σφάλμα στο fun: {e}")
-        
-    try:
-        await bot.load_extension("cogs.news")
-        print("✅ Το cogs.news φορτώθηκε!")
-    except Exception as e:
-        print(f"❌ Σφάλμα στο news: {e}")
-
-    # Σύνδεση με τον Server
     guild = bot.get_guild(TARGET_GUILD_ID)
     if guild is None:
-        print("ΣΦΑΛΜΑ: Δεν βρήκα τον Server! Έλεγξε το TARGET_GUILD_ID.")
+        print("ΣΦΑΛΜΑ: Δεν βρήκα τον Server! Έλεγξε το TARGET_GUILD_ID.", flush=True)
         return
 
     saved_count = load_count()
     
     if saved_count is not None:
         glorious_count = saved_count
-        print(f"Το σκορ βρέθηκε στο MongoDB! Ο μετρητής φορτώθηκε: {glorious_count}")
+        print(f"Το σκορ βρέθηκε στο MongoDB! Ο μετρητής φορτώθηκε: {glorious_count}", flush=True)
     else:
-        print("Δεν βρέθηκε σκορ στη βάση. Ρύθμιση αρχικού σκορ σε 19...")
+        print("Δεν βρέθηκε σκορ στη βάση. Ρύθμιση αρχικού σκορ σε 19...", flush=True)
         glorious_count = 19
         save_count(glorious_count)
-        print("Το 19 αποθηκεύτηκε στο MongoDB με επιτυχία!")
 
 @bot.event
 async def on_message(message):
     global glorious_count
     
-    # [Ασπίδα] Αγνοούμε τα μηνύματα του ίδιου του bot για να αποφύγουμε λούπες (spam)!
     if message.author == bot.user:
         return
 
-    # Αγνοούμε μηνύματα από άλλα bots ή από λάθος server
     if message.author.bot or message.guild.id != TARGET_GUILD_ID:
         return
 
-    # Ορίζουμε το μήνυμα σε πεζά μια φορά στην αρχή για να το χρησιμοποιούν όλοι οι έλεγχοι
     msg_lower = message.content.lower()
 
-    # [Α] - Έλεγχος για την φράση
     if message.author.id == TARGET_USER_ID and TARGET_PHRASE.lower().strip() in msg_lower:
         glorious_count += 1
         save_count(glorious_count)
-        print(f"Το είπε ξανά! Νέο σύνολο: {glorious_count} (Σώθηκε στο MongoDB)")
+        print(f"Το είπε ξανά! Νέο σύνολο: {glorious_count} (Σώθηκε στο MongoDB)", flush=True)
 
-    # [Β] - Έλεγχος για Tag και Χαιρετισμό
     if bot.user in message.mentions:
         greetings = ["hi", "hello", "γεια", "γειά", "hello there"]
         if any(word in msg_lower for word in greetings):
             await message.channel.send("Imperial greetings! The Emperor protects.") 
             
-    # [Γ] - Έλεγχος για το WAAAGH (Δυναμικό μέγεθος)
     if re.search(r'wa+gh', msg_lower):
-        # Δημιουργεί τυχαίο αριθμό από Α (από 7 έως 21)
         a_count = random.randint(7, 21)
         waaagh_text = f"# W{'A' * a_count}GH! <:Waaagh:1432414641123885257>"
         await message.channel.send(waaagh_text) 
         
-    # [Δ] - Έλεγχος για τον Nurgle (Reaction με σαπούνι)
     if "nurgle" in msg_lower:
         try:
             await message.add_reaction("🧼")
-        except discord.errors.Forbidden:
-            print("Δεν έχω άδεια για να βάλω reaction (add_reactions permission).")
-        except discord.errors.NotFound:
-            print("Δεν βρέθηκε το emoji.")
+        except:
+            pass
             
-    # [Ε] - Έλεγχος για Mod/Mods
     if re.search(r'\b(mod|mods)\b', msg_lower):
         MOD_ROLE_ID = 802082482320703489  
         await message.reply(f"🚨 <@&{MOD_ROLE_ID}>!")
 
-    # [Ζ] - Έλεγχος για Heresy (Reaction με μάτι)
     if re.search(r'\b(heresy|heretic|heretics)\b', msg_lower):
         try:
             await message.add_reaction("👁️")
         except:
             pass
 
-    # [Η] - Charge (50% GIF, 50% Emoji)
     if re.search(r'\b(charge|charges|charged)\b', msg_lower):
         if random.randint(1, 2) == 1:
             await message.reply("https://tenor.com/view/orc-boyz-total-war-warhammer-greenskins-charge-warhammer-total-war-gif-19312099")
@@ -183,36 +158,26 @@ async def on_message(message):
             except:
                 pass
 
-    # [Θ] - Femboy
     if re.search(r'\b(femboy|femboys)\b', msg_lower):
         try:
-            # Emoji React πάντα
             await message.add_reaction("<:scream:829005859727212547>")
-            
-            # 50% πιθανότητα (1 στις 2) να απαντήσει με GIF
             if random.randint(1, 2) == 1:
                 await message.reply("https://tenor.com/view/the-office-no-angry-steve-carell-michael-scott-gif-5606969")
         except:
             pass
             
-    # [Ι] - Cruel Sun (Escanor)
     if re.search(r'\bcruel sun\b', msg_lower):
         await message.reply("https://klipy.com/gifs/seven-deadly-sins-escanor")
             
-    # Απαραίτητο για να συνεχίσουν να δουλεύουν οι !εντολές
     await bot.process_commands(message)
- 
  
 # ==========================================
 # 5. ΕΝΤΟΛΕΣ ΒΑΣΗΣ ΔΕΔΟΜΕΝΩΝ (COMMANDS)
 # ==========================================
-
-# --- ΕΝΤΟΛΗ: glorious ---
 @bot.command()
 async def glorious(ctx):
     await ctx.send(f"Ο <@{TARGET_USER_ID}> έχει πει τη φράση '{TARGET_PHRASE}' {glorious_count} φορές! <:Custode:1439332561468920132>")
 
-# --- ΕΝΤΟΛΗ: report ---
 @bot.command(name="report")
 async def report_match(ctx, *, match_data: str):
     is_tie = False
@@ -244,7 +209,6 @@ async def report_match(ctx, *, match_data: str):
         factions_col.update_one({"name": faction2}, {"$inc": {"losses": 1, "wins": 0, "ties": 0}}, upsert=True)
         await ctx.send(f"🏆 Καταγράφηκε Νίκη για τους **{faction1}** εναντίον των **{faction2}**!")
 
-# --- ΕΝΤΟΛΗ: stats ---
 @bot.command(name="stats")
 async def faction_stats(ctx, *, faction_name: str):
     faction_name = faction_name.strip()
@@ -268,7 +232,6 @@ async def faction_stats(ctx, *, faction_name: str):
         f"Wins: **{wins}** | Losses: **{losses}** | Ties: **{ties}**"
     )
     
-# --- ΕΝΤΟΛΗ: top ---
 @bot.command(name="top")
 async def top_factions(ctx):
     if factions_col.count_documents({}) == 0:
@@ -276,7 +239,6 @@ async def top_factions(ctx):
         return
 
     top_data = factions_col.find().sort("wins", -1).limit(5)
-
     message = "🏆 **Top 5 Factions (Με βάση τις Νίκες)** 🏆\n\n"
     
     for index, data in enumerate(top_data, 1):
@@ -292,6 +254,4 @@ async def top_factions(ctx):
 
     await ctx.send(message)
 
-
-# Εκκίνηση του Bot
 bot.run(TOKEN)
