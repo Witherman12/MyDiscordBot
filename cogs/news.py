@@ -21,8 +21,22 @@ class NewsFeed(commands.Cog):
         self.browser_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
         
         self.valid_keywords = [
+            # Βασικά (Ονόματα Παιχνιδιών)
             "40k", "warhammer 40k", "warhammer 40000", "warhammer 40,000",
-            "aos", "age of sigmar", "kill team", "warhammer", "old world", "horus heresy"
+            "aos", "age of sigmar", "kill team", "warhammer", "old world", "horus heresy",
+            
+            # Στήλες Άρθρων
+            "competitive intel", "competitive innovations", "hammer of math", 
+            "ruleshammer", "how to paint everything", "detachment focus",
+            "black library", "that 6+++ show", "lunchtime show",
+            
+            # Εκδόσεις & Λέξεις-Κλειδιά
+            "11th edition", "11th ed", "in 11th", "launch tier list",
+            
+            # Factions
+            "space marines", "genestealer cults", "ork", "orks", "chaos", 
+            "tyranids", "necron", "necrons", "tau empire", "aeldari", 
+            "drukhari", "adeptus mechanicus", "imperium", "blood axes", "goffs"
         ]
         
     async def cog_load(self):
