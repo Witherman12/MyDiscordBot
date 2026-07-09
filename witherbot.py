@@ -63,24 +63,6 @@ intents.guilds = True
 bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
 # ==========================================
-# ΦΟΡΤΩΣΗ ΤΩΝ COGS
-async def load_all_cogs():
-    try:
-        await bot.load_extension("cogs.fun")
-        print("✅ Το cogs.fun φορτώθηκε!")
-    except Exception as e:
-        print(f"❌ Σφάλμα στο fun: {e}")
-        
-    try:
-        await bot.load_extension("cogs.news")
-        print("✅ Το cogs.news φορτώθηκε!")
-    except Exception as e:
-        print(f"❌ Σφάλμα στο news: {e}")
-
-bot.setup_hook = load_all_cogs
-
-
-# ==========================================
 # 3. ΣΥΝΔΕΣΗ ΜΕ ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ (MONGODB)
 # ==========================================
 print("Σύνδεση με τη βάση δεδομένων...")
@@ -106,6 +88,20 @@ async def on_ready():
     global glorious_count
     print(f'Logged in as {bot.user.name}')
     
+    # ΦΟΡΤΩΣΗ Cogs ΟΤΑΝ ΤΟ BOT ΕΙΝΑΙ ΕΤΟΙΜΟ
+    try:
+        await bot.load_extension("cogs.fun")
+        print("✅ Το cogs.fun φορτώθηκε!")
+    except Exception as e:
+        print(f"❌ Σφάλμα στο fun: {e}")
+        
+    try:
+        await bot.load_extension("cogs.news")
+        print("✅ Το cogs.news φορτώθηκε!")
+    except Exception as e:
+        print(f"❌ Σφάλμα στο news: {e}")
+
+    # Σύνδεση με τον Server
     guild = bot.get_guild(TARGET_GUILD_ID)
     if guild is None:
         print("ΣΦΑΛΜΑ: Δεν βρήκα τον Server! Έλεγξε το TARGET_GUILD_ID.")
