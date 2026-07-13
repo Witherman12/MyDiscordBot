@@ -174,8 +174,8 @@ async def on_message(message):
 # ==========================================
 # 5. ΕΝΤΟΛΕΣ ΒΑΣΗΣ ΔΕΔΟΜΕΝΩΝ (COMMANDS)
 # ==========================================
-@bot.command()
-async def glorious(ctx):
+@bot.command(name="counter")
+async def show_counter(ctx):
     await ctx.send(f"Ο <@{TARGET_USER_ID}> έχει πει τη φράση '{TARGET_PHRASE}' {glorious_count} φορές! <:Custode:1439332561468920132>")
 
 @bot.command(name="report")
