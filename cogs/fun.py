@@ -209,13 +209,13 @@ class FunCommands(commands.Cog):
         embed.add_field(
             name="🏆 `!glorious`", 
             value="Στέλνει το Glorious mp3.", 
-            inline=True
+            inline=False
         )
         # !counter
         embed.add_field(
             name="🔢 `!counter`", 
             value="Δείχνει πόσες φορές έχει ειπωθεί Η Φράση στον server.", 
-            inline=True
+            inline=False
         )
         # !stats
         embed.add_field(
