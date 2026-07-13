@@ -4,11 +4,13 @@
 ΠΕΡΙΓΡΑΦΗ: Διαχειρίζεται τις ψυχαγωγικές και wargaming εντολές του bot.
 ΕΝΤΟΛΕΣ:
  - !help           : Εμφανίζει την λίστα με όλες τις εντολές (Μενού Βοήθειας).
+ - !glorious       : Στέλνει το ηχητικό της Glorious Melee Combat (mp3).
+ - !counter        : Δείχνει το σκορ του Glorious Melee Combat.
  - !roll [αριθμός] : Ρίχνει d6 ζάρια με κρυπτογραφική τυχαιότητα.
  - !quote          : Στέλνει μια τυχαία (χωρίς επανάληψη) ατάκα από το lore του 40k.
  - !overwatch      : Στέλνει το flamer gif από τοπικό αρχείο.
- - !excuse         : Στέλνει μια τυχαία δικαιολγία.
- - !math           : Πιθανότητες ζαριών.
+ - !excuse         : Στέλνει μια τυχαία δικαιολογία.
+ - !math           : Πιθανότητες ζαριών (Mathhammer).
  - !trivia         : Warhammer lore trivia.
  - !void           : Στέλνει κάποιον στο Custodes Void.
  - lore facts      : Lore Facts κάθε μέρα.
@@ -72,9 +74,8 @@ class FunCommands(commands.Cog):
         random.shuffle(self.excuses)
         self.current_excuse_index = 0
         
-# Λίστα με Ερωτήσεις Trivia (50 Ερωτήσεις)
+        # Λίστα με Ερωτήσεις Trivia (50 Ερωτήσεις)
         self.trivia_questions = [
-            # --- ΑΡΧΙΚΕΣ ΕΡΩΤΗΣΕΙΣ ---
             {"q": "Which Primarch broke Leman Russ's back?", "a": ["magnus", "magnus the red"]},
             {"q": "Who was the Warmaster that led the great betrayal against the Emperor?", "a": ["horus", "horus lupercal"]},
             {"q": "Which Chaos God represents disease, decay, and despair?", "a": ["nurgle"]},
@@ -95,7 +96,6 @@ class FunCommands(commands.Cog):
             {"q": "Who is the last Silent King of the Necrons?", "a": ["szarekh", "the silent king", "silent king"]},
             {"q": "Who was the powerful psyker and the Emperor's closest advisor that founded the Inquisition?", "a": ["malcador", "malcador the sigillite"]},
             {"q": "What is the name of the heavily armored planetary defense forces of the Imperium (often called the 'Hammer of the Emperor')?", "a": ["astra militarum", "imperial guard"]},
-            # --- ΝΕΕΣ ΕΡΩΤΗΣΕΙΣ (SPACE MARINES & IMPERIUM) ---
             {"q": "Which Primarch is known as the 'Night Haunter'?", "a": ["konrad curze", "curze"]},
             {"q": "What is the icy homeworld of the Space Wolves chapter?", "a": ["fenris"]},
             {"q": "What is the homeworld of the Ultramarines?", "a": ["macragge"]},
@@ -108,7 +108,6 @@ class FunCommands(commands.Cog):
             {"q": "Who is the Supreme Grand Master of the Grey Knights, trapped wandering the Warp?", "a": ["kaldor draigo", "draigo"]},
             {"q": "What is the ultimate Imperial sanction that completely destroys the biosphere of a corrupted planet?", "a": ["exterminatus"]},
             {"q": "What is the name of the ancient, walking robotic sarcophagi used by mortally wounded Space Marines?", "a": ["dreadnought", "dreadnoughts"]},
-            # --- ΝΕΕΣ ΕΡΩΤΗΣΕΙΣ (CHAOS) ---
             {"q": "Which Chaos God is known as the Architect of Fate and Lord of Sorcery?", "a": ["tzeentch"]},
             {"q": "Which Chaos Space Marine Legion specializes in siege warfare, trenches, and heavy artillery?", "a": ["iron warriors"]},
             {"q": "Which Primarch is famously known as the 'Red Angel'?", "a": ["angron"]},
@@ -116,7 +115,6 @@ class FunCommands(commands.Cog):
             {"q": "What is the name of Nurgle's most famous, soul-corrupting plague?", "a": ["nurgle's rot", "nurgles rot"]},
             {"q": "Which Primarch of the Emperor's Children fell to Slaanesh in his pursuit of perfection?", "a": ["fulgrim"]},
             {"q": "Who is the Khârn the Betrayer's favored Chaos God?", "a": ["khorne"]},
-            # --- ΝΕΕΣ ΕΡΩΤΗΣΕΙΣ (XENOS) ---
             {"q": "Who are the twin gods worshipped by the Orks?", "a": ["gork and mork", "mork and gork"]},
             {"q": "Who is the biggest, most dangerous Ork Warboss currently leading the largest Waaagh! in the galaxy?", "a": ["ghazghkull", "ghazghkull thraka", "ghazghkull mag uruk thraka"]},
             {"q": "What living metal forms the bodies of the Necrons?", "a": ["necrodermis"]},
@@ -210,15 +208,15 @@ class FunCommands(commands.Cog):
         # !glorious
         embed.add_field(
             name="🏆 `!glorious`", 
-            value="Δείχνει πόσες φορές έχει ειπωθεί μία φράση στον server.", 
+            value="Στέλνει το Glorious mp3.", 
             inline=True
         )
-        # !report
-        #embed.add_field(
-        #    name="⚔️ `!report (Pinned Instructions)`", 
-        #    value="Καταγράφει το αποτέλεσμα μιας μάχης στη βάση δεδομένων (Νίκη, Ήττα ή Ισοπαλία).", 
-        #    inline=False
-        #)
+        # !counter
+        embed.add_field(
+            name="🔢 `!counter`", 
+            value="Δείχνει πόσες φορές έχει ειπωθεί Η Φράση στον server.", 
+            inline=True
+        )
         # !stats
         embed.add_field(
             name="📊 `!stats [Faction Emoji]`", 
@@ -267,15 +265,18 @@ class FunCommands(commands.Cog):
             value="Ξεκινάει ένα γρήγορο παιχνίδι Warhammer 40k lore trivia.", 
             inline=False
         )        
-        # !void
-        #embed.add_field(
-        #    name="🌀 `!void @user`", 
-        #    value="Στέλνει έναν χρήστη στο Void για ανανέωση όρκου στους Custodes. *(Απαιτείται ειδική εξουσιοδότηση)*", 
-        #    inline=False
-        #)
 
         embed.set_footer(text=f"Αίτημα από τον {ctx.author.display_name} - The Emperor Protects.")
         await ctx.send(embed=embed)
+
+    # --- ΕΝΤΟΛΗ: GLORIOUS (MP3) ---
+    @commands.command(name="glorious")
+    async def send_glorious_mp3(self, ctx):
+        try:
+            audio_file = discord.File("glorious.mp3")
+            await ctx.send("🎶 **GLORIOUS MELEE COMBAT!**", file=audio_file)
+        except FileNotFoundError:
+            await ctx.send("❌ Error: Το αρχείο `glorious.mp3` δεν βρέθηκε στα αρχεία του bot!")
         
     # --- ΕΝΤΟΛΗ: ΖΑΡΙΑ ---
     @commands.command(name="roll")
