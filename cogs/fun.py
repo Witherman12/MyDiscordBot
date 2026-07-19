@@ -204,7 +204,19 @@ class FunCommands(commands.Cog):
             description="Όλες οι διαθέσιμες εντολές του συστήματος και η λειτουργία τους:",
             color=discord.Color.from_rgb(0, 102, 204)
         )
-   
+        
+        # !rank
+        embed.add_field(
+            name="📜 `!rank [@user]`", 
+            value="Εμφανίζει το Level & XP σου ή ενός άλλου παίκτη.", 
+            inline=False
+        )        
+        # !toprank
+        embed.add_field(
+            name="🏆 `!toprank`", 
+            value="Εμφανίζει το Leaderboard με τους 9 καλύτερους βετεράνους του server.", 
+            inline=False
+        )
         # !glorious
         embed.add_field(
             name="🏆 `!glorious`", 
