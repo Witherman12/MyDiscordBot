@@ -62,6 +62,12 @@ class WitherBot(commands.Bot):
             print("✅ Το cogs.news φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο news: {e}", flush=True)
+            
+        try:
+            await self.load_extension("cogs.levels")
+            print("✅ Το cogs.levels φορτώθηκε!", flush=True)
+        except Exception as e:
+            print(f"❌ Σφάλμα στο levels: {e}", flush=True)
 
 bot = WitherBot()
 
