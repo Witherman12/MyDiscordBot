@@ -24,7 +24,7 @@ class LevelSystem(commands.Cog):
         self.bot = bot
         self.cooldowns = {}
         
-        self.announce_channel_id = 850011185314267177 
+        self.announce_channel_id = 801814186434756610 
 
     def get_xp_for_level(self, level):
         # Βασική RPG φόρμουλα για το πόσο XP χρειάζεται το επόμενο level
@@ -39,14 +39,14 @@ class LevelSystem(commands.Cog):
         user_id = str(message.author.id)
         current_time = time.time()
 
-        # 1. Έλεγχος Cooldown (Δίνει XP μόνο 1 φορά κάθε 60 δευτερόλεπτα)
-        if user_id in self.cooldowns and current_time - self.cooldowns[user_id] < 60:
+        # 1. Έλεγχος Cooldown (Δίνει XP μόνο 1 φορά κάθε 59 δευτερόλεπτα)
+        if user_id in self.cooldowns and current_time - self.cooldowns[user_id] < 59:
             return
 
         self.cooldowns[user_id] = current_time
 
-        # 2. Υπολογισμός XP (Από 15 έως 25 XP ανά μήνυμα)
-        xp_gained = random.randint(15, 25)
+        # 2. Υπολογισμός XP (Από 20 έως 30 XP ανά μήνυμα)
+        xp_gained = random.randint(20, 30)
 
         # 3. Φόρτωση δεδομένων από MongoDB
         user_data = levels_col.find_one({"_id": user_id})
@@ -78,7 +78,7 @@ class LevelSystem(commands.Cog):
             channel = self.bot.get_channel(self.announce_channel_id)
             if channel:
                 await channel.send(
-                    f"🎉 Glorious news! <@{user_id}> has fought bravely and reached **Level {current_level}**! The Emperor smiles upon them."
+                    f"<:Upvote:1461299234656616581> **Glorious news!** <@{user_id}> has fought bravely and reached **Level {current_level}**! The Emperor smiles upon them. <:Warhammer_1:1416864475520438302>"
                 )
 
     # --- ΕΝΤΟΛΗ: RANK ---

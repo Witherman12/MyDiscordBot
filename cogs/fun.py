@@ -437,7 +437,7 @@ class FunCommands(commands.Cog):
             await ctx.send("❌ Error: Δεν βρέθηκε το Void Thread! Έλεγξε το ID.")
             return
 
-        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** καταδικάζεται σε 10sec με τους Custodes...<:Custode:1439332561468920132>")
+        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** καταδικάζεται σε 12sec με τους Custodes...<:Custode:1439332561468920132>")
 
         try:
             await thread.add_user(target)
@@ -451,7 +451,7 @@ class FunCommands(commands.Cog):
             
             for gif in custodes_gifs:
                 await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ**[!]({gif}) <:Hammer:1416864558869516423>\n")
-                await asyncio.sleep(2.5) 
+                await asyncio.sleep(3) 
                 
             await asyncio.sleep(3.0)
                 
