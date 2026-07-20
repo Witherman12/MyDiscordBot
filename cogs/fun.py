@@ -254,11 +254,12 @@ class FunCommands(commands.Cog):
         embed.set_footer(text=f"Αίτημα από τον {ctx.author.display_name} - The Emperor Protects.")
         await ctx.send(embed=embed)
 
-
     # --- ΕΝΤΟΛΗ: ADMIN HELP ---
     @commands.command(name="adminhelp")
-    @commands.has_permissions(administrator=True)
-    commands.has_any_role("E.K.D.")
+    @commands.check_any(
+        commands.has_permissions(administrator=True),
+        commands.has_any_role("E.K.D.")
+    )
     async def admin_help(self, ctx):
         embed = discord.Embed(
             title="🛑 **Inquisitorial Vault (Admin Commands)**",
@@ -292,7 +293,7 @@ class FunCommands(commands.Cog):
     # --- ERROR HANDLER ΓΙΑ ΤΟ ADMIN HELP ---
     @admin_help.error
     async def admin_help_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
+        if isinstance(error, commands.CheckAnyFailure) or isinstance(error, commands.MissingPermissions):
             await ctx.send("⛔ **HERESY DETECTED!** Δεν έχεις το Inquisitorial Clearance για αυτή την εντολή.")
 
     # --- ΕΝΤΟΛΗ: GLORIOUS (MP3) ---
