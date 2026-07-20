@@ -4,6 +4,7 @@
 ΠΕΡΙΓΡΑΦΗ: Διαχειρίζεται τις ψυχαγωγικές και wargaming εντολές του bot.
 ΕΝΤΟΛΕΣ:
  - !help           : Εμφανίζει την λίστα με όλες τις εντολές (Μενού Βοήθειας).
+ - !adminhelp
  - !glorious       : Στέλνει το ηχητικό της Glorious Melee Combat (mp3).
  - !counter        : Δείχνει το σκορ του Glorious Melee Combat.
  - !roll [αριθμός] : Ρίχνει d6 ζάρια με κρυπτογραφική τυχαιότητα.
@@ -257,6 +258,7 @@ class FunCommands(commands.Cog):
     # --- ΕΝΤΟΛΗ: ADMIN HELP ---
     @commands.command(name="adminhelp")
     @commands.has_permissions(administrator=True)
+    commands.has_any_role("E.K.D.")
     async def admin_help(self, ctx):
         embed = discord.Embed(
             title="🛑 **Inquisitorial Vault (Admin Commands)**",
@@ -282,7 +284,7 @@ class FunCommands(commands.Cog):
             inline=False
         )
 
-        embed.set_thumbnail(url="https://discord.com/channels/801753238662676500/850011185314267177/1528865758560391279")
+        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/850011185314267177/1528866771438931968/ilviymd6q1xe1.jpg?ex=6a5fdba3&is=6a5e8a23&hm=a746ff54b008d6871af13ad636f1dd3f99cdd2e5ecd2ce77b2761b7c2e8f6e91&")
         embed.set_footer(text=f"Inquisitor {ctx.author.display_name}, authorization accepted.")
         
         await ctx.send(embed=embed)
