@@ -196,90 +196,102 @@ class FunCommands(commands.Cog):
     def cog_unload(self):
         self.daily_lore.cancel()
 
-    # --- ΕΝΤΟΛΗ: HELP ---
+# --- ΕΝΤΟΛΗ: HELP ---
     @commands.command(name="help")
     async def custom_help(self, ctx):
         embed = discord.Embed(
             title="📜 **Αρχείο Εντολών (Help)**",
-            description="Όλες οι διαθέσιμες εντολές του συστήματος και η λειτουργία τους:",
+            description="Όλες οι διαθέσιμες εντολές του συστήματος και η λειτουργία τους::",
             color=discord.Color.from_rgb(0, 102, 204)
         )
-        
-        # !rank
+
+        # Κατηγορία 1: Leveling & XP
         embed.add_field(
-            name="📜 `!rank [@user]`", 
-            value="Εμφανίζει το Level & XP σου ή ενός άλλου παίκτη.", 
-            inline=False
-        )        
-        # !toprank
-        embed.add_field(
-            name="🏆 `!toprank`", 
-            value="Εμφανίζει το Leaderboard με τους 9 καλύτερους βετεράνους του server.", 
+            name="📊 **Στατιστικά & Εμπειρία**",
+            value=(
+                "**`!rank [@user]`** - Εμφανίζει το Level & XP σου ή ενός άλλου παίκτη.\n"
+                "**`!toprank`** - Το Leaderboard με τους 9 καλύτερους βετεράνους.\n"
+                "**`!pray`**0 - Ημερήσια προσευχή για bonus XP."
+            ),
             inline=False
         )
-        # !glorious
+
+        # Κατηγορία 2: Tabletop & Match Tracking
         embed.add_field(
-            name="🏆 `!glorious`", 
-            value="Στέλνει το Glorious mp3.", 
+            name="⚔️ **Καταγραφή Μαχών & Factions**",
+            value=(
+                "**`!stats [Faction]`** - Win Rate & ιστορικό αγώνων ενός Faction.\n"
+                "**`!top`** - Leaderboard με τα 5 καλύτερα Factions του server."
+            ),
             inline=False
         )
-        # !counter
+
+        # Κατηγορία 3: Βοηθήματα 40k
         embed.add_field(
-            name="🔢 `!counter`", 
-            value="Δείχνει πόσες φορές έχει ειπωθεί Η Φράση στον server.", 
+            name="🎲 **Warhammer 40k Εργαλεία**",
+            value=(
+                "**`!math [A] [BS] [S] [T]`** - Υπολογίζει τις πιθανότητες στο Mathhammer.\n"
+                "**`!quote`** - Στέλνει μια τυχαία ατάκα από το lore του 40k.\n"
+                "**`!trivia`** - Ξεκινάει ένα γρήγορο παιχνίδι 40k lore trivia."
+            ),
             inline=False
         )
-        # !stats
+
+        # Κατηγορία 4: Fun & Memes
         embed.add_field(
-            name="📊 `!stats [Faction Emoji]`", 
-            value="Εμφανίζει το Win Rate και το ιστορικό αγώνων ενός Faction.", 
+            name="🤡 **Fun & Διάφορα**",
+            value=(
+                "**`!glorious`** - Στέλνει το Glorious MP3.\n"
+                "**`!counter`** - Δείχνει πόσες φορές έχει ειπωθεί Η Φράση.\n"
+                "**`!roll [αριθμός]`** - Ρίχνει ζάρια. Ιδανικό για να λύνετε διαφορές.\n"
+                "**`!overwatch`** - Όταν τα λόγια δεν αρκούν, το bot φέρνει Flamers.\n"
+                "**`!excuse`** - Το bot σου δίνει την τέλεια δικαιολογία."
+            ),
             inline=False
-        )  
-        # !top
-        embed.add_field(
-            name="🏅 `!top`", 
-            value="Εμφανίζει το Leaderboard με τα 5 καλύτερα Factions του server.", 
-            inline=False
-        )    
-        # !roll
-        embed.add_field(
-            name="🎲 `!roll [αριθμός]`", 
-            value="Ρίχνει ζάρια. Ιδανικό για να λύνετε τις διαφορές σας.", 
-            inline=False
-        )    
-        # !quote
-        embed.add_field(
-            name="📖 `!quote`", 
-            value="Στέλνει μια τυχαία ατάκα από το lore του 40k.", 
-            inline=False
-        )     
-        # !overwatch
-        embed.add_field(
-            name="🔥 `!overwatch`", 
-            value="Όταν τα λόγια δεν αρκούν, το bot επιστρατεύει τα Heavy Flamers.", 
-            inline=False
-        )     
-        # !excuse
-        embed.add_field(
-            name="🤡 `!excuse`", 
-            value="Το bot σου δίνει την τέλεια δικαιολογία.", 
-            inline=False
-        )        
-        # !math
-        embed.add_field(
-            name="🧮 `!math [A] [BS/WS] [S] [T]`", 
-            value="Υπολογίζει τις πιθανότητες στο Mathhammer (Expected Hits/Wounds).", 
-            inline=False
-        )  
-        # !trivia
-        embed.add_field(
-            name="🧠 `!trivia`", 
-            value="Ξεκινάει ένα γρήγορο παιχνίδι Warhammer 40k lore trivia.", 
-            inline=False
-        )        
+        )
 
         embed.set_footer(text=f"Αίτημα από τον {ctx.author.display_name} - The Emperor Protects.")
         await ctx.send(embed=embed)
+
+
+    # --- ΕΝΤΟΛΗ: ADMIN HELP ---
+    @commands.command(name="adminhelp")
+    @commands.has_permissions(administrator=True)
+    async def admin_help(self, ctx):
+        embed = discord.Embed(
+            title="🛑 **Inquisitorial Vault (Admin Commands)**",
+            description="Εντολές αυστηρά περιορισμένες για το High Command του Server.",
+            color=discord.Color.dark_red()
+        )
+
+        embed.add_field(
+            name="⚙️ **Σύστημα & Δεδομένα**",
+            value=(
+                "**`!setlevel [@user] [level]`** - Ορίζει χειροκίνητα το Level κάποιου παίκτη.\n"
+                "**`!report [FactionA] vs [FactionB]`** - Καταγράφει το αποτέλεσμα μιας μάχης στη ΒΔ."
+            ),
+            inline=False
+        )
+
+        embed.add_field(
+            name="🔨 **Moderation & Ποινές**",
+            value=(
+                "**`!void [@user]`** - Στέλνει τον χρήστη στο Void.\n"
+                "*Soon*"
+            ),
+            inline=False
+        )
+
+        embed.set_thumbnail(url="https://discord.com/channels/801753238662676500/850011185314267177/1528865758560391279")
+        embed.set_footer(text=f"Inquisitor {ctx.author.display_name}, authorization accepted.")
+        
+        await ctx.send(embed=embed)
+
+    # --- ERROR HANDLER ΓΙΑ ΤΟ ADMIN HELP ---
+    @admin_help.error
+    async def admin_help_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("⛔ **HERESY DETECTED!** Δεν έχεις το Inquisitorial Clearance για αυτή την εντολή.")
 
     # --- ΕΝΤΟΛΗ: GLORIOUS (MP3) ---
     @commands.command(name="glorious")

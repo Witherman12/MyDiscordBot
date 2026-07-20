@@ -80,7 +80,66 @@ class LevelSystem(commands.Cog):
                 await channel.send(
                     f"<:Upvote:1461299234656616581> **Glorious news!** <@{user_id}> has fought bravely and reached **Level {current_level}**! The Emperor smiles upon them. <:Warhammer_1:1416864475520438302>"
                 )
+    # --- ΕΝΤΟΛΗ: DAILY ---
+    @commands.command(name="pray")
+    async def daily_reward(self, ctx):
+        user_id = str(ctx.author.id)
+        current_time = time.time()
+        
+        # Φόρτωση δεδομένων χρήστη
+        user_data = levels_col.find_one({"_id": user_id})
+        if not user_data:
+            user_data = {"_id": user_id, "xp": 0, "level": 0}
+            
+        # Έλεγχος 24ώρου (86400 δευτερόλεπτα)
+        last_daily = user_data.get("last_daily", 0)
+        cooldown = 86400
+        
+        if current_time - last_daily < cooldown:
+            next_available = int(last_daily + cooldown)
+            await ctx.send(f"⏳ You have already received your daily blessing! You can pray again <t:{next_available}:R>.")
+            return
+            
+        # Υπολογισμός ανταμοιβής (100 - 200 XP)
+        xp_gained = random.randint(100, 250)
+        new_xp = user_data["xp"] + xp_gained
+        current_level = user_data["level"]
+        
+        # Έλεγχος για Level Up!
+        xp_needed = self.get_xp_for_level(current_level)
+        leveled_up = False
 
+        while new_xp >= xp_needed:
+            current_level += 1
+            new_xp -= xp_needed
+            xp_needed = self.get_xp_for_level(current_level)
+            leveled_up = True
+            
+        # Ενημέρωση της Βάσης
+        levels_col.update_one(
+            {"_id": user_id}, 
+            {"$set": {"xp": new_xp, "level": current_level, "last_daily": current_time}}, 
+            upsert=True
+        )
+        
+        blessings = [
+            f"🙏 The Emperor has heard your prayer! Your absolute devotion is rewarded with **+{xp_gained} XP**.",
+            f"⚙️ The Omnissiah blesses your weapons. You received **+{xp_gained} XP** from the Machine Spirits.",
+            f"<:Waaagh:1432414641123885257> WAAAGH! Da Boyz are impressed by your krumpin'. You looted **+{xp_gained} XP**!",
+            f"🐟 For the Greater Good! Your tactical brilliance on the battlefield earned you **+{xp_gained} XP**.",
+            f"<:Custode:1439332561468920132> You stand resolute, a golden guardian of Terra. The Captain-General awards you **+{xp_gained} XP**."
+        ]
+        
+        await ctx.send(f"{random.choice(blessings)}\n-# *(Combat XP: {new_xp}/{xp_needed})*")
+        
+        # Αν τυχαίνει το daily να τον ανεβάσει level κάνουμε και την ανακοίνωση
+        if leveled_up:
+            channel = self.bot.get_channel(self.announce_channel_id)
+            if channel:
+                await channel.send(
+                    f"<:Upvote:1461299234656616581> **Glorious news!** <@{user_id}> has fought bravely and reached **Level {current_level}**! The Emperor smiles upon them. <:Warhammer_1:1416864475520438302>"
+                )
+                
     # --- ΕΝΤΟΛΗ: RANK ---
     @commands.command(name="rank")
     async def check_rank(self, ctx, member: discord.Member = None):
