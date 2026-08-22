@@ -131,68 +131,105 @@ class FunCommands(commands.Cog):
         random.shuffle(self.trivia_questions)
         self.current_trivia_index = 0
         
-        # Λίστα με Lore Facts (50 Facts)
-        self.lore_facts = [
-            "The Emperor of Mankind has been sitting on the Golden Throne for 10,000 years. To keep the Astronomican burning and guide Imperial ships through the Warp, 1,000 psykers must be sacrificed to him every single day.",
-            "Ork technology is effectively junk, but it works largely because they collectively believe it should work. This latent gestalt psychic field is known as the 'Waaagh!'.",
-            "The Tyranid Hive Mind doesn't just consume biomass; its sheer presence creates a 'Shadow in the Warp,' a psychic static that drives psykers mad and cuts off entire star systems from astropathic communication and travel.",
-            "A standard Adeptus Astartes (Space Marine) is implanted with 19 additional genetically engineered organs, including a second heart, a third lung, and an organ that allows them to spit blinding acid.",
-            "During the 13th Black Crusade, the planet of Cadia was completely shattered by Abaddon. However, its Imperial Guard defenders fought so fiercely that the famous saying was born: 'The planet broke before the Guard did.'",
-            "The terrifying Necrons were once a flesh-and-blood race called the Necrontyr. Desperate for immortality and victory in war, they traded their souls to the C'tan (Star Gods), becoming soulless machines of living metal.",
-            "The Adeptus Mechanicus views technological innovation as a strict heresy. They believe all worthwhile knowledge was already discovered in the dark age of technology and merely needs to be recovered, not invented.",
-            "Commorragh, the Dark City of the Drukhari (Dark Eldar), is not a planet. It is a massive, impossibly complex realm hidden deep within the Webway, powered by stolen suns and feeding on the pain of millions of slaves.",
-            "The Grey Knights are a highly secretive chapter of Space Marines specifically tasked with hunting Daemons. Every single member is a powerful psyker, and their existence is a secret kept even from the rest of the Imperium.",
-            "The Alpha Legion's Primarch, Alpharius, supposedly had an identical twin brother named Omegon. To this day, due to their masterful use of deception and espionage, no one truly knows whose side they are on.",
-            "Space Marines do not need to sleep like normal humans. Thanks to the Catalepsean Node implant, they can shut down half of their brain at a time, allowing them to remain awake and alert for weeks.",
-            "The birth of Slaanesh, the Chaos God of Excess, created a massive tear in reality known as the Eye of Terror and instantly wiped out trillions of Aeldari, causing the fall of their ancient empire.",
-            "When a Space Marine is mortally wounded but still draws breath, they can be entombed inside a Dreadnought. This heavily armored walking sarcophagus allows them to continue fighting for the Imperium for millennia.",
-            "The Imperium's ultimate sanction is the 'Exterminatus'. When a planet is deemed lost to Chaos or Tyranids, the Inquisition will order the complete atmospheric and biological destruction of the entire world.",
-            "The Sisters of Battle (Adepta Sororitas) were created due to a legal loophole. The Ecclesiarchy was forbidden by Imperial law from holding 'men under arms,' so they bypassed this by creating an entirely female holy army.",
-            "Individuals known as 'Blanks' or 'Pariahs' are born completely without a soul. They emit an aura of negative psychic energy that causes extreme nausea to normal humans and can completely sever a psyker's connection to the Warp.",
-            "The Leman Russ battle tank is so robustly designed that its engine can run on almost any combustible liquid, including promethium, crude oil, high-octane rocket fuel, or even crushed organic matter.",
-            "Genestealer Cults spend generations secretly infecting a planet's population and infiltrating its governments. They believe they are preparing for the arrival of 'Star Saviors', only to be eagerly consumed by the Tyranid Hive Fleet they attracted.",
-            "Unlike Space Marines who share the gene-seed of their Primarch, every single member of the Adeptus Custodes is genetically handcrafted on a cellular level by the Emperor's own ancient bio-alchemy.",
-            "Khorne, the Chaos God of Blood and War, does not care whose blood is spilled, only that it flows. His followers will happily slaughter each other in his name if there are no enemies left to fight.",
-            "The Warp is a mirror dimension formed by the collective emotions and thoughts of all sentient beings. Every act of rage, hope, despair, and excess in the real world directly feeds the entities of the Immaterium.",
-            "Grandfather Nurgle, the Chaos God of Disease, genuinely loves his followers. He doesn't see his plagues as curses, but as 'gifts' of life, and his daemons are almost always joyful and affectionate.",
-            "Imperial Titans are god-machines that stand hundreds of feet tall and carry weapons capable of leveling cities. They are piloted by a 'Princeps' who must constantly battle the machine's aggressive 'Machine Spirit' for control.",
-            "The Inquisition is divided into three main branches: the Ordo Malleus hunts Daemons, the Ordo Xenos purges alien threats, and the Ordo Hereticus destroys mutants, witches, and internal traitors.",
-            "Orks reproduce through fungal spores. When an Ork dies, or even just bleeds, it releases spores that will eventually grow into squigs, snotlings, gretchin, and eventually more Orks, making them nearly impossible to eradicate.",
-            "A Space Marine's 'Omophagea' implant allows them to literally absorb the memories and knowledge of a creature by eating its brain or flesh.",
-            "The Leagues of Votann rely on ancient, incredibly powerful AI mainframes known as Votann to guide their civilization, a practice that the Imperium would consider the highest form of tech-heresy.",
-            "The Webway is a labyrinthine network of ancient tunnels between reality and the Warp. Built millions of years ago by the Old Ones, it is now primarily used by the Aeldari to travel safely without risking demonic possession.",
-            "Tzeentch is the Chaos God of magic, change, and manipulation. His schemes are so impossibly complex and contradictory that he will often intentionally sabotage his own plans just to see what happens.",
-            "To the Adeptus Mechanicus, an STC (Standard Template Construct) is a holy grail. Even finding an STC fragment for something as mundane as a slightly better combat knife can earn a tech-priest a planetary governorship.",
-            "The Golden Throne is slowly failing, and nobody in the Imperium knows how to fix it. If it fully breaks, the Emperor will die, the Astronomican will go out, and Terra will likely be consumed by a massive Warp rift.",
-            "Vulkan, the Primarch of the Salamanders, is a 'Perpetual'. This means he is functionally immortal and has died multiple times, including being dropped into a planetary atmosphere, only to regenerate completely.",
-            "The Eversor Assassins of the Officio Assassinorum are kept in cryo-sleep until needed. They are pumped full of so many combat drugs that if they are ever killed, their bodies violently detonate in a biological explosion.",
-            "Sly Marbo is a legendary Imperial Guard soldier of the Catachan Jungle Fighters. He is essentially the Imperium's version of Rambo, known for taking down entire enemy encampments and even a Tyranid bio-titan single-handedly.",
-            "The Geller Field, which protects Imperial ships from daemons while traveling through the Warp, is actually generated by the dreams of a comatose, mathematically-lobotomized psyker suspended in a pod.",
-            "Trazyn the Infinite, the kleptomaniac Necron Overlord, has a massive museum on Solemnace. Among his exhibits, he secretly possesses a perfect, uncorrupted clone of the Primarch Fulgrim.",
-            "Ork 'Squigs' come in countless bio-engineered varieties for every situation. There are Bomb-Squigs, Eating-Squigs, Medical-Squigs (used to sew wounds shut with their teeth), and even Hair-Squigs that Orks use as toupees.",
-            "Long before the Imperium, humanity had a golden age relying on advanced AI called the 'Men of Iron'. These machines eventually rebelled, causing a galaxy-wide war so devastating that it made the Horus Heresy look like a skirmish.",
-            "The Adepta Sororitas use a tank called the 'Exorcist' which is literally a mobile pipe organ. The 'Sister' plays hymns on the organ's keys, which triggers the launch of devastating armor-piercing missiles.",
-            "Slaanesh's Noise Marines use weapons called Sonic Blasters that fire weaponized sound. The screeching noise is so loud and discordant that it causes enemies' internal organs to rupture and their bones to shatter.",
-            "When the Tyranids conquer a world, they don't just eat the people. They consume all flora, fauna, oceans, and even the atmosphere itself, leaving nothing but a dead, barren rock floating in space.",
-            "A Custodian's name grows longer with every heroic deed they perform. Some veteran Custodes have names that take several hours to recite and are engraved on the inside of their armor.",
-            "Corvus Corax, the Primarch of the Raven Guard, spent thousands of years in the Warp hunting traitors. The Warp mutated him not into a daemon, but into a terrifying entity made of shadows and ravens that haunts Word Bearers.",
-            "The T'au Empire utilizes the 'Kroot', a carnivorous mercenary race. The Kroot are biologically capable of absorbing the DNA of whatever they eat, directing their own evolution based on their diet.",
-            "The Culexus Assassins are blanks (soulless). They wear massive animus speculums on their heads that weaponize their negative psychic aura, allowing them to shoot blasts of anti-warp energy that instantly incinerates psykers.",
-            "Space Marines have a specialized organ called the 'Betcher's Gland' which allows them to spit blinding, highly corrosive acid strong enough to eat through metal bars.",
-            "Before they were mindless berserkers, the World Eaters Legion implanted themselves with the 'Butcher's Nails', archeotech brain implants that cause agonizing pain unless the host is actively killing someone.",
-            "The Imperium uses 'Servitors' for menial labor. These are lobotomized humans, often criminals, whose brains and nervous systems have been heavily augmented with cybernetics to perform a single, repetitive task forever.",
-            "Ghazghkull Mag Uruk Thraka, the greatest living Ork Warboss, once had half his head blown off by a bolter round. A 'Painboy' replaced it with adamantium, accidentally jumpstarting his psychic connection to the Ork gods.",
-            "The 'War in Heaven' was a conflict fought 60 million years ago between the Old Ones and the Necrontyr. The weapons used were so cataclysmic that they permanently broke the calm dimension of the Immaterium, creating the chaotic Warp we know today."
-        ]
-        # Ανακατεύουμε τα facts και βάζουμε μετρητή
-        random.shuffle(self.lore_facts)
-        self.current_lore_index = 0
+        # --- LORE CATEGORIES ---
+        self.lore_categories = {
+            "🦅 Imperium of Man": [
+                "The Emperor of Mankind has been sitting on the Golden Throne for 10,000 years. To keep the Astronomican burning and guide Imperial ships through the Warp, 1,000 psykers must be sacrificed to him every single day.",
+                "During the 13th Black Crusade, the planet of Cadia was completely shattered by Abaddon. However, its Imperial Guard defenders fought so fiercely that the famous saying was born: 'The planet broke before the Guard did.'",
+                "The Imperium's ultimate sanction is the 'Exterminatus'. When a planet is deemed lost to Chaos or Tyranids, the Inquisition will order the complete atmospheric and biological destruction of the entire world.",
+                "The Sisters of Battle (Adepta Sororitas) were created due to a legal loophole. The Ecclesiarchy was forbidden by Imperial law from holding 'men under arms,' so they bypassed this by creating an entirely female holy army.",
+                "Individuals known as 'Blanks' or 'Pariahs' are born completely without a soul. They emit an aura of negative psychic energy that causes extreme nausea to normal humans and can completely sever a psyker's connection to the Warp.",
+                "The Inquisition is divided into three main branches: the Ordo Malleus hunts Daemons, the Ordo Xenos purges alien threats, and the Ordo Hereticus destroys mutants, witches, and internal traitors.",
+                "The Golden Throne is slowly failing, and nobody in the Imperium knows how to fix it. If it fully breaks, the Emperor will die, the Astronomican will go out, and Terra will likely be consumed by a massive Warp rift.",
+                "The Eversor Assassins of the Officio Assassinorum are kept in cryo-sleep until needed. They are pumped full of so many combat drugs that if they are ever killed, their bodies violently detonate in a biological explosion.",
+                "The Geller Field, which protects Imperial ships from daemons while traveling through the Warp, is actually generated by the dreams of a comatose, mathematically-lobotomized psyker suspended in a pod.",
+                "The Adepta Sororitas use a tank called the 'Exorcist' which is literally a mobile pipe organ. The 'Sister' plays hymns on the organ's keys, which triggers the launch of devastating armor-piercing missiles.",
+                "The Culexus Assassins are blanks (soulless). They wear massive animus speculums on their heads that weaponize their negative psychic aura, allowing them to shoot blasts of anti-warp energy that instantly incinerates psykers.",
+                "The Imperium uses 'Servitors' for menial labor. These are lobotomized humans, often criminals, whose brains and nervous systems have been heavily augmented with cybernetics to perform a single, repetitive task forever.",
+            ],
+            "🧬 Adeptus Astartes & Primarchs": [
+                "A standard Adeptus Astartes (Space Marine) is implanted with 19 additional genetically engineered organs, including a second heart, a third lung, and an organ that allows them to spit blinding acid.",
+                "The Grey Knights are a highly secretive chapter of Space Marines specifically tasked with hunting Daemons. Every single member is a powerful psyker, and their existence is a secret kept even from the rest of the Imperium.",
+                "Space Marines do not need to sleep like normal humans. Thanks to the Catalepsean Node implant, they can shut down half of their brain at a time, allowing them to remain awake and alert for weeks.",
+                "When a Space Marine is mortally wounded but still draws breath, they can be entombed inside a Dreadnought. This heavily armored walking sarcophagus allows them to continue fighting for the Imperium for millennia.",
+                "Unlike Space Marines who share the gene-seed of their Primarch, every single member of the Adeptus Custodes is genetically handcrafted on a cellular level by the Emperor's own ancient bio-alchemy.",
+                "A Space Marine's 'Omophagea' implant allows them to literally absorb the memories and knowledge of a creature by eating its brain or flesh.",
+                "Vulkan, the Primarch of the Salamanders, is a 'Perpetual'. This means he is functionally immortal and has died multiple times, including being dropped into a planetary atmosphere, only to regenerate completely.",
+                "A Custodian's name grows longer with every heroic deed they perform. Some veteran Custodes have names that take several hours to recite and are engraved on the inside of their armor.",
+                "Corvus Corax, the Primarch of the Raven Guard, spent thousands of years in the Warp hunting traitors. The Warp mutated him not into a daemon, but into a terrifying entity made of shadows and ravens that haunts Word Bearers.",
+                "Space Marines have a specialized organ called the 'Betcher's Gland' which allows them to spit blinding, highly corrosive acid strong enough to eat through metal bars.",
+                "Lion El'Jonson, Primarch of the Dark Angels, has finally awakened after 10,000 years. He has aged into a wise, tired old man and now uses a mysterious Warp ability called 'Forestwalking' to teleport across the galaxy.",
+            ],
+            "🪖 Astra Militarum": [
+                "The Leman Russ battle tank is so robustly designed that its engine can run on almost any combustible liquid, including promethium, crude oil, high-octane rocket fuel, or even crushed organic matter.",
+                "Sly Marbo is a legendary Imperial Guard soldier of the Catachan Jungle Fighters. He is essentially the Imperium's version of Rambo, known for taking down entire enemy encampments and even a Tyranid bio-titan single-handedly.",
+                "The Death Korps of Krieg are so fanatically devoted to dying for the Emperor that their Commissars are actually stationed with them to hold them back from suicidal charges, rather than to force them forward.",
+            ],
+            "⚙️ Adeptus Mechanicus": [
+                "The Adeptus Mechanicus views technological innovation as a strict heresy. They believe all worthwhile knowledge was already discovered in the dark age of technology and merely needs to be recovered, not invented.",
+                "Imperial Titans are god-machines that stand hundreds of feet tall and carry weapons capable of leveling cities. They are piloted by a 'Princeps' who must constantly battle the machine's aggressive 'Machine Spirit' for control.",
+                "To the Adeptus Mechanicus, an STC (Standard Template Construct) is a holy grail. Even finding an STC fragment for something as mundane as a slightly better combat knife can earn a tech-priest a planetary governorship.",
+            ],
+            "🟢 Orks": [
+                "Ork technology is effectively junk, but it works largely because they collectively believe it should work. This latent gestalt psychic field is known as the 'Waaagh!'.",
+                "Orks reproduce through fungal spores. When an Ork dies, or even just bleeds, it releases spores that will eventually grow into squigs, snotlings, gretchin, and eventually more Orks, making them nearly impossible to eradicate.",
+                "Ork 'Squigs' come in countless bio-engineered varieties for every situation. There are Bomb-Squigs, Eating-Squigs, Medical-Squigs (used to sew wounds shut with their teeth), and even Hair-Squigs that Orks use as toupees.",
+                "Ghazghkull Mag Uruk Thraka, the greatest living Ork Warboss, once had half his head blown off by a bolter round. A 'Painboy' replaced it with adamantium, accidentally jumpstarting his psychic connection to the Ork gods.",
+                "To an Ork, colors have physical power. Red vehicles go faster, blue is lucky, yellow makes explosions bigger, and purple makes them invisible—after all, have you ever seen a purple Ork?",
+                "An Ork Warboss named Tuska Daemon-Killa intentionally flew his Waaagh! into the Eye of Terror just to fight Daemons. Khorne was so entertained by this that he resurrects Tuska and his boyz every day to fight an eternal, glorious battle.",
+                "The Ork economy is entirely based on 'Teef' (teeth). Because Ork teeth naturally decay over time, it is impossible to hoard wealth, completely eliminating inflation and creating a perfectly stable, if violent, economic system.",
+                "During the War of the Beast, an Ork Warboss grew so massive and intelligent that his Waaagh! possessed 'Attack Moons' with gravity weapons, and his Ork diplomats actually spoke perfect High Gothic to threaten Terra.",
+            ],
+            "💀 Chaos & The Warp": [
+                "The Alpha Legion's Primarch, Alpharius, supposedly had an identical twin brother named Omegon. To this day, due to their masterful use of deception and espionage, no one truly knows whose side they are on.",
+                "The birth of Slaanesh, the Chaos God of Excess, created a massive tear in reality known as the Eye of Terror and instantly wiped out trillions of Aeldari, causing the fall of their ancient empire.",
+                "Khorne, the Chaos God of Blood and War, does not care whose blood is spilled, only that it flows. His followers will happily slaughter each other in his name if there are no enemies left to fight.",
+                "The Warp is a mirror dimension formed by the collective emotions and thoughts of all sentient beings. Every act of rage, hope, despair, and excess in the real world directly feeds the entities of the Immaterium.",
+                "Grandfather Nurgle, the Chaos God of Disease, genuinely loves his followers. He doesn't see his plagues as curses, but as 'gifts' of life, and his daemons are almost always joyful and affectionate.",
+                "Tzeentch is the Chaos God of magic, change, and manipulation. His schemes are so impossibly complex and contradictory that he will often intentionally sabotage his own plans just to see what happens.",
+                "Slaanesh's Noise Marines use weapons called Sonic Blasters that fire weaponized sound. The screeching noise is so loud and discordant that it causes enemies' internal organs to rupture and their bones to shatter.",
+                "Before they were mindless berserkers, the World Eaters Legion implanted themselves with the 'Butcher's Nails', archeotech brain implants that cause agonizing pain unless the host is actively killing someone.",
+                "Vashtorr the Arkifane is a newly risen entity of the Warp, a demigod of chaotic invention and corrupted technology. He seeks to become a fifth Chaos God by gathering ancient artifacts to forge terrifying superweapons.",
+            ],
+            "🐜 Tyranids & Genestealers": [
+                "The Tyranid Hive Mind doesn't just consume biomass; its sheer presence creates a 'Shadow in the Warp,' a psychic static that drives psykers mad and cuts off entire star systems from astropathic communication and travel.",
+                "Genestealer Cults spend generations secretly infecting a planet's population and infiltrating its governments. They believe they are preparing for the arrival of 'Star Saviors', only to be eagerly consumed by the Tyranid Hive Fleet they attracted.",
+                "When the Tyranids conquer a world, they don't just eat the people. They consume all flora, fauna, oceans, and even the atmosphere itself, leaving nothing but a dead, barren rock floating in space.",
+                "The galaxy is currently facing the Fourth Tyrannic War. Hive Fleet Leviathan has launched an unprecedented assault from the Galactic West, attacking from beneath the galactic plane and pushing directly towards Terra.",
+            ],
+            "🤖 Necrons": [
+                "The terrifying Necrons were once a flesh-and-blood race called the Necrontyr. Desperate for immortality and victory in war, they traded their souls to the C'tan (Star Gods), becoming soulless machines of living metal.",
+                "Trazyn the Infinite, the kleptomaniac Necron Overlord, has a massive museum on Solemnace. Among his exhibits, he secretly possesses a perfect, uncorrupted clone of the Primarch Fulgrim.",
+                "The Necrons are currently building the 'Pariah Nexus', a vast region of space where their Blackstone pylons completely sever the Warp from realspace. Any humans entering it suffer the 'Stilling', becoming mindless, soulless husks.",
+            ],
+            "🧝 Aeldari, T'au & Other Xenos": [
+                "Commorragh, the Dark City of the Drukhari (Dark Eldar), is not a planet. It is a massive, impossibly complex realm hidden deep within the Webway, powered by stolen suns and feeding on the pain of millions of slaves.",
+                "The Leagues of Votann rely on ancient, incredibly powerful AI mainframes known as Votann to guide their civilization, a practice that the Imperium would consider the highest form of tech-heresy.",
+                "The Webway is a labyrinthine network of ancient tunnels between reality and the Warp. Built millions of years ago by the Old Ones, it is now primarily used by the Aeldari to travel safely without risking demonic possession.",
+                "The T'au Empire utilizes the 'Kroot', a carnivorous mercenary race. The Kroot are biologically capable of absorbing the DNA of whatever they eat, directing their own evolution based on their diet.",
+                "The Supreme Ethereal of the T'au Empire, Aun'Va, was assassinated by an Imperial Culexus Assassin years ago. To prevent mass panic, the T'au leadership replaced him with an AI hologram, keeping his death a complete secret.",
+            ],
+            "📜 Ancient Lore": [
+                "Long before the Imperium, humanity had a golden age relying on advanced AI called the 'Men of Iron'. These machines eventually rebelled, causing a galaxy-wide war so devastating that it made the Horus Heresy look like a skirmish.",
+                "The 'War in Heaven' was a conflict fought 60 million years ago between the Old Ones and the Necrontyr. The weapons used were so cataclysmic that they permanently broke the calm dimension of the Immaterium, creating the chaotic Warp we know today.",
+            ]
+        }
         
+        # Μετατρέπουμε το dictionary σε μία ενιαία λίστα για να τρέχει στο Loop
+        self.flat_lore = []
+        for category, facts in self.lore_categories.items():
+            for fact in facts:
+                self.flat_lore.append((category, fact))
+                
+        # Ταξινομούμε την λίστα. 
+        # Έτσι εξασφαλίζουμε ότι, όσες φορές κι αν γίνει επανεκκίνηση το bot, η σειρά των facts θα είναι η ίδια.
+        self.flat_lore.sort(key=lambda x: x[1])
+
         # Το ID του καναλιού όπου θα στέλνει το Lore
         self.daily_lore_channel_id = 1416479181860110436
         # Ξεκινάμε την λούπα αυτόματα μόλις φορτώσει το bot
         self.daily_lore.start()
-        
+
     # Συνάρτηση για να κλείνει η λούπα αν κλείσουμε το bot
     def cog_unload(self):
         self.daily_lore.cancel()
@@ -420,7 +457,7 @@ class FunCommands(commands.Cog):
         else:
             await ctx.send(f"🎉 Ο **{msg.author.display_name}**! Έδωσε τη σωστή απάντηση!")
             
-    # --- ΕΝΤΟΛΗ: VOID ---
+    # --- ΕΝΤΟΛΗ: VOID (ENHANCED TORTURE EDITION) ---
     @commands.command(name="void")
     async def send_to_void(self, ctx, target: discord.Member):
 
@@ -439,8 +476,8 @@ class FunCommands(commands.Cog):
             await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
             return
 
-        # Έλεγχος στόχου 
-        if target.id == 522869870178729985:
+        # Έλεγχος στόχου
+        if target.id == 522869870178729985000: # 3 μηδέν temp
             await ctx.reply("https://tenor.com/view/nuh-uh-nuh-uh-scout-tf2-gif-12750436057634665505")
             return
 
@@ -452,31 +489,57 @@ class FunCommands(commands.Cog):
             await ctx.send("❌ Error: Δεν βρέθηκε το Void Thread! Έλεγξε το ID.")
             return
 
-        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** καταδικάζεται σε 12sec με τους Custodes...<:Custode:1439332561468920132>")
+        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** ρίχνεται στο Void για να μείνει μόνος με τους Custodes...<:Custode:1439332561468920132>\n-# 20 Seconds")
 
         try:
+            # 1. Προσθήκη στο Thread
             await thread.add_user(target)
             
+            # 2. Το Προσωπικό Μήνυμα (DM) της Ιεράς Εξέτασης
+           #try:
+           #    await target.send(f"👁️ **THE INQUISITION SEES YOU.**\nΕξορίστηκες στο Void από τον {ctx.author.display_name}. Μετάνιωσε για τις αμαρτίες σου!")
+           #except discord.Forbidden:
+           #    pass # Αν έχει κλειστά τα DMs το αγνοούμε
+            
+            # 3. Τα GIFs (Προστέθηκε 1 επιπλέον)
             custodes_gifs = [
+                "https://tenor.com/view/40k-warhammer-tasty-rainbow-sons-gaming-gif-17304578",
                 "https://tenor.com/view/tts-custodes-pillar-men-gif-15519847",
                 "https://tenor.com/view/oh-no-40k-40k-tts-tts-if-the-emperor-had-a-text-to-speech-device-gif-25047215",
                 "https://tenor.com/view/emperor-text-to-speech-custodes-erogenous-metaphors-gif-27361743",
                 "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
             ]
             
-            for gif in custodes_gifs:
-                await thread.send(f"# <@{target.id}> **ΑΝΑΝΕΩΣΕ ΤΟΝ ΟΡΚΟ ΣΟΥ ΣΤΟΝ ΑΥΤΟΚΡΑΤΟΡΑ**[!]({gif}) <:Hammer:1416864558869516423>\n")
-                await asyncio.sleep(3) 
+            # 4. Τα διαφορετικά μηνύματα
+            annoying_phrases = [
+                "**RENEW YOUR OATH TO THE EMPEROR!**",
+                "**DO NOT HIDE, HERETIC!**",
+                "**HEAR THE HYMNS OF THE CUSTODES!**",
+                "**REPENT! REPENT! REPENT!**",
+                "**YOU CANNOT ESCAPE THEIR WRATH!**"
+            ]
+            
+            # 5. Η Λούπα
+            for i in range(len(custodes_gifs)):
+                # Κύριο μήνυμα με  ping και GIF
+                await thread.send(f"# <@{target.id}> {annoying_phrases[i]}\n[!]({custodes_gifs[i]}) <:Hammer:1416864558869516423>")
+                await asyncio.sleep(3)
                 
-            await asyncio.sleep(3.0)
+                # Γρήγορο ping ενδιάμεσα για έξτρα notification sound!
+                await thread.send(f"Wake up <@{target.id}>!")
+                await asyncio.sleep(0.5) 
                 
+            await asyncio.sleep(2.5)
+                
+            # 6. Αφαίρεση του Χρήστη
             try:
                 await thread.remove_user(target)
             except discord.Forbidden:
                 pass
                 
+            # 7. Εκκαθάριση - Ανεβάσαμε το όριο στο 15 γιατί στέλνει πολλά μηνύματα τώρα
             try:
-                await thread.purge(limit=5)
+                await thread.purge(limit=15)
             except discord.Forbidden:
                 pass
                 
@@ -492,13 +555,15 @@ class FunCommands(commands.Cog):
     async def daily_lore(self):
         channel = self.bot.get_channel(self.daily_lore_channel_id)
         if channel:
-            if self.current_lore_index >= len(self.lore_facts):
-                random.shuffle(self.lore_facts)
-                self.current_lore_index = 0
-                
-            fact = self.lore_facts[self.current_lore_index]
-            self.current_lore_index += 1
+            # Υπολογισμός του απόλυτου αριθμού της σημερινής ημερομηνίας
+            today_number = datetime.date.today().toordinal()
+
+            # Διαιρούμε τη σημερινή μέρα με το σύνολο των facts.
+            # Το υπόλοιπο είναι ο δείκτης του σημερινού μας Fact!
+            current_index = today_number % len(self.flat_lore)
             
+            category, fact = self.flat_lore[current_index]
+
             next_run = self.daily_lore.next_iteration
             if next_run:
                 timestamp = int(next_run.timestamp())
@@ -507,7 +572,8 @@ class FunCommands(commands.Cog):
                 next_timer_str = ""
 
             await channel.send(
-                f"📜 **Imperial Archive: Daily Lore Fact** 📜\n\n"
+                f"📜 **Imperial Archive: Daily Lore Fact** 📜\n"
+                f"-# 📁 Category: **{category}**\n\n"
                 f"*{fact}*{next_timer_str}"
             )
 
