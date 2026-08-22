@@ -477,7 +477,7 @@ class FunCommands(commands.Cog):
             return
 
         # Έλεγχος στόχου
-        if target.id == 522869870178729985000: # 3 μηδέν temp
+        if target.id == 522869870178729985: 
             await ctx.reply("https://tenor.com/view/nuh-uh-nuh-uh-scout-tf2-gif-12750436057634665505")
             return
 
@@ -489,7 +489,7 @@ class FunCommands(commands.Cog):
             await ctx.send("❌ Error: Δεν βρέθηκε το Void Thread! Έλεγξε το ID.")
             return
 
-        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** ρίχνεται στο Void για να μείνει μόνος με τους Custodes...<:Custode:1439332561468920132>\n-# 20 Seconds")
+        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** ρίχνεται στο Void για να μείνει μόνος με τους Custodes...<:Custode:1439332561468920132>\n-# 17.5 Seconds")
 
         try:
             # 1. Προσθήκη στο Thread
@@ -523,7 +523,7 @@ class FunCommands(commands.Cog):
             for i in range(len(custodes_gifs)):
                 # Κύριο μήνυμα με  ping και GIF
                 await thread.send(f"# <@{target.id}> {annoying_phrases[i]}\n[!]({custodes_gifs[i]}) <:Hammer:1416864558869516423>")
-                await asyncio.sleep(3)
+                await asyncio.sleep(2.5)
                 
                 # Γρήγορο ping ενδιάμεσα για έξτρα notification sound!
                 await thread.send(f"Wake up <@{target.id}>!")
