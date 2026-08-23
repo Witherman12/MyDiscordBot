@@ -167,7 +167,7 @@ async def on_message(message):
     if re.search(r'\b(femboy|femboys)\b', msg_lower):
         try:
             await message.add_reaction("<:scream:829005859727212547>")
-            if random.randint(1, 2) == 1:
+            if random.randint(1, 100) <= 75:
                 await message.reply("https://tenor.com/view/the-office-no-angry-steve-carell-michael-scott-gif-5606969")
         except:
             pass
