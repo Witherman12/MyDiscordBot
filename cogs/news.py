@@ -99,8 +99,9 @@ class NewsFeed(commands.Cog):
                         
                     print(f"🔎 Ελέγχω: '{title}'")
                         
-                    # 1. ΕΛΕΓΧΟΣ ΜΑΥΡΗΣ ΛΙΣΤΑΣ
-                    is_blocked = any(b_kw in title_lower or b_kw in summary_lower for b_kw in self.blocked_keywords)
+                    # 1. ΕΛΕΓΧΟΣ ΜΑΥΡΗΣ ΛΙΣΤΑΣ (ΜΟΝΟ ΣΤΟΝ ΤΙΤΛΟ)
+                    # Δεν ελέγχουμε το summary γιατί οι YouTubers βάζουν affiliate links για άλλα games
+                    is_blocked = any(b_kw in title_lower for b_kw in self.blocked_keywords)
                     if is_blocked:
                         print("   ┗ 🚫 Απορρίφθηκε (Μαύρη Λίστα)")
                         continue
