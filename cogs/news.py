@@ -131,7 +131,24 @@ class NewsFeed(commands.Cog):
                             description="Νέο περιεχόμενο δημοσιεύτηκε!\nΠατήστε τον τίτλο για να το δείτε."
                         )
                         
-                        embed.set_thumbnail(url=source["thumbnail"])
+                        # --- YOUTUBE DYNAMIC THUMBNAILS ---
+                        # Ελέγχουμε αν το feed έχει το ειδικό tag του YouTube ή αν είναι link του YT
+                        if hasattr(entry, 'yt_videoid') or "youtube.com/watch?v=" in current_link:
+                            # Παίρνουμε το ID του βίντεο
+                            if hasattr(entry, 'yt_videoid'):
+                                video_id = entry.yt_videoid
+                            else:
+                                video_id = current_link.split("v=")[1].split("&")[0]
+                                
+                            # Το YouTube αποθηκεύει πάντα τις εικόνες του σε αυτό το link:
+                            yt_thumbnail = f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+                            
+                            embed.set_image(url=yt_thumbnail) # Βάζει την εικόνα του βίντεο μεγάλη, κάτω!
+                            embed.set_thumbnail(url=source["thumbnail"]) # Κρατάει το logo μικρό πάνω δεξιά
+                        else:
+                            # Κλασική μορφή για sites (π.χ. Tabletop Battles)
+                            embed.set_thumbnail(url=source["thumbnail"])
+                            
                         embed.set_footer(text=f"{source['name']} Updates", icon_url=source["footer_icon"])
                         
                         await channel.send(
