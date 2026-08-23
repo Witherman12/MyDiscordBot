@@ -4,7 +4,7 @@
 ΠΕΡΙΓΡΑΦΗ: Διαχειρίζεται τις ψυχαγωγικές και wargaming εντολές του bot.
 ΕΝΤΟΛΕΣ:
  - !help           : Εμφανίζει την λίστα με όλες τις εντολές (Μενού Βοήθειας).
- - !adminhelp
+ - !adminhelp      : Εντολές αποκλειστικά για τους Inquisitors (Admins/Mods).
  - !glorious       : Στέλνει το ηχητικό της Glorious Melee Combat (mp3).
  - !counter        : Δείχνει το σκορ του Glorious Melee Combat.
  - !roll [αριθμός] : Ρίχνει d6 ζάρια με κρυπτογραφική τυχαιότητα.
@@ -14,7 +14,8 @@
  - !math           : Πιθανότητες ζαριών (Mathhammer).
  - !trivia         : Warhammer lore trivia.
  - !void           : Στέλνει κάποιον στο Custodes Void.
- - lore facts      : Lore Facts κάθε μέρα.
+ - !sus [reply/@]  : Δικάζει δημόσια όποιον στέλνει sus περιεχόμενο.
+ - lore facts      : Lore Facts κάθε μέρα (Αυτοματοποιημένο).
 ========================================
 """
 
@@ -239,7 +240,7 @@ class FunCommands(commands.Cog):
     async def custom_help(self, ctx):
         embed = discord.Embed(
             title="📜 **Αρχείο Εντολών (Help)**",
-            description="Όλες οι διαθέσιμες εντολές του συστήματος και η λειτουργία τους::",
+            description="Όλες οι διαθέσιμες εντολές του συστήματος και η λειτουργία τους:",
             color=discord.Color.from_rgb(0, 102, 204)
         )
 
@@ -249,7 +250,7 @@ class FunCommands(commands.Cog):
             value=(
                 "**`!rank [@user]`** - Εμφανίζει το Level & XP σου ή ενός άλλου παίκτη.\n"
                 "**`!toprank`** - Το Leaderboard με τους 9 καλύτερους βετεράνους.\n"
-                "**`!pray`**0 - Ημερήσια προσευχή για bonus XP."
+                "**`!pray`** - Ημερήσια προσευχή για bonus XP."
             ),
             inline=False
         )
@@ -283,7 +284,8 @@ class FunCommands(commands.Cog):
                 "**`!counter`** - Δείχνει πόσες φορές έχει ειπωθεί Η Φράση.\n"
                 "**`!roll [αριθμός]`** - Ρίχνει ζάρια. Ιδανικό για να λύνετε διαφορές.\n"
                 "**`!overwatch`** - Όταν τα λόγια δεν αρκούν, το bot φέρνει Flamers.\n"
-                "**`!excuse`** - Το bot σου δίνει την τέλεια δικαιολογία."
+                "**`!excuse`** - Το bot σου δίνει την τέλεια δικαιολογία.\n"
+                "**`!sus [reply ή @user]`** - Δικάζει δημόσια όποιον στέλνει περίεργο περιεχόμενο."
             ),
             inline=False
         )
@@ -456,97 +458,147 @@ class FunCommands(commands.Cog):
             await ctx.send(f"⏳ Τέλος χρόνου! Κανείς δεν βρήκε την απάντηση.\nΤο σωστό ήταν: **{correct_answers}**.")
         else:
             await ctx.send(f"🎉 Ο **{msg.author.display_name}**! Έδωσε τη σωστή απάντηση!")
+
+    # --- ΕΝΤΟΛΗ: SUS ---
+    @commands.command(name="sus")
+    async def call_out_sus(self, ctx, target: discord.Member = None):
+        
+        # 1. Ελέγχουμε αν η εντολή γράφτηκε ως Reply σε κάποιο μήνυμα
+        replied_msg = None
+        if ctx.message.reference and ctx.message.reference.message_id:
+            try:
+                replied_msg = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+                target = replied_msg.author # Ο στόχος γίνεται αυτόματα αυτός που έγραψε το περίεργο μήνυμα!
+            except discord.NotFound:
+                pass
+
+        # 2. Αν δεν υπάρχει ούτε reply ούτε @tag, βγάζουμε σφάλμα
+        if not target:
+            await ctx.send("❌ Πρέπει να κάνεις **reply** ή tag κάποιον!")
+            return
+
+        # 3. Λίστα με αγγλικά αστεία μηνύματα καταδίκης
+        sus_messages = [
+            f"🚨 Alert! The content posted by **{target.display_name}** has exceeded acceptable Cringe levels.",
+            f"📸 Caught in 4K, **{target.display_name}**! Your digital footprint is ruined.",
+            f"🛑 Someone take the keyboard away from **{target.display_name}**, please.",
+            f"🤨 **{target.display_name}**, what exactly are our eyes witnessing right now?",
+            f"🚓 Internet Police? Yes, **{target.display_name}** struck again."
+        ]
+        
+        chosen_message = random.choice(sus_messages)
+        sus_gif = "https://tenor.com/view/rock-one-eyebrow-raised-rock-staring-the-rock-gif-22113367"
+        
+        # 4. Στέλνουμε την απάντηση. Αν έγινε reply, απαντάμε στο αρχικό μήνυμα!
+        if replied_msg:
+            await ctx.send(f"{chosen_message}\n{sus_gif}", reference=replied_msg)
+        else:
+            await ctx.send(f"{chosen_message}\n{sus_gif}")
             
-    # --- ΕΝΤΟΛΗ: VOID (ENHANCED TORTURE EDITION) ---
+    # --- ΕΝΤΟΛΗ: VOID (ENHANCED TORTURE EDITION + ANTI-SPAM) ---
     @commands.command(name="void")
     async def send_to_void(self, ctx, target: discord.Member):
-
-        # IDs των ΡΟΛΩΝ
-        ALLOWED_ROLE_IDS = [802082482320703489]
         
-        # IDs συγκεκριμένων ΧΡΗΣΤΩΝ
-        ALLOWED_USER_IDS = [994930770542084227]
-
-        # Ελέγχει αν ο χρήστης έχει τον Ρόλο ή αν το User ID του είναι στη λίστα
-        has_role_perm = any(role.id in ALLOWED_ROLE_IDS for role in ctx.author.roles)
-        has_user_perm = ctx.author.id in ALLOWED_USER_IDS
-
-        # Αν δεν έχει τίποτα από τα δύο τρώει πόρτα
-        if not (has_role_perm or has_user_perm):
-            await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
+        # --- ANTI-SPAM LOCK ---
+        # Ελέγχουμε αν το Void λειτουργεί ήδη
+        if getattr(self, 'void_active', False):
+            await ctx.send("⏳ **The Void is currently occupied!**")
             return
-
-        # Έλεγχος στόχου
-        if target.id == 522869870178729985: 
-            await ctx.reply("https://tenor.com/view/nuh-uh-nuh-uh-scout-tf2-gif-12750436057634665505")
-            return
-
-        VOID_THREAD_ID = 1512544435508871208  
-        
-        try:
-            thread = await self.bot.fetch_channel(VOID_THREAD_ID)
-        except discord.NotFound:
-            await ctx.send("❌ Error: Δεν βρέθηκε το Void Thread! Έλεγξε το ID.")
-            return
-
-        await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** ρίχνεται στο Void για να μείνει μόνος με τους Custodes...<:Custode:1439332561468920132>\n-# 17.5 Seconds")
+            
+        # Κλειδώνουμε την εντολή για να μην μπει άλλος
+        self.void_active = True 
 
         try:
-            # 1. Προσθήκη στο Thread
-            await thread.add_user(target)
+            # IDs των ΡΟΛΩΝ
+            ALLOWED_ROLE_IDS = [802082482320703489]
             
-            # 2. Το Προσωπικό Μήνυμα (DM) της Ιεράς Εξέτασης
-           #try:
-           #    await target.send(f"👁️ **THE INQUISITION SEES YOU.**\nΕξορίστηκες στο Void από τον {ctx.author.display_name}. Μετάνιωσε για τις αμαρτίες σου!")
-           #except discord.Forbidden:
-           #    pass # Αν έχει κλειστά τα DMs το αγνοούμε
+            # IDs συγκεκριμένων ΧΡΗΣΤΩΝ
+            ALLOWED_USER_IDS = [994930770542084227, 225171492734894080]
+
+            # Ελέγχει αν ο χρήστης έχει τον Ρόλο ή αν το User ID του είναι στη λίστα
+            has_role_perm = any(role.id in ALLOWED_ROLE_IDS for role in ctx.author.roles)
+            has_user_perm = ctx.author.id in ALLOWED_USER_IDS
+
+            # Αν δεν έχει τίποτα από τα δύο τρώει πόρτα
+            if not (has_role_perm or has_user_perm):
+                await ctx.send("❌ Δεν έχεις την εξουσιοδότηση της Ιεράς Εξέτασης για να ανοίξεις το Void!")
+                return
+
+            # Έλεγχος στόχου
+            if target.id == 522869870178729985: 
+                await ctx.reply("https://tenor.com/view/nuh-uh-nuh-uh-scout-tf2-gif-12750436057634665505")
+                return
+
+            VOID_THREAD_ID = 1512544435508871208  
             
-            # 3. Τα GIFs (Προστέθηκε 1 επιπλέον)
-            custodes_gifs = [
-                "https://tenor.com/view/40k-warhammer-tasty-rainbow-sons-gaming-gif-17304578",
-                "https://tenor.com/view/tts-custodes-pillar-men-gif-15519847",
-                "https://tenor.com/view/oh-no-40k-40k-tts-tts-if-the-emperor-had-a-text-to-speech-device-gif-25047215",
-                "https://tenor.com/view/emperor-text-to-speech-custodes-erogenous-metaphors-gif-27361743",
-                "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
-            ]
-            
-            # 4. Τα διαφορετικά μηνύματα
-            annoying_phrases = [
-                "**RENEW YOUR OATH TO THE EMPEROR!**",
-                "**DO NOT HIDE, HERETIC!**",
-                "**HEAR THE HYMNS OF THE CUSTODES!**",
-                "**REPENT! REPENT! REPENT!**",
-                "**YOU CANNOT ESCAPE THEIR WRATH!**"
-            ]
-            
-            # 5. Η Λούπα
-            for i in range(len(custodes_gifs)):
-                # Κύριο μήνυμα με  ping και GIF
-                await thread.send(f"# <@{target.id}> {annoying_phrases[i]}\n[!]({custodes_gifs[i]}) <:Hammer:1416864558869516423>")
+            try:
+                thread = await self.bot.fetch_channel(VOID_THREAD_ID)
+            except discord.NotFound:
+                await ctx.send("❌ Error: Δεν βρέθηκε το Void Thread! Έλεγξε το ID.")
+                return
+
+            await ctx.send(f"⚠️ Ο **{ctx.author.display_name}** άνοιξε την πύλη!\nΟ **{target.display_name}** ρίχνεται στο Void για να μείνει μόνος με τους Custodes...<:Custode:1439332561468920132>\n-# 17.5 Seconds")
+
+            try:
+                # 1. Προσθήκη στο Thread
+                await thread.add_user(target)
+                
+                # 2. Το Προσωπικό Μήνυμα (DM) της Ιεράς Εξέτασης
+                #try:
+                #await target.send(f"👁️ **THE INQUISITION SEES YOU.**\nΕξορίστηκες στο Void από τον {ctx.author.display_name}. Μετάνιωσε για τις αμαρτίες σου!")
+                #except discord.Forbidden:
+                #pass # Αν έχει κλειστά τα DMs το αγνοούμε
+                
+                # 3. Τα GIFs
+                custodes_gifs = [
+                    "https://tenor.com/view/40k-warhammer-tasty-rainbow-sons-gaming-gif-17304578",
+                    "https://tenor.com/view/tts-custodes-pillar-men-gif-15519847",
+                    "https://tenor.com/view/oh-no-40k-40k-tts-tts-if-the-emperor-had-a-text-to-speech-device-gif-25047215",
+                    "https://tenor.com/view/emperor-text-to-speech-custodes-erogenous-metaphors-gif-27361743",
+                    "https://tenor.com/view/garnoludek-tts-wh40k-gif-20988900"
+                ]
+                
+                # 4. Τα διαφορετικά μηνύματα
+                annoying_phrases = [
+                    "**RENEW YOUR OATH TO THE EMPEROR!**",
+                    "**DO NOT HIDE, HERETIC!**",
+                    "**HEAR THE HYMNS OF THE CUSTODES!**",
+                    "**REPENT! REPENT! REPENT!**",
+                    "**YOU CANNOT ESCAPE THEIR WRATH!**"
+                ]
+                
+                # 5. Η Λούπα
+                for i in range(len(custodes_gifs)):
+                    # Κύριο μήνυμα με ping και GIF
+                    await thread.send(f"# <@{target.id}> {annoying_phrases[i]}\n[!]({custodes_gifs[i]}) <:Hammer:1416864558869516423>")
+                    await asyncio.sleep(2.5)
+                    
+                    # Γρήγορο ping ενδιάμεσα για έξτρα notification sound!
+                    await thread.send(f"Wake up <@{target.id}>!")
+                    await asyncio.sleep(0.5) 
+                    
                 await asyncio.sleep(2.5)
+                    
+                # 6. Αφαίρεση του Χρήστη
+                try:
+                    await thread.remove_user(target)
+                except discord.Forbidden:
+                    pass
+                    
+                # 7. Εκκαθάριση - Όριο 15 μηνύματα
+                try:
+                    await thread.purge(limit=15)
+                except discord.Forbidden:
+                    pass
+                    
+                await ctx.send(f"--> Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
                 
-                # Γρήγορο ping ενδιάμεσα για έξτρα notification sound!
-                await thread.send(f"Wake up <@{target.id}>!")
-                await asyncio.sleep(0.5) 
+            except discord.errors.Forbidden:
+                await ctx.send("❌ Error: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")
                 
-            await asyncio.sleep(2.5)
-                
-            # 6. Αφαίρεση του Χρήστη
-            try:
-                await thread.remove_user(target)
-            except discord.Forbidden:
-                pass
-                
-            # 7. Εκκαθάριση - Ανεβάσαμε το όριο στο 15 γιατί στέλνει πολλά μηνύματα τώρα
-            try:
-                await thread.purge(limit=15)
-            except discord.Forbidden:
-                pass
-                
-            await ctx.send(f"--> Ο **{target.display_name}** επέστρεψε από το Void. Ελπίζουμε να πήρε το μάθημά του. <:Troll:1416864472932421782>")
-            
-        except discord.errors.Forbidden:
-            await ctx.send("❌ Error: Το bot απέτυχε να βάλει τον παίκτη στο Thread.")   
+        finally:
+            # RELEASE LOCK
+            self.void_active = False
             
     # --- Η ΛΟΥΠΑ ΠΟΥ ΤΡΕΧΕΙ ΚΑΘΕ ΜΕΡΑ ---
     target_time = datetime.time(hour=14, minute=0, tzinfo=datetime.timezone.utc)
