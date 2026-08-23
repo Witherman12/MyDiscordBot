@@ -70,12 +70,15 @@ class NewsFeed(commands.Cog):
                 print(f"🔄 Ανάγνωση πηγής: {source['name']}")
                 busted_url = f"{source['url']}?nocache={int(time.time())}"
                 feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
+
+                # --- ΠΡΟΣΘΗΚΗ DEBUG ΓΙΑ ΤΟ YOUTUBE ---
+                print(f"   ┣ HTTP Status: {getattr(feed, 'status', 'Άγνωστο')}")
                 
                 if not feed.entries:
                     print(f"⚠️ Δεν βρέθηκαν άρθρα στο feed: {source['name']}")
                     continue
 
-                # Ο Auspex ανεβάζει πολύ, οπότε κρατάμε τα 15 πιο πρόσφατα
+                # Κρατάμε τα 15 πιο πρόσφατα
                 recent_entries = reversed(feed.entries[:15])
                 
                 for entry in recent_entries:
