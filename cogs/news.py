@@ -68,7 +68,11 @@ class NewsFeed(commands.Cog):
         for source in self.news_sources:
             try:
                 print(f"🔄 Ανάγνωση πηγής: {source['name']}")
-                busted_url = f"{source['url']}?nocache={int(time.time())}"
+                if "?" in source['url']:
+                    busted_url = f"{source['url']}&nocache={int(time.time())}"
+                else:
+                    busted_url = f"{source['url']}?nocache={int(time.time())}"
+                    
                 feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
 
                 # --- ΠΡΟΣΘΗΚΗ DEBUG ΓΙΑ ΤΟ YOUTUBE ---
