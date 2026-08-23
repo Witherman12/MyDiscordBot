@@ -459,11 +459,11 @@ class FunCommands(commands.Cog):
         else:
             await ctx.send(f"🎉 Ο **{msg.author.display_name}**! Έδωσε τη σωστή απάντηση!")
 
-    # --- ΕΝΤΟΛΗ: SUS ---
+    # --- ΕΝΤΟΛΗ: SUS (ANTI-WEIRD CONTENT) ---
     @commands.command(name="sus")
     async def call_out_sus(self, ctx, target: discord.Member = None):
         
-        # 1. Ελέγχουμε αν η εντολή γράφτηκε ως Reply σε κάποιο μήνυμα
+        # 1. Ελέγχουμε αν η εντολή γράφτηκε ως "Reply" σε κάποιο μήνυμα
         replied_msg = None
         if ctx.message.reference and ctx.message.reference.message_id:
             try:
@@ -474,10 +474,10 @@ class FunCommands(commands.Cog):
 
         # 2. Αν δεν υπάρχει ούτε reply ούτε @tag, βγάζουμε σφάλμα
         if not target:
-            await ctx.send("❌ Πρέπει να κάνεις **reply** ή tag κάποιον!")
+            await ctx.send("❌ Πρέπει να κάνεις **reply** ή tag κάποιον")
             return
 
-        # 3. Λίστα με αγγλικά αστεία μηνύματα καταδίκης
+        # 3. Λίστα με μηνύματα
         sus_messages = [
             f"🚨 Alert! The content posted by **{target.display_name}** has exceeded acceptable Cringe levels.",
             f"📸 Caught in 4K, **{target.display_name}**! Your digital footprint is ruined.",
@@ -489,11 +489,14 @@ class FunCommands(commands.Cog):
         chosen_message = random.choice(sus_messages)
         sus_gif = "https://tenor.com/view/rock-one-eyebrow-raised-rock-staring-the-rock-gif-22113367"
         
-        # 4. Στέλνουμε την απάντηση. Αν έγινε reply, απαντάμε στο αρχικό μήνυμα!
+        # 4. Στέλνουμε πρώτα το κείμενο (σαν reply αν υπάρχει)
         if replied_msg:
-            await ctx.send(f"{chosen_message}\n{sus_gif}", reference=replied_msg)
+            await ctx.send(chosen_message, reference=replied_msg)
         else:
-            await ctx.send(f"{chosen_message}\n{sus_gif}")
+            await ctx.send(chosen_message)
+            
+        # 5. Στέλνουμε το GIF σε 2ο μήνυμα για να είναι καθαρό
+        await ctx.send(sus_gif)
             
     # --- ΕΝΤΟΛΗ: VOID (ENHANCED TORTURE EDITION + ANTI-SPAM) ---
     @commands.command(name="void")

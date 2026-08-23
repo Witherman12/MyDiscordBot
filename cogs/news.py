@@ -17,26 +17,42 @@ class NewsFeed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.news_channel_id = 1416856517231116510  
-        self.feed_url = "https://www.tabletopbattles.com/feed/"
         self.browser_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
         
+        # --- ΠΗΓΕΣ ΕΙΔΗΣΕΩΝ ---
+        self.news_sources = [
+            {
+                "name": "Tabletop Battles",
+                "url": "https://www.tabletopbattles.com/feed/",
+                "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1541029988965289994/Warhammer_1.PNG?ex=6a8c1b84&is=6a8aca04&hm=11d565eea3931914a27619a3e658b8c97cbc46cf1e5cc605e286ef0220b959b1&",
+                "thumbnail": "https://cdn.discordapp.com/attachments/850011185314267177/1523030976622493716/ttb_logo_text_white.png?ex=6a8be2e1&is=6a8a9161&hm=ae5b615894c7933e70d45aec0efee1aaa087dc59d0fbfcf40cbe10fa0fffebef&"
+            },
+            {
+                "name": "Auspex Tactics", 
+                "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6Gco9PWxmJmJ5CqfbChuiQ",
+                "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1541033367854780547/vecteezy_youtube-logo-png-youtube-logo-transparent-png-youtube-icon_23986704.png?ex=6a8c1ea9&is=6a8acd29&hm=e6a39cc27508389afbbdea1c5ce244bb4381f540d3f7bbfc6c3cb5b4b3417078&",
+                "thumbnail": "https://cdn.discordapp.com/attachments/1523030976782143645/1541033577574174740/channels4_banner.jpg?ex=6a8c1edb&is=6a8acd5b&hm=6c614472d8507c18d3d4ff5527c2ee2829ce3c70630558cc37bf22376489d840&"
+            }
+        ]
+        
+        # --- ΛΙΣΤΑ ΕΓΚΡΙΣΗΣ (Πρέπει να έχει τουλάχιστον ένα από αυτά) ---
         self.valid_keywords = [
-            # Βασικά (Ονόματα Παιχνιδιών)
             "40k", "warhammer 40k", "warhammer 40000", "warhammer 40,000",
             "aos", "age of sigmar", "kill team", "warhammer", "old world", "horus heresy",
-            
-            # Στήλες Άρθρων
             "competitive intel", "competitive innovations", "hammer of math", 
             "ruleshammer", "how to paint everything", "detachment focus",
             "black library", "that 6+++ show", "lunchtime show",
-            
-            # Εκδόσεις & Λέξεις-Κλειδιά
             "11th edition", "11th ed", "in 11th", "launch tier list",
-            
-            # Factions
             "space marines", "genestealer cults", "ork", "orks", "chaos", 
             "tyranids", "necron", "necrons", "tau empire", "aeldari", 
             "drukhari", "adeptus mechanicus", "imperium", "blood axes", "goffs"
+        ]
+
+        # --- ΜΑΥΡΗ ΛΙΣΤΑ (Αν βρει αυτά, το άρθρο απορρίπτεται ΑΚΑΡΙΑΙΑ) ---
+        self.blocked_keywords = [
+            "marvel", "crisis protocol", "mcp", "shatterpoint", "star wars", 
+            "legion", "armada", "x-wing", "d&d", "dungeons and dragons", 
+            "mtg", "magic the gathering", "lorcana"
         ]
         
     async def cog_load(self):
@@ -45,89 +61,79 @@ class NewsFeed(commands.Cog):
     def cog_unload(self):
         self.check_news.cancel()
 
-    @tasks.loop(minutes=90)
+    @tasks.loop(minutes=180)
     async def check_news(self):
-        try:
-            # CACHE BUSTING
-            busted_url = f"{self.feed_url}?nocache={int(time.time())}"
-            
-            feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
-            
-            if not feed.entries:
-                print("⚠️ [News Radar] Δεν βρέθηκαν άρθρα στο feed αυτή τη στιγμή. Ίσως το site μπλόκαρε το request.")
-                return
+        print("\n--- 📡 ΞΕΚΙΝΑΕΙ ΣΑΡΩΣΗ ΑΡΘΡΩΝ ---")
+        
+        for source in self.news_sources:
+            try:
+                print(f"🔄 Ανάγνωση πηγής: {source['name']}")
+                busted_url = f"{source['url']}?nocache={int(time.time())}"
+                feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
+                
+                if not feed.entries:
+                    print(f"⚠️ Δεν βρέθηκαν άρθρα στο feed: {source['name']}")
+                    continue
 
-            recent_entries = reversed(feed.entries[:20])
-            
-            print("\n--- 📡 ΞΕΚΙΝΑΕΙ ΣΑΡΩΣΗ ΑΡΘΡΩΝ ---")
-            
-            for entry in recent_entries:
-                title = entry.title
-                title_lower = title.lower()
-                current_link = entry.link
+                # Ο Auspex ανεβάζει πολύ, οπότε κρατάμε τα 15 πιο πρόσφατα
+                recent_entries = reversed(feed.entries[:15])
                 
-                # 1. Παίρνουμε τα tags
-                tags_lower = []
-                if hasattr(entry, 'tags'):
-                    tags_lower = [tag.term.lower() for tag in entry.tags]
-                
-                # 2. Παίρνουμε την περίληψη (summary/description)
-                summary_lower = ""
-                if hasattr(entry, 'summary'):
-                    summary_lower = entry.summary.lower()
-                elif hasattr(entry, 'description'):
-                    summary_lower = entry.description.lower()
+                for entry in recent_entries:
+                    title = entry.title
+                    title_lower = title.lower()
+                    current_link = entry.link
                     
-                # 🛠️ DEBUG PRINT: Για να βλέπεις στα Logs του Render τι διαβάζει το bot!
-                print(f"🔎 Ελέγχω: '{title}'")
-                print(f"   ┣ Tags: {tags_lower}")
+                    # Παίρνουμε την περίληψη
+                    summary_lower = ""
+                    if hasattr(entry, 'summary'):
+                        summary_lower = entry.summary.lower()
+                    elif hasattr(entry, 'description'):
+                        summary_lower = entry.description.lower()
+                        
+                    print(f"🔎 Ελέγχω: '{title}'")
+                        
+                    # 1. ΕΛΕΓΧΟΣ ΜΑΥΡΗΣ ΛΙΣΤΑΣ
+                    is_blocked = any(b_kw in title_lower or b_kw in summary_lower for b_kw in self.blocked_keywords)
+                    if is_blocked:
+                        print("   ┗ 🚫 Απορρίφθηκε (Μαύρη Λίστα)")
+                        continue
+                        
+                    # 2. ΕΛΕΓΧΟΣ ΛΕΞΕΩΝ-ΚΛΕΙΔΙΩΝ
+                    is_relevant = any(kw in title_lower or kw in summary_lower for kw in self.valid_keywords)
+                    if not is_relevant:
+                        print("   ┗ ❌ Απορρίφθηκε (Χωρίς keywords 40k)")
+                        continue 
+                        
+                    # 3. ΕΛΕΓΧΟΣ ΒΑΣΗΣ ΔΕΔΟΜΕΝΩΝ
+                    article_exists = news_col.find_one({"_id": current_link})
+                    if article_exists:
+                        print("   ┗ ⏭️ Προσπεράστηκε (Υπάρχει ήδη)")
+                        continue 
+                        
+                    # --- ΝΕΟ ΑΡΘΡΟ/ΒΙΝΤΕΟ ΒΡΕΘΗΚΕ! ---
+                    print("   ┗ ✅ ΕΓΚΡΙΘΗΚΕ! Αποθήκευση και αποστολή...")
+                    news_col.insert_one({"_id": current_link, "title": title, "source": source['name']})
                     
-                # 3. Έλεγχος Λέξεων-Κλειδιών σε ΤΙΤΛΟ, TAGS ΚΑΙ ΠΕΡΙΛΗΨΗ
-                is_relevant = False
-                for kw in self.valid_keywords:
-                    if kw in title_lower or kw in summary_lower or any(kw in tag for tag in tags_lower):
-                        is_relevant = True
-                        break 
-                
-                if not is_relevant:
-                    print("   ┗ ❌ Απορρίφθηκε (Άσχετο παιχνίδι/Χωρίς keywords)")
-                    continue 
-                    
-                # 4. Έλεγχος Βάσης Δεδομένων
-                article_exists = news_col.find_one({"_id": current_link})
-                
-                if article_exists:
-                    print("   ┗ ⏭️ Προσπεράστηκε (Υπάρχει ήδη στη MongoDB)")
-                    continue 
-                    
-                # --- ΝΕΟ ΑΡΘΡΟ ΒΡΕΘΗΚΕ! ---
-                print("   ┗ ✅ ΕΓΚΡΙΘΗΚΕ! Αποθήκευση και αποστολή...")
-                news_col.insert_one({"_id": current_link, "title": title})
-                
-                channel = self.bot.get_channel(self.news_channel_id)
-                if channel:
-                    embed = discord.Embed(
-                        title=f"📜 {title}",
-                        url=current_link,
-                        color=discord.Color.from_rgb(255, 255, 255),
-                        description="Νέο άρθρο δημοσιεύτηκε!\nΠατήστε τον τίτλο για να το διαβάσετε."
-                    )
-                    
-                    main_logo = "https://cdn.discordapp.com/attachments/850011185314267177/1523030976622493716/ttb_logo_text_white.png?ex=6a4aa0a1&is=6a494f21&hm=728378f8686a35b19fbf57b82d4ef32bab760aaf1d841ff2acce3e9c96348af9&"
-                    sec_logo = "https://cdn.discordapp.com/attachments/850011185314267177/1523063566675218534/sec_logo.png?ex=6a4abefb&is=6a496d7b&hm=409512ed10459af4c6bc65504c1aa38d3f5d0564ce6786e52c61fd5fdefc197f&"
-                    embed.set_thumbnail(url=main_logo)
-                    embed.set_footer(text="Tabletop Battles Updates", icon_url=sec_logo)
-                    
-                    await channel.send(
-                        content="<:Warhammer_1:1416864475520438302> **Incoming Transmission!**", 
-                        embed=embed
-                    )
-                    print(f"✅ [News Radar] Νέο άρθρο στάλθηκε: {title}")
-                    
-                    await asyncio.sleep(2)
-                    
-        except Exception as e:
-            print(f"❌ [News Radar] Σφάλμα κατά τον έλεγχο (Η λούπα επέζησε): {e}")
+                    channel = self.bot.get_channel(self.news_channel_id)
+                    if channel:
+                        embed = discord.Embed(
+                            title=f"📜 {title}",
+                            url=current_link,
+                            color=discord.Color.from_rgb(255, 255, 255),
+                            description="Νέο περιεχόμενο δημοσιεύτηκε!\nΠατήστε τον τίτλο για να το δείτε."
+                        )
+                        
+                        embed.set_thumbnail(url=source["thumbnail"])
+                        embed.set_footer(text=f"{source['name']} Updates", icon_url=source["footer_icon"])
+                        
+                        await channel.send(
+                            content="<:Warhammer_1:1416864475520438302> **Incoming Transmission!**", 
+                            embed=embed
+                        )
+                        await asyncio.sleep(2)
+                        
+            except Exception as e:
+                print(f"❌ [News Radar] Σφάλμα κατά τον έλεγχο της πηγής {source['name']}: {e}")
 
     @check_news.before_loop
     async def before_check_news(self):
