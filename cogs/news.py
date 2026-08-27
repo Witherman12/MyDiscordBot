@@ -28,7 +28,7 @@ class NewsFeed(commands.Cog):
                 "name": "Tabletop Battles",
                 "type": "rss",
                 "url": "https://www.tabletopbattles.com/feed/",
-                "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1541029988965289994/Warhammer_1.PNG?ex=6a8c1b84&is=6a8aca04&hm=11d565eea3931914a27619a3e658b8c97cbc46cf1e5cc605e286ef0220b959b1&",
+                "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1542469989955801139/goonhammer.png?ex=6a91589f&is=6a90071f&hm=33eaa3c1ba01686404b0da4d7049112a8ba334c579028bb68ce4221b27a3812b&",
                 "thumbnail": "https://cdn.discordapp.com/attachments/850011185314267177/1523030976622493716/ttb_logo_text_white.png?ex=6a8be2e1&is=6a8a9161&hm=ae5b615894c7933e70d45aec0efee1aaa087dc59d0fbfcf40cbe10fa0fffebef&"
             },
             {
@@ -128,19 +128,18 @@ class NewsFeed(commands.Cog):
                                 
                                 found_links = set()
                                 
-                                # Τα πραγματικά άρθρα έχουν τίτλους σε Heading tags (h2 ή h3)
-                                # Αντί να ψάχνουμε όλα τα τυχαία links, ψάχνουμε μόνο τους τίτλους!
-                                headings = soup.find_all(['h2', 'h3'])
+                                # Όπως είδαμε στο HTML, τα άρθρα είναι όλα κλεισμένα σε <article> tags!
+                                articles = soup.find_all('article')
                                 
-                                for h_tag in headings:
-                                    # Το link μπορεί να τυλίγει τον τίτλο, ή να είναι μέσα στον τίτλο
-                                    a_tag = h_tag.find_parent('a') or h_tag.find('a')
-                                    if not a_tag or not a_tag.has_attr('href'):
+                                for article in articles:
+                                    # Το link είναι μέσα στο article
+                                    a_tag = article.find('a', href=True)
+                                    if not a_tag:
                                         continue
                                         
                                     href = a_tag['href']
                                     
-                                    # Φιλτράρουμε μόνο τα links που είναι όντως άρθρα
+                                    # Σιγουρευόμαστε ότι είναι άρθρο
                                     if '/articles/' not in href and '/news/' not in href:
                                         continue
                                         
@@ -150,17 +149,17 @@ class NewsFeed(commands.Cog):
                                     if href in found_links:
                                         continue
                                         
-                                    title = h_tag.text.strip()
-                                    
-                                    # Ένας κανονικός τίτλος άρθρου αποκλείεται να είναι 2-3 λέξεις (π.χ. μενού)
-                                    # Οπότε αγνοούμε οτιδήποτε έχει κάτω από 15 χαρακτήρες.
-                                    if not title or len(title) < 15:
+                                    # Ο τίτλος κρύβεται στο 'title' attribute, αλλιώς παίρνουμε το κείμενο
+                                    title = a_tag.get('title')
+                                    if not title:
+                                        title = a_tag.text.strip()
+                                        
+                                    if not title or len(title) < 5:
                                         continue
                                         
-                                    # Ψάχνουμε την εικόνα στο parent container της κάρτας (άρθρου)
-                                    container = a_tag.find_parent(['article', 'li', 'div'])
-                                    img_tag = container.find('img') if container else None
-                                    img_url = img_tag['src'] if img_tag and img_tag.has_attr('src') else None
+                                    # Βρίσκουμε την εικόνα του άρθρου
+                                    img_tag = article.find('img')
+                                    img_url = img_tag.get('src') if img_tag else None
                                     
                                     parsed_entries.append({
                                         "title": title,
