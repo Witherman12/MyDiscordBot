@@ -6,6 +6,8 @@ import pymongo
 import certifi
 import os
 import time
+import aiohttp
+from bs4 import BeautifulSoup
 
 # Σύνδεση με τη βάση
 MONGO_URI = os.environ.get("MONGODB_URI")
@@ -20,18 +22,28 @@ class NewsFeed(commands.Cog):
         self.browser_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
         
         # --- ΠΗΓΕΣ ΕΙΔΗΣΕΩΝ ---
+        # Προστέθηκε το πεδίο "type" για να ξεχωρίζει τα RSS από το Web Scraping
         self.news_sources = [
             {
                 "name": "Tabletop Battles",
+                "type": "rss",
                 "url": "https://www.tabletopbattles.com/feed/",
                 "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1541029988965289994/Warhammer_1.PNG?ex=6a8c1b84&is=6a8aca04&hm=11d565eea3931914a27619a3e658b8c97cbc46cf1e5cc605e286ef0220b959b1&",
                 "thumbnail": "https://cdn.discordapp.com/attachments/850011185314267177/1523030976622493716/ttb_logo_text_white.png?ex=6a8be2e1&is=6a8a9161&hm=ae5b615894c7933e70d45aec0efee1aaa087dc59d0fbfcf40cbe10fa0fffebef&"
             },
             {
                 "name": "Auspex Tactics", 
+                "type": "rss",
                 "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6Gco9PWxmJmJ5CqfbChuiQ",
                 "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1541033367854780547/vecteezy_youtube-logo-png-youtube-logo-transparent-png-youtube-icon_23986704.png?ex=6a8c1ea9&is=6a8acd29&hm=e6a39cc27508389afbbdea1c5ce244bb4381f540d3f7bbfc6c3cb5b4b3417078&",
                 "thumbnail": "https://cdn.discordapp.com/attachments/1523030976782143645/1541033577574174740/channels4_banner.jpg?ex=6a8c1edb&is=6a8acd5b&hm=6c614472d8507c18d3d4ff5527c2ee2829ce3c70630558cc37bf22376489d840&"
+            },
+            {
+                "name": "Warhammer Community", 
+                "type": "warcom",
+                "url": "https://www.warhammer-community.com/en-gb/all-news-and-features/news/",
+                "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1541029988965289994/Warhammer_1.PNG?ex=6a90b8c4&is=6a8f6744&hm=c107b83a21a15af4e4c79c35917a2cfe7cc53f9751bfa56c7029516c23e45f48&",
+                "thumbnail": "https://cdn.discordapp.com/attachments/1523030976782143645/1542466665361707098/Warhammer-logo.png?ex=6a915586&is=6a900406&hm=8620ff726f1c14357e52c51d5d897b8349080539c0a36e414e2d68870464140b&"
             }
         ]
         
@@ -51,7 +63,7 @@ class NewsFeed(commands.Cog):
         # --- ΜΑΥΡΗ ΛΙΣΤΑ (Αν βρει αυτά, το άρθρο απορρίπτεται ΑΚΑΡΙΑΙΑ) ---
         self.blocked_keywords = [
             "marvel", "crisis protocol", "mcp", "shatterpoint", "star wars", 
-            "legion", "armada", "x-wing", "d&d", "dungeons and dragons", 
+            "armada", "x-wing", "d&d", "dungeons and dragons", 
             "mtg", "magic the gathering", "lorcana"
         ]
         
@@ -68,39 +80,106 @@ class NewsFeed(commands.Cog):
         for source in self.news_sources:
             try:
                 print(f"🔄 Ανάγνωση πηγής: {source['name']}")
-                if "?" in source['url']:
-                    busted_url = f"{source['url']}&nocache={int(time.time())}"
-                else:
-                    busted_url = f"{source['url']}?nocache={int(time.time())}"
-                    
-                feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
-
-                # --- ΠΡΟΣΘΗΚΗ DEBUG ΓΙΑ ΤΟ YOUTUBE ---
-                print(f"   ┣ HTTP Status: {getattr(feed, 'status', 'Άγνωστο')}")
+                parsed_entries = [] # Εδώ θα μαζεύουμε τα άρθρα ανεξάρτητα από τον τρόπο που τα διαβάσαμε
                 
-                if not feed.entries:
-                    print(f"⚠️ Δεν βρέθηκαν άρθρα στο feed: {source['name']}")
+                # ==========================================
+                # 1. ΑΝΑΓΝΩΣΗ ΜΕΣΩ RSS FEED (Goonhammer, YT)
+                # ==========================================
+                if source.get("type", "rss") == "rss":
+                    if "?" in source['url']:
+                        busted_url = f"{source['url']}&nocache={int(time.time())}"
+                    else:
+                        busted_url = f"{source['url']}?nocache={int(time.time())}"
+                        
+                    feed = await asyncio.to_thread(feedparser.parse, busted_url, agent=self.browser_agent)
+                    print(f"   ┣ HTTP Status: {getattr(feed, 'status', 'Άγνωστο')}")
+                    
+                    if not feed.entries:
+                        print(f"⚠️ Δεν βρέθηκαν άρθρα στο feed: {source['name']}")
+                        continue
+
+                    # Μετατρέπουμε τα RSS entries σε ενιαία μορφή
+                    for entry in feed.entries[:15]:
+                        summary = getattr(entry, 'summary', getattr(entry, 'description', ""))
+                        video_id = None
+                        if hasattr(entry, 'yt_videoid'):
+                            video_id = entry.yt_videoid
+                        elif "youtube.com/watch?v=" in entry.link:
+                            video_id = entry.link.split("v=")[1].split("&")[0]
+
+                        parsed_entries.append({
+                            "title": entry.title,
+                            "link": entry.link,
+                            "summary": summary,
+                            "video_id": video_id,
+                            "image_url": None
+                        })
+                
+                # ==========================================
+                # 2. ΑΝΑΓΝΩΣΗ ΜΕΣΩ WEB SCRAPING (WarCom)
+                # ==========================================
+                elif source.get("type") == "warcom":
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(source['url'], headers={"User-Agent": self.browser_agent}) as response:
+                            print(f"   ┣ HTTP Status (WarCom): {response.status}")
+                            if response.status == 200:
+                                html = await response.text()
+                                soup = BeautifulSoup(html, 'html.parser')
+                                
+                                # Ψάχνουμε όλα τα links της σελίδας που οδηγούν σε άρθρα
+                                articles = soup.find_all('a', href=True)
+                                found_links = set()
+                                
+                                for a_tag in articles:
+                                    href = a_tag['href']
+                                    if '/articles/' in href or '/news/' in href:
+                                        if href.startswith('/'):
+                                            href = "https://www.warhammer-community.com" + href
+                                        
+                                        if href in found_links:
+                                            continue # Το έχουμε ήδη διαβάσει
+                                            
+                                        h_tag = a_tag.find(['h2', 'h3', 'h4'])
+                                        title = h_tag.text.strip() if h_tag else a_tag.text.strip()
+                                        
+                                        if not title or len(title) < 5:
+                                            continue
+                                            
+                                        img_tag = a_tag.find('img')
+                                        img_url = img_tag['src'] if img_tag else None
+                                        
+                                        parsed_entries.append({
+                                            "title": title,
+                                            "link": href,
+                                            "summary": "", # Δεν έχουν περίληψη στο scraping
+                                            "video_id": None,
+                                            "image_url": img_url
+                                        })
+                                        found_links.add(href)
+                                        
+                                        if len(parsed_entries) >= 15:
+                                            break
+                            else:
+                                print(f"⚠️ Αποτυχία σύνδεσης στο WarCom (Status {response.status})")
+                                continue
+
+                # ==========================================
+                # ΦΙΛΤΡΑΡΙΣΜΑ & ΑΠΟΣΤΟΛΗ ΣΤΟ DISCORD
+                # ==========================================
+                if not parsed_entries:
                     continue
 
-                # Κρατάμε τα 15 πιο πρόσφατα
-                recent_entries = reversed(feed.entries[:15])
+                recent_entries = reversed(parsed_entries)
                 
                 for entry in recent_entries:
-                    title = entry.title
+                    title = entry['title']
                     title_lower = title.lower()
-                    current_link = entry.link
+                    current_link = entry['link']
+                    summary_lower = entry['summary'].lower()
                     
-                    # Παίρνουμε την περίληψη
-                    summary_lower = ""
-                    if hasattr(entry, 'summary'):
-                        summary_lower = entry.summary.lower()
-                    elif hasattr(entry, 'description'):
-                        summary_lower = entry.description.lower()
-                        
                     print(f"🔎 Ελέγχω: '{title}'")
                         
                     # 1. ΕΛΕΓΧΟΣ ΜΑΥΡΗΣ ΛΙΣΤΑΣ (ΜΟΝΟ ΣΤΟΝ ΤΙΤΛΟ)
-                    # Δεν ελέγχουμε το summary γιατί οι YouTubers βάζουν affiliate links για άλλα games
                     is_blocked = any(b_kw in title_lower for b_kw in self.blocked_keywords)
                     if is_blocked:
                         print("   ┗ 🚫 Απορρίφθηκε (Μαύρη Λίστα)")
@@ -118,7 +197,7 @@ class NewsFeed(commands.Cog):
                         print("   ┗ ⏭️ Προσπεράστηκε (Υπάρχει ήδη)")
                         continue 
                         
-                    # --- ΝΕΟ ΑΡΘΡΟ/ΒΙΝΤΕΟ ΒΡΕΘΗΚΕ! ---
+                    # --- ΝΕΟ ΑΡΘΡΟ/ΒΙΝΤΕΟ ΒΡΕΘΗΚΕ ---
                     print("   ┗ ✅ ΕΓΚΡΙΘΗΚΕ! Αποθήκευση και αποστολή...")
                     news_col.insert_one({"_id": current_link, "title": title, "source": source['name']})
                     
@@ -131,22 +210,15 @@ class NewsFeed(commands.Cog):
                             description="Νέο περιεχόμενο δημοσιεύτηκε!\nΠατήστε τον τίτλο για να το δείτε."
                         )
                         
-                        # --- YOUTUBE DYNAMIC THUMBNAILS ---
-                        # Ελέγχουμε αν το feed έχει το ειδικό tag του YouTube ή αν είναι link του YT
-                        if hasattr(entry, 'yt_videoid') or "youtube.com/watch?v=" in current_link:
-                            # Παίρνουμε το ID του βίντεο
-                            if hasattr(entry, 'yt_videoid'):
-                                video_id = entry.yt_videoid
-                            else:
-                                video_id = current_link.split("v=")[1].split("&")[0]
-                                
-                            # Το YouTube αποθηκεύει πάντα τις εικόνες του σε αυτό το link:
-                            yt_thumbnail = f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
-                            
-                            embed.set_image(url=yt_thumbnail) # Βάζει την εικόνα του βίντεο μεγάλη, κάτω!
-                            embed.set_thumbnail(url=source["thumbnail"]) # Κρατάει το logo μικρό πάνω δεξιά
+                        # Ρύθμιση Εικόνας (YouTube, WarCom ή κλασικό Thumbnail)
+                        if entry['video_id']:
+                            yt_thumbnail = f"https://img.youtube.com/vi/{entry['video_id']}/hqdefault.jpg"
+                            embed.set_image(url=yt_thumbnail)
+                            embed.set_thumbnail(url=source["thumbnail"])
+                        elif entry['image_url']:
+                            embed.set_image(url=entry['image_url']) # Η εικόνα του WarCom!
+                            embed.set_thumbnail(url=source["thumbnail"])
                         else:
-                            # Κλασική μορφή για sites (π.χ. Tabletop Battles)
                             embed.set_thumbnail(url=source["thumbnail"])
                             
                         embed.set_footer(text=f"{source['name']} Updates", icon_url=source["footer_icon"])
