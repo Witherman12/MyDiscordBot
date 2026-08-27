@@ -36,7 +36,7 @@ class NewsFeed(commands.Cog):
             {
                 "name": "Wargamer", 
                 "url": "https://www.wargamer.com/warhammer-40k/feed",
-                "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1541029988965289994/Warhammer_1.PNG?ex=6a90b8c4&is=6a8f6744&hm=c107b83a21a15af4e4c79c35917a2cfe7cc53f9751bfa56c7029516c23e45f48&",
+                "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1542484519192625242/Wargamer_logo.jpg?ex=6a916627&is=6a9014a7&hm=639efbc0381ad4c6da379645deb4e365bac0586056d386c4bee3a60b96f64d41&",
                 "thumbnail": "https://cdn.discordapp.com/attachments/1523030976782143645/1542466665361707098/Warhammer-logo.png?ex=6a915586&is=6a900406&hm=8620ff726f1c14357e52c51d5d897b8349080539c0a36e414e2d68870464140b&"
             }
         ]
