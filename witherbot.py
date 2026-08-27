@@ -39,6 +39,9 @@ TARGET_USER_ID = 994930770542084227
 TARGET_GUILD_ID = 801753238662676500
 TARGET_PHRASE = "glorious melee combat"
 
+# ID του συγκεκριμένου χρήστη για το 5% emoji reaction
+SPECIFIC_USER_ID = 469508503266918400
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.messages = True
@@ -68,6 +71,12 @@ class WitherBot(commands.Bot):
             print("✅ Το cogs.levels φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο levels: {e}", flush=True)
+
+        try:
+            await self.load_extension("cogs.daily")
+            print("✅ Το cogs.daily φορτώθηκε!", flush=True)
+        except Exception as e:
+            print(f"❌ Σφάλμα στο daily: {e}", flush=True)
 
 bot = WitherBot()
 
@@ -124,15 +133,27 @@ async def on_message(message):
 
     msg_lower = message.content.lower()
 
+    # --- 5% User React ---
+    if message.author.id == SPECIFIC_USER_ID:
+        if secrets.randbelow(100) < 5:
+            try:
+                await message.add_reaction("") 
+            except:
+                pass
+
+    # --- GLORIOUS COUNTER ---
     if message.author.id == TARGET_USER_ID and TARGET_PHRASE.lower().strip() in msg_lower:
         glorious_count += 1
         save_count(glorious_count)
         print(f"Το είπε ξανά! Νέο σύνολο: {glorious_count} (Σώθηκε στο MongoDB)", flush=True)
 
+    # --- Hello World ---
     if bot.user in message.mentions:
-        greetings = ["hi", "hello", "γεια", "γειά", "hello there"]
-        if any(word in msg_lower for word in greetings):
+        if re.search(r'\b(hi|hello|γεια|γειά|hello there)\b', msg_lower):
             await message.channel.send("Imperial greetings! The Emperor protects.") 
+
+    if re.search(r'\b(gay|gays)\b', msg_lower):
+        await message.reply("https://tenor.com/view/abster-abstract-abstractchain-green-pudgy-gif-5688303286939671857")
             
     if re.search(r'wa+gh', msg_lower):
         a_count = random.randint(7, 21)
