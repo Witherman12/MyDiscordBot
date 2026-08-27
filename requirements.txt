@@ -2,5 +2,3 @@ discord.py
 pymongo
 certifi
 feedparser
-aiohttp
-beautifulsoup4
