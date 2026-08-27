@@ -116,7 +116,7 @@ class NewsFeed(commands.Cog):
                         })
                 
                 # ==========================================
-                # 2. ΑΝΑΓΝΩΣΗ ΜΕΣΩ WEB SCRAPING (WarCom)
+                # 2. ΑΝΑΓΝΩΣΗ ΜΕΣΩ WEB SCRAPING (Warhammer Com)
                 # ==========================================
                 elif source.get("type") == "warcom":
                     async with aiohttp.ClientSession() as session:
@@ -126,39 +126,53 @@ class NewsFeed(commands.Cog):
                                 html = await response.text()
                                 soup = BeautifulSoup(html, 'html.parser')
                                 
-                                # Ψάχνουμε όλα τα links της σελίδας που οδηγούν σε άρθρα
-                                articles = soup.find_all('a', href=True)
                                 found_links = set()
                                 
-                                for a_tag in articles:
+                                # Τα πραγματικά άρθρα έχουν τίτλους σε Heading tags (h2 ή h3)
+                                # Αντί να ψάχνουμε όλα τα τυχαία links, ψάχνουμε μόνο τους τίτλους!
+                                headings = soup.find_all(['h2', 'h3'])
+                                
+                                for h_tag in headings:
+                                    # Το link μπορεί να τυλίγει τον τίτλο, ή να είναι μέσα στον τίτλο
+                                    a_tag = h_tag.find_parent('a') or h_tag.find('a')
+                                    if not a_tag or not a_tag.has_attr('href'):
+                                        continue
+                                        
                                     href = a_tag['href']
-                                    if '/articles/' in href or '/news/' in href:
-                                        if href.startswith('/'):
-                                            href = "https://www.warhammer-community.com" + href
+                                    
+                                    # Φιλτράρουμε μόνο τα links που είναι όντως άρθρα
+                                    if '/articles/' not in href and '/news/' not in href:
+                                        continue
                                         
-                                        if href in found_links:
-                                            continue # Το έχουμε ήδη διαβάσει
-                                            
-                                        h_tag = a_tag.find(['h2', 'h3', 'h4'])
-                                        title = h_tag.text.strip() if h_tag else a_tag.text.strip()
+                                    if href.startswith('/'):
+                                        href = "https://www.warhammer-community.com" + href
                                         
-                                        if not title or len(title) < 5:
-                                            continue
-                                            
-                                        img_tag = a_tag.find('img')
-                                        img_url = img_tag['src'] if img_tag else None
+                                    if href in found_links:
+                                        continue
                                         
-                                        parsed_entries.append({
-                                            "title": title,
-                                            "link": href,
-                                            "summary": "", # Δεν έχουν περίληψη στο scraping
-                                            "video_id": None,
-                                            "image_url": img_url
-                                        })
-                                        found_links.add(href)
+                                    title = h_tag.text.strip()
+                                    
+                                    # Ένας κανονικός τίτλος άρθρου αποκλείεται να είναι 2-3 λέξεις (π.χ. μενού)
+                                    # Οπότε αγνοούμε οτιδήποτε έχει κάτω από 15 χαρακτήρες.
+                                    if not title or len(title) < 15:
+                                        continue
                                         
-                                        if len(parsed_entries) >= 15:
-                                            break
+                                    # Ψάχνουμε την εικόνα στο parent container της κάρτας (άρθρου)
+                                    container = a_tag.find_parent(['article', 'li', 'div'])
+                                    img_tag = container.find('img') if container else None
+                                    img_url = img_tag['src'] if img_tag and img_tag.has_attr('src') else None
+                                    
+                                    parsed_entries.append({
+                                        "title": title,
+                                        "link": href,
+                                        "summary": "",
+                                        "video_id": None,
+                                        "image_url": img_url
+                                    })
+                                    found_links.add(href)
+                                    
+                                    if len(parsed_entries) >= 15:
+                                        break
                             else:
                                 print(f"⚠️ Αποτυχία σύνδεσης στο WarCom (Status {response.status})")
                                 continue
