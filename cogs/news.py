@@ -67,7 +67,7 @@ class NewsFeed(commands.Cog):
     def cog_unload(self):
         self.check_news.cancel()
 
-    @tasks.loop(minutes=90)
+    @tasks.loop(minutes=60)
     async def check_news(self):
         print("\n--- 📡 ΞΕΚΙΝΑΕΙ ΣΑΡΩΣΗ ΑΡΘΡΩΝ ---")
         

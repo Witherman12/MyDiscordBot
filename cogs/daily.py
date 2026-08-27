@@ -179,7 +179,7 @@ class DailyTasks(commands.Cog):
     # ==========================================
     # TASK 2: THOUGHT OF THE DAY - 9:00 Local
     # ==========================================
-    quote_time = datetime.time(hour=18, minute=0, tzinfo=datetime.timezone.utc)
+    quote_time = datetime.time(hour=18, minute=20, tzinfo=datetime.timezone.utc)
     
     @tasks.loop(time=quote_time)
     async def send_daily_quote(self):
