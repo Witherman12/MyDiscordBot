@@ -19,7 +19,7 @@ class DailyTasks(commands.Cog):
         
         # --- IDs ΚΑΝΑΛΙΩΝ ---
         self.daily_lore_channel_id = 1416479181860110436
-        self.quote_channel_id = 850011185314267177
+        self.quote_channel_id = 1416479181860110436
 
         # ==========================================
         # ΔΕΔΟΜΕΝΑ: LORE FACTS
@@ -193,7 +193,7 @@ class DailyTasks(commands.Cog):
     # ==========================================
     # TASK 2: THOUGHT OF THE DAY - 6:00 Local
     # ==========================================
-    quote_time = datetime.time(hour=18, minute=43, tzinfo=datetime.timezone.utc)
+    quote_time = datetime.time(hour=9, minute=0, tzinfo=datetime.timezone.utc)
     
     @tasks.loop(time=quote_time)
     async def send_daily_quote(self):
