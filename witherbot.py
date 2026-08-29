@@ -7,6 +7,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import re
 import random
+import secrets
 
 # ==========================================
 # 1. ΨΕΥΤΙΚΟΣ ΔΙΑΚΟΜΙΣΤΗΣ (KEEP-ALIVE RENDER)
