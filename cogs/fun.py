@@ -170,7 +170,17 @@ class FunCommands(commands.Cog):
             inline=False
         )
 
-        # Κατηγορία 4: Fun & Memes
+        # Κατηγορία 4: Γενέθλια
+        embed.add_field(
+            name="🎂 **Γενέθλια (Administratum Records)**",
+            value=(
+                "**`!setbday [ΗΗ/ΜΜ]`** - Δήλωσε τα γενέθλιά σου (π.χ. `!setbday 15/08`).\n"
+                "**`!bday [@user]`** - Δες πότε έχει γενέθλια κάποιος."
+            ),
+            inline=False
+        )
+
+        # Κατηγορία 5: Fun & Memes
         embed.add_field(
             name="🤡 **Fun & Διάφορα**",
             value=(
@@ -204,6 +214,7 @@ class FunCommands(commands.Cog):
             name="⚙️ **Σύστημα & Δεδομένα**",
             value=(
                 "**`!setlevel [@user] [level]`** - Ορίζει χειροκίνητα το Level κάποιου παίκτη.\n"
+                "**`!setbday [ΗΗ/ΜΜ] [@user]`** - Ορίζει ή αλλάζει τα γενέθλια κάποιου μέλους.\n"
                 "**`!report [FactionA] vs [FactionB]`** - Καταγράφει το αποτέλεσμα μιας μάχης στη ΒΔ."
             ),
             inline=False

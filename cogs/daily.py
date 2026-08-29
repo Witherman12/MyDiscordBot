@@ -242,7 +242,7 @@ class DailyTasks(commands.Cog):
     # ==========================================
     # TASK 3: BIRTHDAY LOOP (10:00 Ώρα Ελλάδος)
     # ==========================================
-    bday_time = datetime.time(hour=14, minute=40, tzinfo=tz_greece)
+    bday_time = datetime.time(hour=10, minute=0, tzinfo=tz_greece)
 
     @tasks.loop(time=bday_time)
     async def check_birthdays(self):
@@ -259,14 +259,16 @@ class DailyTasks(commands.Cog):
         for bboy in birthday_boys:
             user_id = bboy["_id"]
             
+            # 1ο Μήνυμα: Κείμενο + Role Tag + User Tag
             bday_msg = (
-                f"🎉 **ADMINISTRATUM ANNOUNCEMENT** 🎉\n\n"
+                f"🎉 **ADMINISTRATUM ANNOUNCEMENT** 🎉 <@&1416870277689901109>\n\n"
                 f"Today we celebrate the Creation Day of <@{user_id}>!\n"
-                f"*May the Emperor grant you another year of life, or at least may your dice roll 6s!* 🎲🎂\n\n"
-                f"https://tenor.com/view/warhammer40k-ultramarines-gif-22239108"
+                f"*May the Emperor grant you another year of life, or at least may your dice roll 6s!* 🎲🎂"
             )
-            
             await channel.send(bday_msg)
+
+            # 2ο Μήνυμα GIF
+            await channel.send("https://tenor.com/view/warhammer40k-ultramarines-gif-22239108")
 
     @check_birthdays.before_loop
     async def before_check_birthdays(self):
@@ -281,7 +283,7 @@ class DailyTasks(commands.Cog):
         
         # Αν κάποιος προσπαθεί να καταχωρήσει γενέθλια για άλλον
         if target and target != ctx.author:
-            # Έλεγχος αν ο χρήστης είναι Admin ή έχει το Mod Role (E.K.D. - 802082482320703489)
+            # Έλεγχος αν ο χρήστης έχει Mod Role
             is_mod = ctx.author.guild_permissions.administrator or any(role.id == 802082482320703489 for role in ctx.author.roles)
             if not is_mod:
                 await ctx.send("❌ Μόνο οι **Mods** μπορούν να καταχωρήσουν γενέθλια για άλλα μέλη.")
