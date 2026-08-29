@@ -175,7 +175,8 @@ class FunCommands(commands.Cog):
             name="🎂 **Γενέθλια (Administratum Records)**",
             value=(
                 "**`!setbday [ΗΗ/ΜΜ]`** - Δήλωσε τα γενέθλιά σου (π.χ. `!setbday 15/08`).\n"
-                "**`!bday [@user]`** - Δες πότε έχει γενέθλια κάποιος."
+                "**`!bday [@user]`** - Δες πότε έχει γενέθλια κάποιος.\n"
+                "**`!bdaylist`** - Λίστα με όλα τα καταχωρημένα γενέθλια του server."
             ),
             inline=False
         )

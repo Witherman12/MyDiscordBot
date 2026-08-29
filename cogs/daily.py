@@ -242,7 +242,7 @@ class DailyTasks(commands.Cog):
     # ==========================================
     # TASK 3: BIRTHDAY LOOP (10:00 Ώρα Ελλάδος)
     # ==========================================
-    bday_time = datetime.time(hour=14, minute=55, tzinfo=tz_greece)
+    bday_time = datetime.time(hour=10, minute=0, tzinfo=tz_greece)
 
     @tasks.loop(time=bday_time)
     async def check_birthdays(self):
@@ -331,6 +331,34 @@ class DailyTasks(commands.Cog):
             await ctx.send(f"🎂 Τα γενέθλια του **{user.display_name}** είναι στις **{day:02d}/{month:02d}**.")
         else:
             await ctx.send(f"⚠️ **{user.display_name}** δεν έχει δηλώσει γενέθλια.")
+
+    @commands.command(name="bdaylist")
+    async def list_birthdays(self, ctx):
+        # Εμφανίζει λίστα με όλα τα καταχωρημένα γενέθλια ταξινομημένα
+        all_bdays = list(bday_col.find())
+        
+        if not all_bdays:
+            await ctx.send("⚠️ Δεν υπάρχει κάτι ακόμα!")
+            return
+            
+        # Ταξινόμηση πρώτα κατά μήνα (month) και μετά κατά ημέρα (day)
+        all_bdays.sort(key=lambda x: (x.get("month", 0), x.get("day", 0)))
+        
+        description = ""
+        for bday in all_bdays:
+            user_id = bday["_id"]
+            day = bday.get("day", 1)
+            month = bday.get("month", 1)
+            
+            description += f"🎂 **{day:02d}/{month:02d}** - <@{user_id}>\n"
+            
+        embed = discord.Embed(
+            title="📅 Λίστα Γενεθλίων",
+            description=description,
+            color=discord.Color.from_rgb(0, 102, 204)
+        )
+        
+        await ctx.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(DailyTasks(bot))
