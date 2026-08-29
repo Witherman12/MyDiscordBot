@@ -242,7 +242,7 @@ class DailyTasks(commands.Cog):
     # ==========================================
     # TASK 3: BIRTHDAY LOOP (10:00 Ώρα Ελλάδος)
     # ==========================================
-    bday_time = datetime.time(hour=10, minute=0, tzinfo=tz_greece)
+    bday_time = datetime.time(hour=14, minute=55, tzinfo=tz_greece)
 
     @tasks.loop(time=bday_time)
     async def check_birthdays(self):
