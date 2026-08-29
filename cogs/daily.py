@@ -12,6 +12,9 @@ import discord
 from discord.ext import commands, tasks
 import random
 import datetime
+from zoneinfo import ZoneInfo # Ζώνες ώρας
+
+tz_greece = ZoneInfo("Europe/Athens")
 
 class DailyTasks(commands.Cog):
     def __init__(self, bot):
@@ -114,7 +117,7 @@ class DailyTasks(commands.Cog):
                 self.flat_lore.append((category, fact))
         self.flat_lore.sort(key=lambda x: x[1])
 
-# ==========================================
+        # ==========================================
         # ΔΕΔΟΜΕΝΑ: THOUGHT OF THE DAY
         # ==========================================
         self.imperial_quotes = [
@@ -158,11 +161,11 @@ class DailyTasks(commands.Cog):
     def cog_unload(self):
         self.daily_lore.cancel()
         self.send_daily_quote.cancel()
-
+    
     # ==========================================
-    # TASK 1: DAILY LORE FACT - 18:00 Local
+    # TASK 1: DAILY LORE FACT (18:00 Ώρα Ελλάδος)
     # ==========================================
-    lore_time = datetime.time(hour=15, minute=0, tzinfo=datetime.timezone.utc)
+    lore_time = datetime.time(hour=18, minute=0, tzinfo=tz_greece)
     
     @tasks.loop(time=lore_time)
     async def daily_lore(self):
@@ -191,9 +194,9 @@ class DailyTasks(commands.Cog):
         await self.bot.wait_until_ready()
 
     # ==========================================
-    # TASK 2: THOUGHT OF THE DAY - 6:00 Local
+    # TASK 2: THOUGHT OF THE DAY (10:00 Ώρα Ελλάδος)
     # ==========================================
-    quote_time = datetime.time(hour=9, minute=0, tzinfo=datetime.timezone.utc)
+    quote_time = datetime.time(hour=10, minute=0, tzinfo=tz_greece)
     
     @tasks.loop(time=quote_time)
     async def send_daily_quote(self):
