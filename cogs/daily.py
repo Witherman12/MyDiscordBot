@@ -3,8 +3,9 @@
 ΑΡΧΕΙΟ: daily.py (Cogs)
 ΠΕΡΙΓΡΑΦΗ: Διαχειρίζεται τις καθημερινές/αυτοματοποιημένες αναρτήσεις του bot.
 ΛΕΙΤΟΥΡΓΙΕΣ:
- - Daily Lore Fact : Στέλνει ένα lore fact κάθε μέρα (14:00 UTC).
- - Daily Quote     : Στέλνει ένα "Thought of the Day" κάθε πρωί (07:00 UTC).
+ - Daily Lore Fact : Στέλνει ένα lore fact κάθε μέρα (18:00 τοπική).
+ - Daily Quote     : Στέλνει ένα "Thought of the Day" κάθε πρωί (10:00 τοπική).
+ - Birthday System : Ελέγχει για γενέθλια (10:00 τοπική) & Εντολές.
 ========================================
 """
 
@@ -12,9 +13,21 @@ import discord
 from discord.ext import commands, tasks
 import random
 import datetime
-from zoneinfo import ZoneInfo # Ζώνες ώρας
+from zoneinfo import ZoneInfo
+import os
+import pymongo
+import certifi
+import re
 
+# ==========================================
+# ΖΩΝΗ ΩΡΑΣ & ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ
+# ==========================================
 tz_greece = ZoneInfo("Europe/Athens")
+
+MONGO_URI = os.environ.get("MONGODB_URI")
+client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where(), tlsAllowInvalidCertificates=True)
+db = client["GloriousDatabase"]
+bday_col = db["Birthdays"]
 
 class DailyTasks(commands.Cog):
     def __init__(self, bot):
@@ -23,6 +36,7 @@ class DailyTasks(commands.Cog):
         # --- IDs ΚΑΝΑΛΙΩΝ ---
         self.daily_lore_channel_id = 1416479181860110436
         self.quote_channel_id = 1416479181860110436
+        self.bday_channel_id = 850011185314267177
 
         # ==========================================
         # ΔΕΔΟΜΕΝΑ: LORE FACTS
@@ -148,7 +162,6 @@ class DailyTasks(commands.Cog):
             "To question is to doubt.",
             "A logical argument must be dismissed with absolute conviction!"
         ]
-        # Ταξινομούμε τη λίστα για να είμαστε σίγουροι ότι η σειρά δεν θα χαλάσει ποτέ
         self.imperial_quotes.sort()
 
     # ==========================================
@@ -157,10 +170,12 @@ class DailyTasks(commands.Cog):
     async def cog_load(self):
         self.daily_lore.start()
         self.send_daily_quote.start()
+        self.check_birthdays.start()
 
     def cog_unload(self):
         self.daily_lore.cancel()
         self.send_daily_quote.cancel()
+        self.check_birthdays.cancel()
     
     # ==========================================
     # TASK 1: DAILY LORE FACT (18:00 Ώρα Ελλάδος)
@@ -194,9 +209,9 @@ class DailyTasks(commands.Cog):
         await self.bot.wait_until_ready()
 
     # ==========================================
-    # TASK 2: THOUGHT OF THE DAY (10:00 Ώρα Ελλάδος)
+    # TASK 2: THOUGHT OF THE DAY (11:00 Ώρα Ελλάδος)
     # ==========================================
-    quote_time = datetime.time(hour=10, minute=0, tzinfo=tz_greece)
+    quote_time = datetime.time(hour=11, minute=0, tzinfo=tz_greece)
     
     @tasks.loop(time=quote_time)
     async def send_daily_quote(self):
@@ -223,6 +238,97 @@ class DailyTasks(commands.Cog):
     @send_daily_quote.before_loop
     async def before_send_daily_quote(self):
         await self.bot.wait_until_ready()
+
+    # ==========================================
+    # TASK 3: BIRTHDAY LOOP (10:00 Ώρα Ελλάδος)
+    # ==========================================
+    bday_time = datetime.time(hour=14, minute=40, tzinfo=tz_greece)
+
+    @tasks.loop(time=bday_time)
+    async def check_birthdays(self):
+        channel = self.bot.get_channel(self.bday_channel_id)
+        if not channel: return
+
+        today = datetime.datetime.now(tz_greece)
+        current_day = today.day
+        current_month = today.month
+
+        # Ψάχνουμε τα γενέθλια της σημερινής ημέρας στη βάση
+        birthday_boys = bday_col.find({"day": current_day, "month": current_month})
+        
+        for bboy in birthday_boys:
+            user_id = bboy["_id"]
+            
+            bday_msg = (
+                f"🎉 **ADMINISTRATUM ANNOUNCEMENT** 🎉\n\n"
+                f"Today we celebrate the Creation Day of <@{user_id}>!\n"
+                f"*May the Emperor grant you another year of life, or at least may your dice roll 6s!* 🎲🎂\n\n"
+                f"https://tenor.com/view/warhammer40k-ultramarines-gif-22239108"
+            )
+            
+            await channel.send(bday_msg)
+
+    @check_birthdays.before_loop
+    async def before_check_birthdays(self):
+        await self.bot.wait_until_ready()
+
+    # ==========================================
+    # ΕΝΤΟΛΕΣ: ΣΕΤΑΡΙΣΜΑ ΚΑΙ ΕΛΕΓΧΟΣ ΓΕΝΕΘΛΙΩΝ
+    # ==========================================
+    @commands.command(name="setbday")
+    async def set_birthday(self, ctx, date: str, target: discord.Member = None):
+        # Καταχώρηση γενεθλίων. Μορφή: !setbday ΗΗ/ΜΜ [@user προαιρετικά για mods]
+        
+        # Αν κάποιος προσπαθεί να καταχωρήσει γενέθλια για άλλον
+        if target and target != ctx.author:
+            # Έλεγχος αν ο χρήστης είναι Admin ή έχει το Mod Role (E.K.D. - 802082482320703489)
+            is_mod = ctx.author.guild_permissions.administrator or any(role.id == 802082482320703489 for role in ctx.author.roles)
+            if not is_mod:
+                await ctx.send("❌ Μόνο οι **Mods** μπορούν να καταχωρήσουν γενέθλια για άλλα μέλη.")
+                return
+            user = target
+        else:
+            user = ctx.author
+
+        # Regex για έλεγχο μορφής (π.χ. 15/08 ή 15-08)
+        match = re.match(r"^(\d{1,2})[/-](\d{1,2})$", date)
+        if not match:
+            await ctx.send("❌ **Λάθος μορφή!** Παρακαλώ χρησιμοποίησε την μορφή `ΗΗ/ΜΜ`\n-# (π.χ.`!setbday 02/11`).")
+            return
+
+        day = int(match.group(1))
+        month = int(match.group(2))
+
+        # Έλεγχος εγκυρότητας ημερομηνίας
+        if month < 1 or month > 12 or day < 1 or day > 31:
+            await ctx.send("❌ Βάλε μια πραγματική ημερομηνία!")
+            return
+
+        # Αποθήκευση στην ΒΔ
+        bday_col.update_one(
+            {"_id": user.id}, 
+            {"$set": {"day": day, "month": month}}, 
+            upsert=True
+        )
+
+        if user == ctx.author:
+            await ctx.send(f"✅ Τα γενέθλιά σου καταγράφηκαν για τις **{day:02d}/{month:02d}**.")
+        else:
+            await ctx.send(f"✅ Κατέγραψες επιτυχώς τα γενέθλια του **{user.display_name}** για τις **{day:02d}/{month:02d}**.")
+
+    @commands.command(name="bday")
+    async def check_birthday(self, ctx, target: discord.Member = None):
+        # Ελέγχει τα γενέθλια κάποιου χρήστη.
+        user = target if target else ctx.author
+        
+        bday_data = bday_col.find_one({"_id": user.id})
+        
+        if bday_data:
+            day = bday_data["day"]
+            month = bday_data["month"]
+            await ctx.send(f"🎂 Τα γενέθλια του **{user.display_name}** είναι στις **{day:02d}/{month:02d}**.")
+        else:
+            await ctx.send(f"⚠️ **{user.display_name}** δεν έχει δηλώσει γενέθλια.")
 
 async def setup(bot):
     await bot.add_cog(DailyTasks(bot))
