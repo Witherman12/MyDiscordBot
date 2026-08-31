@@ -216,7 +216,8 @@ class FunCommands(commands.Cog):
             value=(
                 "**`!setlevel [@user] [level]`** - Ορίζει χειροκίνητα το Level κάποιου παίκτη.\n"
                 "**`!setbday [ΗΗ/ΜΜ] [@user]`** - Ορίζει ή αλλάζει τα γενέθλια κάποιου μέλους.\n"
-                "**`!report [FactionA] vs [FactionB]`** - Καταγράφει το αποτέλεσμα μιας μάχης στη ΒΔ."
+                "**`!report [FactionA] vs [FactionB]`** - Καταγράφει το αποτέλεσμα μιας μάχης στη ΒΔ.\n"
+                "**`!setup_roles`** - Δημιουργεί/Ενημερώνει το Live Panel καταμέτρησης των Factions."
             ),
             inline=False
         )
