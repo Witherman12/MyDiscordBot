@@ -152,7 +152,8 @@ class RolesSystem(commands.Cog):
                 emoji = EMOJIS.get(name, "▪️")
                 text += f"{emoji} **{name}:** {count}\n"
                 
-            embed.add_field(name=f"**{category}**", value=text, inline=True)
+            is_inline = False if category == "General" else True
+            embed.add_field(name=f"**{category}**", value=text, inline=is_inline)
             
         embed.set_footer(text="To Departmento Munitorum παρακολουθεί.")
         return embed
