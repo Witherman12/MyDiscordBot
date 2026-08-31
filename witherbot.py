@@ -47,6 +47,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.messages = True
 intents.guilds = True
+intents.members = True
 
 # --- Ο ΕΠΙΣΗΜΟΣ ΤΡΟΠΟΣ ΦΟΡΤΩΣΗΣ (Discord.py v2.0+) ---
 class WitherBot(commands.Bot):
@@ -78,6 +79,12 @@ class WitherBot(commands.Bot):
             print("✅ Το cogs.daily φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο daily: {e}", flush=True)
+            
+        try:
+            await self.load_extension("cogs.roles")
+            print("✅ Το cogs.roles φορτώθηκε!", flush=True)
+        except Exception as e:
+            print(f"❌ Σφάλμα στο roles: {e}", flush=True)
 
 bot = WitherBot()
 
@@ -138,7 +145,7 @@ async def on_message(message):
     if message.author.id == SPECIFIC_USER_ID:
         if secrets.randbelow(100) < 5:
             try:
-                await message.add_reaction("") 
+                await message.add_reaction("🫃") 
             except:
                 pass
 
