@@ -85,6 +85,12 @@ class WitherBot(commands.Bot):
             print("✅ Το cogs.roles φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο roles: {e}", flush=True)
+            
+        try:
+            await self.load_extension("cogs.chat")
+            print("✅ Το cogs.chat φορτώθηκε!", flush=True)
+        except Exception as e:
+            print(f"❌ Σφάλμα στο chat: {e}", flush=True)
 
 bot = WitherBot()
 
