@@ -172,7 +172,7 @@ class FunCommands(commands.Cog):
 
         # Κατηγορία 4: Γενέθλια
         embed.add_field(
-            name="🎂 **Γενέθλια (Administratum Records)**",
+            name="🎂 **Γενέθλια**",
             value=(
                 "**`!setbday [ΗΗ/ΜΜ]`** - Δήλωσε τα γενέθλιά σου (π.χ. `!setbday 15/08`).\n"
                 "**`!bday [@user]`** - Δες πότε έχει γενέθλια κάποιος.\n"
@@ -218,6 +218,15 @@ class FunCommands(commands.Cog):
                 "**`!setbday [ΗΗ/ΜΜ] [@user]`** - Ορίζει ή αλλάζει τα γενέθλια κάποιου μέλους.\n"
                 "**`!report [FactionA] vs [FactionB]`** - Καταγράφει το αποτέλεσμα μιας μάχης στη ΒΔ.\n"
                 "**`!setup_roles`** - Δημιουργεί/Ενημερώνει το Live Panel καταμέτρησης των Factions."
+            ),
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🎭 **Επικοινωνία & Roleplay**",
+            value=(
+                "**`!say [#κανάλι] [κείμενο]`** - Το bot στέλνει το κείμενό σου στο κανάλι που θα του πεις.\n"
+                "**`!reply [LINK_ΜΗΝΥΜΑΤΟΣ] [κείμενο]`** - Το bot κάνει απευθείας reply στο μήνυμα του link."
             ),
             inline=False
         )
