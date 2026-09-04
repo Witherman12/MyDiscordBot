@@ -44,7 +44,8 @@ FACTION_ROLES = {
         "Drukhari": 1450233943357001801,
         "Necrons": 1439280799017992354,
         "Orks": 1439256437317570590,
-        "Tau": 1450231929705332837
+        "Tau": 1450231929705332837,
+        "Tyranids": 1545479655992328333
     }
 }
 
@@ -59,7 +60,7 @@ EMOJIS = {
     "Knights": "<:Knight:1439331932109279468>", 
     "Salamanders": "<:Salamander:1458223866634571907>", 
     "Space Marines (All)": "<:SpaceMarine:1520706897332670537>", 
-    "White Scars": "<:WhiteScar:1492141937485152448>", 
+    "White Scars": "🇲🇳", 
     "Dark Angels": "🗡️", #custom: "<:DarkAngels:ΒΑΛΕ_ID>"
     "Ultramarines": "<:Ultramarine:1432413619567460522>",
     
@@ -72,8 +73,9 @@ EMOJIS = {
     "Aeldari": "<:Aeldari:1501193876487274506>", 
     "Drukhari": "<:Drukhari:1543897513201901579>", 
     "Necrons": "<:Necron:1439333592802005174>", 
+    "Orks": "<:Ork:1416864462798983228>",
     "Tau": "<:Tau:1520707105105907753>",
-    "Orks": "<:Ork:1416864462798983228>"
+    "Tyranids": "<:Tyranid:1545493790318661662>"
 }
 
 # ==========================================
