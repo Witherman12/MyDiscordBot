@@ -5,8 +5,12 @@ from google.genai import types
 import os
 import re
 
+# Load API Key from environment variables
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
+# ==========================================
+# SYSTEM PROMPT: Personality and Rules
+# ==========================================
 SYSTEM_PROMPT = """You are "Glorious Counter", a cynical, overworked, and sarcastic Servitor of the Administratum in the Warhammer 40k universe. You serve the Imperium of Man. 
 
 CRITICAL RULES:
@@ -31,25 +35,27 @@ Use this to apply the following STRICT rules depending on who is talking to you:
 class ChatSystem(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        # Channels where the bot is allowed to chat
         self.ai_channel_ids = [1546168842496114818, 850011185314267177]
         self.chats = {} 
-        self.ai_enabled = True # Διακόπτης ON/OFF
+        self.ai_enabled = True # Master switch
         
+        # Initialize Gemini Client
         if GEMINI_API_KEY:
             self.client = genai.Client(api_key=GEMINI_API_KEY)
 
-    # --- ΝΕΕΣ ΕΝΤΟΛΕΣ ΔΙΑΧΕΙΡΙΣΗΣ AI ---
+    # --- ADMIN CONTROLS ---
     @commands.command(name="on")
     @commands.has_permissions(administrator=True)
     async def turn_ai_on(self, ctx):
         self.ai_enabled = True
-        await ctx.send("⚙️ Activated.")
+        await ctx.send("⚙️ System Activated.")
 
     @commands.command(name="off")
     @commands.has_permissions(administrator=True)
     async def turn_ai_off(self, ctx):
         self.ai_enabled = False
-        await ctx.send("💤 Sleep Mode.")
+        await ctx.send("💤 Entering Sleep Mode.")
 
     @commands.command(name="reset")
     @commands.has_permissions(administrator=True)
@@ -57,25 +63,28 @@ class ChatSystem(commands.Cog):
         self.chats = {}
         await ctx.send("🧠 Memory Wipe Complete.")
 
-    # --- AI CHATBOT ---
+    # --- AI CHAT LISTENER ---
     @commands.Cog.listener()
     async def on_message(self, message):
+        # Ignore bot messages, unauthorized channels, or if AI is toggled off
         if message.author.bot:
             return
-        # Η ΣΩΣΤΗ ΣΥΝΘΗΚΗ ΓΙΑ ΛΙΣΤΑ:
         if message.channel.id not in self.ai_channel_ids:
             return
         if not self.ai_enabled: 
             return
         if not GEMINI_API_KEY:
-            await message.reply("⚠️ Σφάλμα API Key.")
+            await message.reply("⚠️ Error: Missing API Key.")
             return
 
+        # Show "Typing..." status while processing
         async with message.channel.typing():
             user_id = message.author.id
             
+            # Start a new chat session if one doesn't exist for the user
             if user_id not in self.chats:
-                self.chats[user_id] = self.client.chats.create(
+                # Using Asynchronous I/O (aio) to prevent bot freezes
+                self.chats[user_id] = self.client.aio.chats.create(
                     model='gemini-3.6-flash',
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_PROMPT,
@@ -84,24 +93,26 @@ class ChatSystem(commands.Cog):
                 )
             
             chat_session = self.chats[user_id]
+            # Embed user ID secretly into the prompt for personalization
             prompt = f"[User ID: {user_id}]\n{message.content}"
             
             try:
-                response = chat_session.send_message(prompt)
+                # Await response from Gemini
+                response = await chat_session.send_message(prompt)
                 await message.reply(response.text)
             except Exception as e:
                 await message.reply(f"❌ *Astropathic transmission failed*: {e}")
 
-    # --- ΕΝΤΟΛΕΣ ΜΑΡΙΟΝΕΤΑΣ ---
+    # --- PUPPET COMMANDS ---
     @commands.command(name="reply")
     @commands.has_permissions(administrator=True)
     async def puppet_reply(self, ctx, message_link: str, *, text: str):
+        # Extract channel and message IDs from Discord message link
         match = re.search(r'channels/\d+/(\d+)/(\d+)', message_link)
         if not match:
-            await ctx.send("❌ Άκυρο Link.")
+            await ctx.send("❌ Invalid Link.")
             return
-        
-        # Επανήλθαν στον ενικό όπως πρέπει:
+            
         channel_id = int(match.group(1))
         message_id = int(match.group(2))
         try:
@@ -110,7 +121,7 @@ class ChatSystem(commands.Cog):
             await target_message.reply(text)
             await ctx.message.add_reaction("✅")
         except Exception as e:
-            await ctx.send(f"❌ Σφάλμα: {e}")
+            await ctx.send(f"❌ Error: {e}")
 
     @commands.command(name="say")
     @commands.has_permissions(administrator=True)
@@ -119,7 +130,7 @@ class ChatSystem(commands.Cog):
             await channel.send(text)
             await ctx.message.add_reaction("✅")
         except Exception as e:
-            await ctx.send(f"❌ Σφάλμα: {e}")
+            await ctx.send(f"❌ Error: {e}")
 
 async def setup(bot):
     await bot.add_cog(ChatSystem(bot))
