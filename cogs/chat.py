@@ -39,19 +39,19 @@ class ChatSystem(commands.Cog):
             self.client = genai.Client(api_key=GEMINI_API_KEY)
 
     # --- ΝΕΕΣ ΕΝΤΟΛΕΣ ΔΙΑΧΕΙΡΙΣΗΣ AI ---
-    @commands.command(name="aion")
+    @commands.command(name="on")
     @commands.has_permissions(administrator=True)
     async def turn_ai_on(self, ctx):
         self.ai_enabled = True
         await ctx.send("⚙️ Activated.")
 
-    @commands.command(name="aioff")
+    @commands.command(name="off")
     @commands.has_permissions(administrator=True)
     async def turn_ai_off(self, ctx):
         self.ai_enabled = False
         await ctx.send("💤 Sleep Mode.")
 
-    @commands.command(name="aireset")
+    @commands.command(name="reset")
     @commands.has_permissions(administrator=True)
     async def reset_ai_memory(self, ctx):
         self.chats = {}
@@ -62,9 +62,10 @@ class ChatSystem(commands.Cog):
     async def on_message(self, message):
         if message.author.bot:
             return
-        if message.channel.id != self.ai_channel_id:
+        # Η ΣΩΣΤΗ ΣΥΝΘΗΚΗ ΓΙΑ ΛΙΣΤΑ:
+        if message.channel.id not in self.ai_channel_ids:
             return
-        if not self.ai_enabled: # Αν είναι κλειστό το AI, σταματάει εδώ
+        if not self.ai_enabled: 
             return
         if not GEMINI_API_KEY:
             await message.reply("⚠️ Σφάλμα API Key.")
@@ -75,7 +76,7 @@ class ChatSystem(commands.Cog):
             
             if user_id not in self.chats:
                 self.chats[user_id] = self.client.chats.create(
-                    model='gemini-3.6-flash', # <--- ΤΟ ΣΩΣΤΟ ΜΟΝΤΕΛΟ
+                    model='gemini-3.6-flash',
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_PROMPT,
                         temperature=0.7
@@ -99,6 +100,8 @@ class ChatSystem(commands.Cog):
         if not match:
             await ctx.send("❌ Άκυρο Link.")
             return
+        
+        # Επανήλθαν στον ενικό όπως πρέπει:
         channel_id = int(match.group(1))
         message_id = int(match.group(2))
         try:
