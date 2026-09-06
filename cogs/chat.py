@@ -1,13 +1,12 @@
 import discord
 from discord.ext import commands
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 import re
 
 # Φόρτωση του API Key
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
 
 # ==========================================
 # Η ΠΡΟΣΩΠΙΚΟΤΗΤΑ ΤΟΥ BOT (System Prompt)
@@ -38,46 +37,42 @@ class ChatSystem(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.ai_channel_id = 1546168842496114818 # Το ειδικό κανάλι
-        self.chats = {} # Εδώ αποθηκεύεται η μνήμη του Chatbot ανά χρήστη
+        self.chats = {} # Εδώ αποθηκεύεται η μνήμη του Chatbot
         
-        # Αρχικοποίηση του Μοντέλου
+        # Αρχικοποίηση με τη ΝΕΑ βιβλιοθήκη genai
         if GEMINI_API_KEY:
-            self.model = genai.GenerativeModel(
-                model_name="gemini-1.5-flash-latest",
-                system_instruction=SYSTEM_PROMPT
-            )
+            self.client = genai.Client(api_key=GEMINI_API_KEY)
 
-    # --- AI CHATBOT (Ακούει μόνο στο ειδικό κανάλι) ---
+    # --- AI CHATBOT ---
     @commands.Cog.listener()
     async def on_message(self, message):
-        # Αγνοούμε τα bots και τυχόν δικά του μηνύματα
         if message.author.bot:
             return
 
-        # Αν ΔΕΝ είναι στο ειδικό κανάλι, σταματάει
         if message.channel.id != self.ai_channel_id:
             return
 
-        # Έλεγχος αν υπάρχει το API Key
         if not GEMINI_API_KEY:
-            await message.reply("⚠️ Σφάλμα: Το API_KEY δεν βρέθηκε!")
+            await message.reply("⚠️ Σφάλμα: Το API KEY δεν βρέθηκε!")
             return
 
-        # Δείχνει ότι "πληκτρολογεί" στο Discord
         async with message.channel.typing():
             user_id = message.author.id
             
-            # Αν είναι η πρώτη φορά που μιλάει, δημιουργεί νέα συζήτηση (για μνήμη)
             if user_id not in self.chats:
-                self.chats[user_id] = self.model.start_chat(history=[])
+                # Δημιουργία Chat Session με τη νέα σύνταξη
+                self.chats[user_id] = self.client.chats.create(
+                    model='gemini-2.5-flash',
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_PROMPT,
+                        temperature=0.7
+                    )
+                )
             
             chat_session = self.chats[user_id]
-            
-            # Ενώνουμε το ID του χρήστη με το μήνυμά του κρυφά, για να τον αναγνωρίσει το AI
             prompt = f"[User ID: {user_id}]\n{message.content}"
             
             try:
-                # Στέλνουμε το μήνυμα στο Gemini
                 response = chat_session.send_message(prompt)
                 await message.reply(response.text)
             except Exception as e:
