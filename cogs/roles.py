@@ -30,6 +30,7 @@ FACTION_ROLES = {
         "Dark Angels": 1510258331992985751,
         "Knights": 1439281880573939712,
         "Salamanders": 1458223310247563345,
+        "Sisters of Battle": 1545809435354730547,
         "Space Marines (All)": 1520707256662888488,
         "Ultramarines": 1439255972970233939,
         "White Scars": 1492131141166301265
@@ -59,6 +60,7 @@ EMOJIS = {
     "Custodes": "<:Custode:1439332561468920132>", 
     "Knights": "<:Knight:1439331932109279468>", 
     "Salamanders": "<:Salamander:1458223866634571907>", 
+    "Sisters of Battle": "⚜️",
     "Space Marines (All)": "<:SpaceMarine:1520706897332670537>", 
     "White Scars": "🇲🇳", 
     "Dark Angels": "🗡️", #custom: "<:DarkAngels:ΒΑΛΕ_ID>"
