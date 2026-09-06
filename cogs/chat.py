@@ -73,6 +73,11 @@ class ChatSystem(commands.Cog):
             return
         if not self.ai_enabled: 
             return
+            
+        # ΝΕΟΣ ΕΛΕΓΧΟΣ: Αν το bot ΔΕΝ έχει γίνει tag, σταματάει εδώ.
+        if not self.bot.user in message.mentions:
+            return
+            
         if not GEMINI_API_KEY:
             await message.reply("⚠️ Error: Missing API Key.")
             return
@@ -83,9 +88,8 @@ class ChatSystem(commands.Cog):
             
             # Start a new chat session if one doesn't exist for the user
             if user_id not in self.chats:
-                # Using Asynchronous I/O (aio) to prevent bot freezes
                 self.chats[user_id] = self.client.aio.chats.create(
-                    model='gemini-3.5-flash-lite',
+                    model='gemini-3.5-flash-lite', # Το νέο μοντέλο με τα 500 μηνύματα!
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_PROMPT,
                         temperature=0.7
@@ -93,8 +97,12 @@ class ChatSystem(commands.Cog):
                 )
             
             chat_session = self.chats[user_id]
+            
+            # ΚΑΘΑΡΙΣΜΟΣ: Αφαιρούμε το tag του bot από το κείμενο για να μην το διαβάσει το AI
+            clean_content = message.content.replace(f'<@{self.bot.user.id}>', '').replace(f'<@!{self.bot.user.id}>', '').strip()
+            
             # Embed user ID secretly into the prompt for personalization
-            prompt = f"[User ID: {user_id}]\n{message.content}"
+            prompt = f"[User ID: {user_id}]\n{clean_content}"
             
             try:
                 # Await response from Gemini
@@ -107,7 +115,6 @@ class ChatSystem(commands.Cog):
     @commands.command(name="reply")
     @commands.has_permissions(administrator=True)
     async def puppet_reply(self, ctx, message_link: str, *, text: str):
-        # Extract channel and message IDs from Discord message link
         match = re.search(r'channels/\d+/(\d+)/(\d+)', message_link)
         if not match:
             await ctx.send("❌ Invalid Link.")
