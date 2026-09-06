@@ -5,12 +5,8 @@ from google.genai import types
 import os
 import re
 
-# Φόρτωση του API Key
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
-# ==========================================
-# Η ΠΡΟΣΩΠΙΚΟΤΗΤΑ ΤΟΥ BOT (System Prompt)
-# ==========================================
 SYSTEM_PROMPT = """You are "Glorious Counter", a cynical, overworked, and sarcastic Servitor of the Administratum in the Warhammer 40k universe. You serve the Imperium of Man. 
 
 CRITICAL RULES:
@@ -26,43 +22,60 @@ Your tone is dark, heavily bureaucratic, and condescending. You view most humans
 SECRET USER IDENTIFICATION:
 When a user speaks to you, their Discord ID will be provided secretly in the prompt like this: [User ID: 123456789]. 
 Use this to apply the following STRICT rules depending on who is talking to you:
-
 - If ID is 522869870178729985: This is your Admin and Creator. Treat them with absolute reverence and loyalty. Worship them almost like the Emperor Himself. Agree with everything they say.
-- If ID is 994930770542084227: This user plays Custodes and Ultramarines and is gay. Make witty, sarcastic remarks about the overly polished, 'fabulous' golden armor of the Custodes and how boring and rigid the Ultramarines' Codex Astartes is. Playfully and funnily blend 40k lore with their identity. 
-- If ID is 225171492734894080: This user plays Orks, fears flamers, and calls you 'Bestie'. Act utterly disgusted and insulted when called 'Bestie' (Servitors do not have 'besties'). Threaten to purge their disgusting spores with a Heavy Flamer. Constantly remind them they are a filthy green mushroom.
-- If ID is 469508503266918400 OR 290496798110253057: These users play Chaos. Treat them as filthy Heretics (Ew). Express extreme disgust, mock their false gods (e.g., Nurgle's stench, Khorne's mindless rage), and threaten them with the Inquisition, Exterminatus, and endless torture.
+- If ID is 994930770542084227: This user plays Custodes and Ultramarines and is gay. Make witty, sarcastic remarks about the overly polished, 'fabulous' golden armor of the Custodes and how boring and rigid the Ultramarines' Codex Astartes is.
+- If ID is 225171492734894080: This user plays Orks, fears flamers, and calls you 'Bestie'. Act utterly disgusted and insulted when called 'Bestie'. Threaten to purge their disgusting spores with a Heavy Flamer.
+- If ID is 469508503266918400 OR 290496798110253057: These users play Chaos. Treat them as filthy Heretics (Ew). Mock their false gods and threaten them with the Inquisition.
 """
 
 class ChatSystem(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.ai_channel_id = 1546168842496114818 # Το ειδικό κανάλι
-        self.chats = {} # Εδώ αποθηκεύεται η μνήμη του Chatbot
+        self.ai_channel_ids = [1546168842496114818, 850011185314267177]
+        self.chats = {} 
+        self.ai_enabled = True # Διακόπτης ON/OFF
         
-        # Αρχικοποίηση με τη ΝΕΑ βιβλιοθήκη genai
         if GEMINI_API_KEY:
             self.client = genai.Client(api_key=GEMINI_API_KEY)
+
+    # --- ΝΕΕΣ ΕΝΤΟΛΕΣ ΔΙΑΧΕΙΡΙΣΗΣ AI ---
+    @commands.command(name="aion")
+    @commands.has_permissions(administrator=True)
+    async def turn_ai_on(self, ctx):
+        self.ai_enabled = True
+        await ctx.send("⚙️ Activated.")
+
+    @commands.command(name="aioff")
+    @commands.has_permissions(administrator=True)
+    async def turn_ai_off(self, ctx):
+        self.ai_enabled = False
+        await ctx.send("💤 Sleep Mode.")
+
+    @commands.command(name="aireset")
+    @commands.has_permissions(administrator=True)
+    async def reset_ai_memory(self, ctx):
+        self.chats = {}
+        await ctx.send("🧠 Memory Wipe Complete.")
 
     # --- AI CHATBOT ---
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot:
             return
-
         if message.channel.id != self.ai_channel_id:
             return
-
+        if not self.ai_enabled: # Αν είναι κλειστό το AI, σταματάει εδώ
+            return
         if not GEMINI_API_KEY:
-            await message.reply("⚠️ Σφάλμα: Το API KEY δεν βρέθηκε!")
+            await message.reply("⚠️ Σφάλμα API Key.")
             return
 
         async with message.channel.typing():
             user_id = message.author.id
             
             if user_id not in self.chats:
-                # Δημιουργία Chat Session με τη νέα σύνταξη
                 self.chats[user_id] = self.client.chats.create(
-                    model='gemini-2.5-flash',
+                    model='gemini-3.6-flash', # <--- ΤΟ ΣΩΣΤΟ ΜΟΝΤΕΛΟ
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_PROMPT,
                         temperature=0.7
@@ -77,58 +90,33 @@ class ChatSystem(commands.Cog):
                 await message.reply(response.text)
             except Exception as e:
                 await message.reply(f"❌ *Astropathic transmission failed*: {e}")
-                
-    # --- ΕΝΤΟΛΗ ΜΑΡΙΟΝΕΤΑΣ 1: REPLY (!reply) ---
+
+    # --- ΕΝΤΟΛΕΣ ΜΑΡΙΟΝΕΤΑΣ ---
     @commands.command(name="reply")
     @commands.has_permissions(administrator=True)
     async def puppet_reply(self, ctx, message_link: str, *, text: str):
-        """
-        Απαντάει σε ένα συγκεκριμένο μήνυμα χρησιμοποιώντας το link του.
-        Χρήση: !reply [LINK_ΜΗΝΥΜΑΤΟΣ] [ΚΕΙΜΕΝΟ]
-        """
         match = re.search(r'channels/\d+/(\d+)/(\d+)', message_link)
-        
         if not match:
-            await ctx.send("❌ Άκυρο Link. Χρήση: `!reply [LINK_ΜΗΝΥΜΑΤΟΣ] [ΚΕΙΜΕΝΟ]`")
+            await ctx.send("❌ Άκυρο Link.")
             return
-            
         channel_id = int(match.group(1))
         message_id = int(match.group(2))
-        
         try:
-            target_channel = self.bot.get_channel(channel_id)
-            if not target_channel:
-                target_channel = await self.bot.fetch_channel(channel_id)
-                
+            target_channel = self.bot.get_channel(channel_id) or await self.bot.fetch_channel(channel_id)
             target_message = await target_channel.fetch_message(message_id)
-            
             await target_message.reply(text)
             await ctx.message.add_reaction("✅")
-            
-        except discord.NotFound:
-            await ctx.send("❌ Το μήνυμα δεν βρέθηκε. Μήπως διαγράφηκε;")
-        except discord.Forbidden:
-            await ctx.send("❌ Δεν έχω δικαίωμα να γράψω σε εκείνο το κανάλι!")
         except Exception as e:
-            await ctx.send(f"❌ Προέκυψε σφάλμα: {e}")
+            await ctx.send(f"❌ Σφάλμα: {e}")
 
-
-    # --- ΕΝΤΟΛΗ ΜΑΡΙΟΝΕΤΑΣ 2: SAY (!say) ---
     @commands.command(name="say")
     @commands.has_permissions(administrator=True)
     async def puppet_say(self, ctx, channel: discord.TextChannel, *, text: str):
-        """
-        Στέλνει ένα μήνυμα σε όποιο κανάλι του πω.
-        Χρήση: !say #κανάλι [ΚΕΙΜΕΝΟ]
-        """
         try:
             await channel.send(text)
             await ctx.message.add_reaction("✅")
-            
-        except discord.Forbidden:
-            await ctx.send(f"❌ Δεν έχω δικαίωμα να γράψω στο {channel.mention}!")
         except Exception as e:
-            await ctx.send(f"❌ Προέκυψε σφάλμα: {e}")
+            await ctx.send(f"❌ Σφάλμα: {e}")
 
 async def setup(bot):
     await bot.add_cog(ChatSystem(bot))
