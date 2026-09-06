@@ -85,7 +85,7 @@ class ChatSystem(commands.Cog):
             if user_id not in self.chats:
                 # Using Asynchronous I/O (aio) to prevent bot freezes
                 self.chats[user_id] = self.client.aio.chats.create(
-                    model='gemini-3.6-flash',
+                    model='gemini-3.5-flash-lite',
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_PROMPT,
                         temperature=0.7
