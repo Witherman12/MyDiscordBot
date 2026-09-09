@@ -53,7 +53,7 @@ FACTION_ROLES = {
         "Age Of Sigmar": 1491162031880015945,  
         "Kill Team": 1491372593616392192,      
         "Old World": 1491372847711391774,      
-        "Gaming": 1520072097295106219       
+        "Gaming": 1520072097295106219        
     }
 }
 
@@ -78,7 +78,7 @@ EMOJIS = {
     "Orks": "<:Ork:1416864462798983228>",
     "Tau": "<:Tau:1520707105105907753>",
     "Tyranids": "<:Tyranid:1545493790318661662>",
-    # Άλλα παιχ΄ίδια
+    # Άλλα παιχνίδια
     "Campaign": "<:Warhammer_1:1416864475520438302>", 
     "Age Of Sigmar": "<:Age_of_Sigmar:1439331241693286600>",
     "Kill Team": "<:Kill_Team:1491372232243675236>",
@@ -218,16 +218,12 @@ class RolesSystem(commands.Cog):
     async def setup_roles(self, ctx):
         await ctx.message.delete()
         
-        # Στέλνουμε το Panel
-        panel_embed = self.generate_panel_embed(ctx.guild)
-        panel_msg = await ctx.send(embed=panel_embed)
-        
-        await ctx.send("https://cdn.discordapp.com/attachments/1523030976782143645/1547174668350263346/CITYPNG.COMHorizontal_White_Line_-_2000x2000.png?ex=6aa27632&is=6aa124b2&hm=e74aa9659e8399a93a0ed792beba8ff29873a7466fc8e9b54be560ba9c173e1a&")
+        # ΠΡΩΤΑ στέλνουμε τον τίτλο
         await ctx.send("## 📜 ARMY SELECTION\n*Press the buttons below to get or remove your roles.*")
 
         saved_messages = {}
 
-        # Φτιάχνουμε τα μηνύματα με τα κουμπιά ένα-ένα
+        # ΔΕΥΤΕΡΟΝ, φτιάχνουμε και στέλνουμε τα μηνύματα με τα κουμπιά
         for category, roles in FACTION_ROLES.items():
             if not roles or category == "General": continue # Το General (Warhammer) εξαιρείται από τα κουμπιά
             
@@ -239,6 +235,11 @@ class RolesSystem(commands.Cog):
             msg = await ctx.send(embed=menu_embed, view=view)
             
             saved_messages[category] = msg.id
+
+        # ΤΡΙΤΟΝ, στέλνουμε το Live Panel (για να μπει κάτω-κάτω)
+        await ctx.send("https://cdn.discordapp.com/attachments/1523030976782143645/1547174668350263346/CITYPNG.COMHorizontal_White_Line_-_2000x2000.png?ex=6aa27632&is=6aa124b2&hm=e74aa9659e8399a93a0ed792beba8ff29873a7466fc8e9b54be560ba9c173e1a&")
+        panel_embed = self.generate_panel_embed(ctx.guild)
+        panel_msg = await ctx.send(embed=panel_embed)
 
         # Αποθήκευση στη Βάση για να τα βρίσκει το Auto-Update
         settings_col.update_one(
