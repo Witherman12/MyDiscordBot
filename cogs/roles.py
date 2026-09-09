@@ -1,7 +1,7 @@
 """
 ========================================
 ΑΡΧΕΙΟ: roles.py (Cogs)
-ΠΕΡΙΓΡΑΦΗ: Live Panel Καταμέτρησης Ρόλων (Αυτόματο Update)
+ΠΕΡΙΓΡΑΦΗ: Live Panel & Persistent Button Role Assignment
 ========================================
 """
 
@@ -18,6 +18,8 @@ settings_col = db["Settings"]
 
 # ==========================================
 # ΔΕΔΟΜΕΝΑ ΡΟΛΩΝ
+# Εδώ προσθέτεις νέους ρόλους πανεύκολα! 
+# Δεν χρειάζεται καν να βάλεις emoji αν δεν θες.
 # ==========================================
 FACTION_ROLES = {
     "General": {
@@ -50,11 +52,8 @@ FACTION_ROLES = {
     }
 }
 
-# CUSTOM EMOJIS (Μορφή: <:onoma:ID>)
 EMOJIS = {
     "Warhammer": "<:Warhammer_1:1416864475520438302>",
-    
-    # --- IMPERIUM ---
     "Admech": "<:AdeptusMechanicus:1455895386530254993>", 
     "Astra Militarum": "<:AstraMilitarum:1435349542768869578>", 
     "Custodes": "<:Custode:1439332561468920132>", 
@@ -63,15 +62,11 @@ EMOJIS = {
     "Sisters of Battle": "⚜️",
     "Space Marines (All)": "<:SpaceMarine:1520706897332670537>", 
     "White Scars": "🇲🇳", 
-    "Dark Angels": "🗡️", #custom: "<:DarkAngels:ΒΑΛΕ_ID>"
+    "Dark Angels": "🗡️",
     "Ultramarines": "<:Ultramarine:1432413619567460522>",
-    
-    # --- CHAOS ---
     "Black Legion": "<:BlackLegion:1495073025660420212>", 
     "Death Guard": "<:DeathGuard:1439330955079717150>", 
     "Thousand Sons": "<:ThousandSons:1505870183666028574>",
-    
-    # --- XENOS ---
     "Aeldari": "<:Aeldari:1501193876487274506>", 
     "Drukhari": "<:Drukhari:1543897513201901579>", 
     "Necrons": "<:Necron:1439333592802005174>", 
@@ -81,58 +76,51 @@ EMOJIS = {
 }
 
 # ==========================================
-# UI COMPONENTS (Dropdowns) - ΣΕ ΣΧΟΛΙΟ ΓΙΑ ΤΩΡΑ
+# UI COMPONENTS (Buttons)
 # ==========================================
-"""
-class FactionDropdown(discord.ui.Select):
-    def __init__(self, category: str, options_dict: dict):
-        self.category = category
-        self.options_dict = options_dict
-        
-        options = []
-        for name, role_id in options_dict.items():
-            emoji = EMOJIS.get(name, "📌")
-            options.append(discord.SelectOption(label=name, value=str(role_id), emoji=emoji))
-            
+def get_style_for_category(category: str):
+    """Αντιστοιχεί χρώματα ανάλογα το Lore."""
+    if category == "Imperium":
+        return discord.ButtonStyle.primary  # Μπλε
+    elif category == "Chaos":
+        return discord.ButtonStyle.danger   # Κόκκινο
+    elif category == "Xenos":
+        return discord.ButtonStyle.success  # Πράσινο
+    return discord.ButtonStyle.secondary    # Γκρι
+
+class RoleButton(discord.ui.Button):
+    def __init__(self, label: str, role_id: int, style: discord.ButtonStyle, emoji: str = None):
         super().__init__(
-            placeholder=f"Επίλεξε στρατούς: {category}...",
-            min_values=0,
-            max_values=len(options),
-            custom_id=f"dropdown_{category}"
+            label=label,
+            style=style,
+            custom_id=f"role_btn_{role_id}", # Το custom_id κάνει τα κουμπιά persistent (δεν χαλάνε στο restart)
+            emoji=emoji
         )
+        self.role_id = role_id
 
     async def callback(self, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
-        
-        member = interaction.user
-        selected_role_ids = [int(v) for v in self.values]
-        roles_to_add = []
-        roles_to_remove = []
-        
-        for name, role_id in self.options_dict.items():
-            role = interaction.guild.get_role(role_id)
-            if not role: continue
-            
-            if role_id in selected_role_ids and role not in member.roles:
-                roles_to_add.append(role)
-            elif role_id not in selected_role_ids and role in member.roles:
-                roles_to_remove.append(role)
-                
-        if roles_to_add:
-            await member.add_roles(*roles_to_add)
-        if roles_to_remove:
-            await member.remove_roles(*roles_to_remove)
-            
-        await interaction.followup.send(f"✅ Τα αρχεία ενημερώθηκαν για την κατηγορία **{self.category}**!", ephemeral=True)
+        role = interaction.guild.get_role(self.role_id)
+        if not role:
+            await interaction.response.send_message("❌ Error: Αυτός ο ρόλος διεγράφη ή δεν βρέθηκε.", ephemeral=True)
+            return
 
-class RoleSelectionView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
-        for category, roles in FACTION_ROLES.items():
-            if category == "General":
-                continue
-            self.add_item(FactionDropdown(category, roles))
-"""
+        # Toggle Logic: Αν το έχει, του το βγάζουμε. Αν δεν το έχει, του το δίνουμε.
+        if role in interaction.user.roles:
+            await interaction.user.remove_roles(role)
+            await interaction.response.send_message(f"➖ Σου αφαιρέθηκε ο ρόλος: **{role.name}**", ephemeral=True)
+        else:
+            await interaction.user.add_roles(role)
+            await interaction.response.send_message(f"➕ Πήρες τον ρόλο: **{role.name}**", ephemeral=True)
+
+class RoleCategoryView(discord.ui.View):
+    def __init__(self, category: str, roles_dict: dict):
+        super().__init__(timeout=None) # Timeout None σημαίνει ότι δεν λήγει ΠΟΤΕ
+        style = get_style_for_category(category)
+        
+        for name, role_id in roles_dict.items():
+            # Αν υπάρχει emoji στο dictionary, το βάζουμε. Αν όχι, μπαίνει μόνο κείμενο αυτόματα!
+            emoji_str = EMOJIS.get(name) 
+            self.add_item(RoleButton(label=name, role_id=role_id, style=style, emoji=emoji_str))
 
 # ==========================================
 # ΚΛΑΣΗ ΣΥΣΤΗΜΑΤΟΣ (COG)
@@ -162,7 +150,6 @@ class RolesSystem(commands.Cog):
         embed.set_footer(text="To Departmento Munitorum παρακολουθεί.")
         return embed
 
-    # Αυτόματη ενημέρωση του Panel όταν κάποιος παίρνει/χάνει ρόλο
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         if before.roles == after.roles: return
@@ -179,7 +166,6 @@ class RolesSystem(commands.Cog):
         except:
             pass
 
-    # AUTO-ROLE: Δίνει το Warhammer ρόλο αυτόματα σε όποιον μπαίνει (Προαιρετικό, το αφήνω)
     @commands.Cog.listener()
     async def on_member_join(self, member):
         warhammer_role_id = 1416870277689901109
@@ -187,13 +173,15 @@ class RolesSystem(commands.Cog):
         if role:
             await member.add_roles(role)
 
-    # Εντολή Εγκατάστασης (ΜΟΝΟ το Panel)
+    # ----------------------------------------------------
+    # Η ΕΝΤΟΛΗ ΠΟΥ ΣΤΗΝΕΙ ΟΛΟ ΤΟ ΜΕΝΟΥ
+    # ----------------------------------------------------
     @commands.command(name="setup_roles")
     @commands.has_permissions(administrator=True)
     async def setup_roles(self, ctx):
         await ctx.message.delete()
         
-        # 1. Στέλνουμε το Live Panel
+        # 1. Στέλνουμε/Ανανεώνουμε το Live Panel καταμέτρησης
         panel_embed = self.generate_panel_embed(ctx.guild)
         panel_msg = await ctx.send(embed=panel_embed)
         
@@ -203,8 +191,26 @@ class RolesSystem(commands.Cog):
             upsert=True
         )
         
-        # (Το κομμάτι των Dropdowns αφαιρέθηκε από εδώ)
+        # 2. Στέλνουμε τα μενού με τα κουμπιά (Ένα ξεχωριστό μήνυμα ανά Faction)
+        await ctx.send("https://cdn.discordapp.com/attachments/1523030976782143645/1546995182992359424/2026-09-09_002348.png?ex=6aa1cf09&is=6aa07d89&hm=f1eb7a5afb66d3059262aec2b74fb8cac266c041df02e6f59cca745d09fb61b1&")
+        await ctx.send("## 📜 ARMY SELECTION\n*Press the buttons below to get or remove your roles.*")
 
+        for category, roles in FACTION_ROLES.items():
+            if not roles: continue
+            
+            view = RoleCategoryView(category, roles)
+            
+            # Δημιουργία ενός mini embed για το κάθε faction ώστε να φαίνεται καθαρό
+            color = discord.Color.blue() if category == "Imperium" else (discord.Color.red() if category == "Chaos" else discord.Color.green())
+            if category == "General": color = discord.Color.dark_grey()
+                
+            menu_embed = discord.Embed(title=f"🛡️ {category} Roles", color=color)
+            await ctx.send(embed=menu_embed, view=view)
+
+# Αυτό είναι σημαντικό για να μην "πεθαίνουν" τα κουμπιά στο restart
 async def setup(bot):
     await bot.add_cog(RolesSystem(bot))
-    # bot.add_view(RoleSelectionView())  # Απενεργοποιημένο μαζί με την κλάση
+    
+    # Διαβάζει ξανά όλα τα views στο boot για να ξέρει το Discord ότι τα κουμπιά είναι ενεργά
+    for category, roles in FACTION_ROLES.items():
+        bot.add_view(RoleCategoryView(category, roles))
