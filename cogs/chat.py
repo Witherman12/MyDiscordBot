@@ -123,7 +123,15 @@ class ChatSystem(commands.Cog):
             try:
                 # Await response from Gemini
                 response = await chat_session.send_message(prompt)
-                await message.reply(response.text)
+                
+                # --- SAFETY FILTER CHECK ---
+                response_text = response.text
+                if not response_text or response_text.strip() == "":
+                    await message.reply("⚠️ **[SYSTEM OVERLOAD]**: The Servitor's systems blocked the response. Your blasphemy was so severe the Inquisition severed the transmission. Await your execution.")
+                    return
+                # ---------------------------
+
+                await message.reply(response_text)
             except Exception as e:
                 await message.reply(f"❌ *Astropathic transmission failed*: {e}")
 
