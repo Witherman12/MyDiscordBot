@@ -52,7 +52,7 @@ class ChatSystem(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         # Channels where the bot is allowed to chat
-        self.ai_channel_ids = [1546168842496114818, 850011185314267177]
+        self.ai_channel_ids = [1546168842496114818, 850011185314267177, 1416775397940531220]
         self.chats = {} 
         self.ai_enabled = True # Master switch
         
