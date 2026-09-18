@@ -38,7 +38,8 @@ FACTION_ROLES = {
     "Chaos": {
         "Black Legion": 1495072660634210518,
         "Death Guard": 1439256956081799210,
-        "Thousand Sons": 1505870287923843092
+        "Thousand Sons": 1505870287923843092,
+        "Emperor's Children": 1550578609972846733
     },
     "Xenos": {
         "Aeldari": 1501194059052744855,
@@ -72,6 +73,7 @@ EMOJIS = {
     "Black Legion": "<:BlackLegion:1495073025660420212>", 
     "Death Guard": "<:DeathGuard:1439330955079717150>", 
     "Thousand Sons": "<:ThousandSons:1505870183666028574>",
+    "Emperor's Children": "<:Mogrim:1465674684690337927>",
     "Aeldari": "<:Aeldari:1501193876487274506>", 
     "Drukhari": "<:Drukhari:1543897513201901579>", 
     "Necrons": "<:Necron:1439333592802005174>", 
@@ -205,10 +207,23 @@ class RolesSystem(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
+        # Auto-Role
         warhammer_role_id = 1416870277689901109
         role = member.guild.get_role(warhammer_role_id)
         if role:
             await member.add_roles(role)
+
+        # Welcome Message
+        welcome_channel_id = 1416479181860110436 
+        channel = self.bot.get_channel(welcome_channel_id)
+        
+        if channel:
+            # Φτιάξε το μήνυμα όπως ακριβώς το θες
+            welcome_text = (
+                f"## Καλώς ήρθες {member.mention}! <:Warhammer_1:1416864475520438302>\n"
+                f"📜 Πήγαινε στο κανάλι <#1438607141949804544> για να διαλέξεις τον στρατό σου."
+            )
+            await channel.send(welcome_text)
 
     # ----------------------------------------------------
     # Η ΕΝΤΟΛΗ ΠΟΥ ΣΤΗΝΕΙ ΤΟ ΣΥΣΤΗΜΑ
