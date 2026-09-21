@@ -263,7 +263,7 @@ class DailyTasks(commands.Cog):
             bday_msg = (
                 f"🎉 **ADMINISTRATUM ANNOUNCEMENT** 🎉 <@&1416870277689901109>\n\n"
                 f"Today we celebrate the Creation Day of <@{user_id}>!\n"
-                f"*May the Emperor grant you another year of life, or at least may your dice roll 6s!* 🎲🎂"
+                f"*May your dice roll 6s!* 🎲🎂"
             )
             await channel.send(bday_msg)
 
