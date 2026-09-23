@@ -317,7 +317,7 @@ class DailyTasks(commands.Cog):
     # ==========================================
     # TASK 4: WEATHER REPORT (08:00 Ώρα Ελλάδος)
     # ==========================================
-    weather_time = datetime.time(hour=14, minute=16, tzinfo=tz_greece)
+    weather_time = datetime.time(hour=14, minute=30, tzinfo=tz_greece)
     
     @tasks.loop(time=weather_time)
     async def daily_weather_report(self):
@@ -330,32 +330,53 @@ class DailyTasks(commands.Cog):
         if not channel:
             return
 
-        city = "Athens,gr" # Άλλαξε το αν προτιμάς άλλη πόλη
-        # lang=el ή lang=en
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={weather_api_key}&units=metric&lang=en"
+        city = "Athens,gr"
+        # Χρήση του forecast endpoint για την ημερήσια πρόβλεψη
+        url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={weather_api_key}&units=metric&lang=en"
         
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     if response.status == 200:
                         data = await response.json()
-                        temp = round(data['main']['temp'], 1)
-                        humidity = data['main']['humidity']
-                        desc = data['weather'][0]['description']
+                        
+                        # Παίρνουμε τις προβλέψεις για τις επόμενες 15 ώρες (5 διαστήματα των 3 ωρών)
+                        day_forecasts = data['list'][:5]
+                        
+                        # Υπολογίζουμε Μέγιστη και Ελάχιστη θερμοκρασία της ημέρας
+                        temp_max = round(max(item['main']['temp_max'] for item in day_forecasts), 1)
+                        temp_min = round(min(item['main']['temp_min'] for item in day_forecasts), 1)
+                        
+                        # Παίρνουμε τη μέση υγρασία
+                        midday_data = day_forecasts[2]
+                        humidity = midday_data['main']['humidity']
+                        
+                        # Μαζεύουμε μέχρι 2 διαφορετικά φαινόμενα του 15ώρου
+                        all_descriptions = []
+                        for item in day_forecasts:
+                            condition = item['weather'][0]['description'].title()
+                            if condition not in all_descriptions:
+                                all_descriptions.append(condition)
+                            # Αν μαζέψαμε 2 φαινόμενα σταματάμε αμέσως
+                            if len(all_descriptions) == 2:
+                                break
+                                
+                        # π.χ. "Clear Sky / Light Rain"
+                        desc = " / ".join(all_descriptions)
                         
                         # Δημιουργία Embed
                         embed = discord.Embed(
-                            title="⚙️ [ADMINISTRATUM: ATMOSPHERIC CONDITIONS REPORT]",
+                            title="⚙️ [ADMINISTRATUM: DAILY ATMOSPHERIC FORECAST]",
                             description=(
-                                "Local environmental conditions have been logged successfully."
+                                "The planetary environmental forecast for today has been logged:"
                             ),
-                            color=discord.Color.blue() # Αλλαγή σε Μπλε
+                            color=discord.Color.blue()
                         )
                         
-                        embed.add_field(name="Location", value=f"**{city.split(',')[0].upper()}**", inline=False)
-                        embed.add_field(name="Temperature", value=f"{temp}°C", inline=True)
-                        embed.add_field(name="Humidity", value=f"{humidity}%", inline=True)
-                        embed.add_field(name="Status", value=desc.title(), inline=True)
+                        embed.add_field(name="Location:", value=f"**{city.split(',')[0].upper()}**", inline=False)
+                        embed.add_field(name="High / Low", value=f"{temp_max}°C / {temp_min}°C", inline=True)
+                        embed.add_field(name="Midday Humidity:", value=f"{humidity}%", inline=True)
+                        embed.add_field(name="Status:", value=desc.title(), inline=True)
                         
                         embed.set_footer(
                             text="The Emperor Protects • Departmento Munitorum",
