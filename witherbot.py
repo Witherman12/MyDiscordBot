@@ -58,37 +58,37 @@ class WitherBot(commands.Bot):
         print("⏳ Ξεκινάει η φόρτωση των Cogs...", flush=True)
         try:
             await self.load_extension("cogs.fun")
-            print("✅ Το cogs.fun φορτώθηκε!", flush=True)
+            print("✅ [1] Το cogs.fun φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο fun: {e}", flush=True)
             
         try:
             await self.load_extension("cogs.news")
-            print("✅ Το cogs.news φορτώθηκε!", flush=True)
+            print("✅ [2] Το cogs.news φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο news: {e}", flush=True)
             
         try:
             await self.load_extension("cogs.levels")
-            print("✅ Το cogs.levels φορτώθηκε!", flush=True)
+            print("✅ [3] Το cogs.levels φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο levels: {e}", flush=True)
 
         try:
             await self.load_extension("cogs.daily")
-            print("✅ Το cogs.daily φορτώθηκε!", flush=True)
+            print("✅ [4] Το cogs.daily φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο daily: {e}", flush=True)
             
         try:
             await self.load_extension("cogs.roles")
-            print("✅ Το cogs.roles φορτώθηκε!", flush=True)
+            print("✅ [5] Το cogs.roles φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο roles: {e}", flush=True)
             
         try:
             await self.load_extension("cogs.chat")
-            print("✅ Το cogs.chat φορτώθηκε!", flush=True)
+            print("✅ [6] Το cogs.chat φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο chat: {e}", flush=True)
 
@@ -149,7 +149,12 @@ async def on_message(message):
 
     # --- 5% User React ---
     if message.author.id == SPECIFIC_USER_ID:
-        if secrets.randbelow(100) < 5:
+        # Ορίζουμε 5 συγκεκριμένα νούμερα (από το 0 έως το 99)
+        magic_numbers = [5, 25, 45, 69, 99]
+        
+        roll = secrets.randbelow(100)
+        
+        if roll in magic_numbers:
             try:
                 await message.add_reaction("🫃") 
             except:
