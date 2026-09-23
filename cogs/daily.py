@@ -4,8 +4,9 @@
 ΠΕΡΙΓΡΑΦΗ: Διαχειρίζεται τις καθημερινές/αυτοματοποιημένες αναρτήσεις του bot.
 ΛΕΙΤΟΥΡΓΙΕΣ:
  - Daily Lore Fact : Στέλνει ένα lore fact κάθε μέρα (18:00 τοπική).
- - Daily Quote     : Στέλνει ένα "Thought of the Day" κάθε πρωί (10:00 τοπική).
+ - Daily Quote     : Στέλνει ένα "Thought of the Day" κάθε πρωί (11:00 τοπική).
  - Birthday System : Ελέγχει για γενέθλια (10:00 τοπική) & Εντολές.
+ - Weather Report  : Στέλνει δελτίο καιρού Administratum style (08:00 τοπική).
 ========================================
 """
 
@@ -18,6 +19,7 @@ import os
 import pymongo
 import certifi
 import re
+import aiohttp
 
 # ==========================================
 # ΖΩΝΗ ΩΡΑΣ & ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ
@@ -37,6 +39,7 @@ class DailyTasks(commands.Cog):
         self.daily_lore_channel_id = 1416479181860110436
         self.quote_channel_id = 1416479181860110436
         self.bday_channel_id = 850011185314267177
+        self.weather_channel_id = 850011185314267177 
 
         # ==========================================
         # ΔΕΔΟΜΕΝΑ: LORE FACTS
@@ -206,11 +209,13 @@ class DailyTasks(commands.Cog):
         self.daily_lore.start()
         self.send_daily_quote.start()
         self.check_birthdays.start()
+        self.daily_weather_report.start()
 
     def cog_unload(self):
         self.daily_lore.cancel()
         self.send_daily_quote.cancel()
         self.check_birthdays.cancel()
+        self.daily_weather_report.cancel()
     
     # ==========================================
     # TASK 1: DAILY LORE FACT (18:00 Ώρα Ελλάδος)
@@ -307,6 +312,52 @@ class DailyTasks(commands.Cog):
 
     @check_birthdays.before_loop
     async def before_check_birthdays(self):
+        await self.bot.wait_until_ready()
+
+    # ==========================================
+    # TASK 4: WEATHER REPORT (08:00 Ώρα Ελλάδος)
+    # ==========================================
+    weather_time = datetime.time(hour=13, minute=56, tzinfo=tz_greece)
+    
+    @tasks.loop(time=weather_time)
+    async def daily_weather_report(self):
+        weather_api_key = os.environ.get("WEATHER_API_KEY")
+        if not weather_api_key:
+            print("Σφάλμα: Δεν βρέθηκε API Key για τον καιρό.")
+            return
+
+        channel = self.bot.get_channel(self.weather_channel_id)
+        if not channel:
+            return
+
+        city = "Athens,gr"
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={weather_api_key}&units=metric&lang=el"
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        temp = round(data['main']['temp'], 1)
+                        humidity = data['main']['humidity']
+                        desc = data['weather'][0]['description']
+                        
+                        report = (
+                            "**[ADMINISTRATUM: ΗΜΕΡΗΣΙΑ ΑΝΑΦΟΡΑ ΑΤΜΟΣΦΑΙΡΙΚΩΝ ΣΥΝΘΗΚΩΝ]**\n"
+                            f"**Περιοχή:    ** {city.split(',')[0].upper()}\n"
+                            f"**Θερμοκρασία:** {temp}°C\n"
+                            f"**Υγρασία:    ** {humidity}%\n"
+                            f"**Κατάσταση:  ** {desc.capitalize()}.\n\n"
+                            "Οι τοπικές περιβαλλοντικές συνθήκες καταγράφηκαν επιτυχώς."
+                        )
+                        await channel.send(report)
+                    else:
+                        print(f"Σφάλμα API καιρού: Status Code {response.status}")
+        except Exception as e:
+            print(f"Αποτυχία λήψης καιρού: {e}")
+
+    @daily_weather_report.before_loop
+    async def before_daily_weather_report(self):
         await self.bot.wait_until_ready()
 
     # ==========================================
