@@ -317,21 +317,22 @@ class DailyTasks(commands.Cog):
     # ==========================================
     # TASK 4: WEATHER REPORT (08:00 Ώρα Ελλάδος)
     # ==========================================
-    weather_time = datetime.time(hour=13, minute=56, tzinfo=tz_greece)
+    weather_time = datetime.time(hour=14, minute=16, tzinfo=tz_greece)
     
     @tasks.loop(time=weather_time)
     async def daily_weather_report(self):
         weather_api_key = os.environ.get("WEATHER_API_KEY")
         if not weather_api_key:
-            print("Σφάλμα: Δεν βρέθηκε API Key για τον καιρό.")
+            print("Error: Missing WEATHER_API_KEY in environment variables.")
             return
 
         channel = self.bot.get_channel(self.weather_channel_id)
         if not channel:
             return
 
-        city = "Athens,gr"
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={weather_api_key}&units=metric&lang=el"
+        city = "Athens,gr" # Άλλαξε το αν προτιμάς άλλη πόλη
+        # lang=el ή lang=en
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={weather_api_key}&units=metric&lang=en"
         
         try:
             async with aiohttp.ClientSession() as session:
@@ -342,15 +343,26 @@ class DailyTasks(commands.Cog):
                         humidity = data['main']['humidity']
                         desc = data['weather'][0]['description']
                         
-                        report = (
-                            "**[ADMINISTRATUM: ΗΜΕΡΗΣΙΑ ΑΝΑΦΟΡΑ ΑΤΜΟΣΦΑΙΡΙΚΩΝ ΣΥΝΘΗΚΩΝ]**\n"
-                            f"**Περιοχή:    ** {city.split(',')[0].upper()}\n"
-                            f"**Θερμοκρασία:** {temp}°C\n"
-                            f"**Υγρασία:    ** {humidity}%\n"
-                            f"**Κατάσταση:  ** {desc.capitalize()}.\n\n"
-                            "Οι τοπικές περιβαλλοντικές συνθήκες καταγράφηκαν επιτυχώς."
+                        # Δημιουργία Embed
+                        embed = discord.Embed(
+                            title="⚙️ [ADMINISTRATUM: ATMOSPHERIC CONDITIONS REPORT]",
+                            description=(
+                                "Local environmental conditions have been logged successfully."
+                            ),
+                            color=discord.Color.blue() # Αλλαγή σε Μπλε
                         )
-                        await channel.send(report)
+                        
+                        embed.add_field(name="Location", value=f"**{city.split(',')[0].upper()}**", inline=False)
+                        embed.add_field(name="Temperature", value=f"{temp}°C", inline=True)
+                        embed.add_field(name="Humidity", value=f"{humidity}%", inline=True)
+                        embed.add_field(name="Status", value=desc.title(), inline=True)
+                        
+                        embed.set_footer(
+                            text="The Emperor Protects • Departmento Munitorum",
+                            icon_url="https://cdn.discordapp.com/attachments/1523030976782143645/1552276587582333118/UM-icon.png?ex=6ab505ba&is=6ab3b43a&hm=63050e93fa66aecf0b7c720e2c95a2de028917ce3da8e4559f2ecb192adcea2c&"
+                        )
+                        
+                        await channel.send(embed=embed)
                     else:
                         print(f"Σφάλμα API καιρού: Status Code {response.status}")
         except Exception as e:
