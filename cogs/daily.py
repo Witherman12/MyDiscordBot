@@ -38,8 +38,8 @@ class DailyTasks(commands.Cog):
         # --- IDs ΚΑΝΑΛΙΩΝ ---
         self.daily_lore_channel_id = 1416479181860110436
         self.quote_channel_id = 1416479181860110436
-        self.bday_channel_id = 850011185314267177
-        self.weather_channel_id = 850011185314267177 
+        self.bday_channel_id = 1416479181860110436
+        self.weather_channel_id = 801802411592253510 
 
         # ==========================================
         # ΔΕΔΟΜΕΝΑ: LORE FACTS
@@ -317,7 +317,7 @@ class DailyTasks(commands.Cog):
     # ==========================================
     # TASK 4: WEATHER REPORT (08:00 Ώρα Ελλάδος)
     # ==========================================
-    weather_time = datetime.time(hour=14, minute=30, tzinfo=tz_greece)
+    weather_time = datetime.time(hour=8, minute=0, tzinfo=tz_greece)
     
     @tasks.loop(time=weather_time)
     async def daily_weather_report(self):
