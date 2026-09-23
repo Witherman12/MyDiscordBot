@@ -374,7 +374,7 @@ class DailyTasks(commands.Cog):
                         )
                         
                         embed.add_field(name="Location:", value=f"**{city.split(',')[0].upper()}**", inline=False)
-                        embed.add_field(name="High / Low", value=f"{temp_max}°C / {temp_min}°C", inline=True)
+                        embed.add_field(name="High / Low:", value=f"{temp_max}°C / {temp_min}°C", inline=True)
                         embed.add_field(name="Midday Humidity:", value=f"{humidity}%", inline=True)
                         embed.add_field(name="Status:", value=desc.title(), inline=True)
                         
