@@ -55,6 +55,8 @@ class DailyTasks(commands.Cog):
                 "The Adepta Sororitas use a tank called the 'Exorcist' which is literally a mobile pipe organ. The 'Sister' plays hymns on the organ's keys, which triggers the launch of devastating armor-piercing missiles.",
                 "The Culexus Assassins are blanks (soulless). They wear massive animus speculums on their heads that weaponize their negative psychic aura, allowing them to shoot blasts of anti-warp energy that instantly incinerates psykers.",
                 "The Imperium uses 'Servitors' for menial labor. These are lobotomized humans, often criminals, whose brains and nervous systems have been heavily augmented with cybernetics to perform a single, repetitive task forever.",
+                "Imperial Navigators possess a mutant 'third eye'. Gazing directly into this eye is lethal to normal humans, as it exposes their minds to the raw, unfiltered madness of the Warp.",
+                "A Space Marine Chapter's 'Gene-Seed' is so precious that when a Space Marine dies in battle, an Apothecary uses a special tool called a Narthecium to violently extract it from the corpse so future marines can be created."
             ],
             "Adeptus Astartes & Primarchs": [
                 "A standard Adeptus Astartes (Space Marine) is implanted with 19 additional genetically engineered organs, including a second heart, a third lung, and an organ that allows them to spit blinding acid.",
@@ -68,16 +70,21 @@ class DailyTasks(commands.Cog):
                 "Corvus Corax, the Primarch of the Raven Guard, spent thousands of years in the Warp hunting traitors. The Warp mutated him not into a daemon, but into a terrifying entity made of shadows and ravens that haunts Word Bearers.",
                 "Space Marines have a specialized organ called the 'Betcher's Gland' which allows them to spit blinding, highly corrosive acid strong enough to eat through metal bars.",
                 "Lion El'Jonson, Primarch of the Dark Angels, has finally awakened after 10,000 years. He has aged into a wise, tired old man and now uses a mysterious Warp ability called 'Forestwalking' to teleport across the galaxy.",
+                "The Blood Angels suffer from a genetic flaw called the 'Black Rage'. When it hits, they hallucinate that they are their Primarch Sanguinius dying at the hands of Horus, plunging them into a state of uncontrollable, suicidal fury.",
+                "Roboute Guilliman, the Primarch of the Ultramarines, survived a poisoned slit to his throat and sat in stasis for 10,000 years before being resurrected by a combined effort of xenos magic and Archmagos Cawl's technology."
             ],
             "Astra Militarum": [
                 "The Leman Russ battle tank is so robustly designed that its engine can run on almost any combustible liquid, including promethium, crude oil, high-octane rocket fuel, or even crushed organic matter.",
                 "Sly Marbo is a legendary Imperial Guard soldier of the Catachan Jungle Fighters. He is essentially the Imperium's version of Rambo, known for taking down entire enemy encampments and even a Tyranid bio-titan single-handedly.",
                 "The Death Korps of Krieg are so fanatically devoted to dying for the Emperor that their Commissars are actually stationed with them to hold them back from suicidal charges, rather than to force them forward.",
+                "Ogryns are massive, genetically stable abhumans used by the Guard as shock troops. They are fiercely loyal but notoriously claustrophobic, meaning Commissars often have to trick or gently coax them into transport vehicles."
             ],
             "Adeptus Mechanicus": [
                 "The Adeptus Mechanicus views technological innovation as a strict heresy. They believe all worthwhile knowledge was already discovered in the dark age of technology and merely needs to be recovered, not invented.",
                 "Imperial Titans are god-machines that stand hundreds of feet tall and carry weapons capable of leveling cities. They are piloted by a 'Princeps' who must constantly battle the machine's aggressive 'Machine Spirit' for control.",
                 "To the Adeptus Mechanicus, an STC (Standard Template Construct) is a holy grail. Even finding an STC fragment for something as mundane as a slightly better combat knife can earn a tech-priest a planetary governorship.",
+                "Skitarii troops often have their eyelids surgically removed and replaced with optical augmetics, ensuring they literally never blink and never miss a target.",
+                "Tech-priests frequently replace their vocal cords with vox-synthesizers. When speaking to each other, they use 'Binharic Cant', a burst of static and machine code that sounds like dial-up internet to normal humans."
             ],
             "Orks": [
                 "Ork technology is effectively junk, but it works largely because they collectively believe it should work. This latent gestalt psychic field is known as the 'Waaagh!'.",
@@ -88,6 +95,7 @@ class DailyTasks(commands.Cog):
                 "An Ork Warboss named Tuska Daemon-Killa intentionally flew his Waaagh! into the Eye of Terror just to fight Daemons. Khorne was so entertained by this that he resurrects Tuska and his boyz every day to fight an eternal, glorious battle.",
                 "The Ork economy is entirely based on 'Teef' (teeth). Because Ork teeth naturally decay over time, it is impossible to hoard wealth, completely eliminating inflation and creating a perfectly stable, if violent, economic system.",
                 "During the War of the Beast, an Ork Warboss grew so massive and intelligent that his Waaagh! possessed 'Attack Moons' with gravity weapons, and his Ork diplomats actually spoke perfect High Gothic to threaten Terra.",
+                "Ork psykers are called 'Weirdboyz'. They literally act as lightning rods for the Waaagh! energy of nearby Orks. If they absorb too much energy without releasing it, their heads will violently explode."
             ],
             "Chaos & The Warp": [
                 "The Alpha Legion's Primarch, Alpharius, supposedly had an identical twin brother named Omegon. To this day, due to their masterful use of deception and espionage, no one truly knows whose side they are on.",
@@ -99,17 +107,21 @@ class DailyTasks(commands.Cog):
                 "Slaanesh's Noise Marines use weapons called Sonic Blasters that fire weaponized sound. The screeching noise is so loud and discordant that it causes enemies' internal organs to rupture and their bones to shatter.",
                 "Before they were mindless berserkers, the World Eaters Legion implanted themselves with the 'Butcher's Nails', archeotech brain implants that cause agonizing pain unless the host is actively killing someone.",
                 "Vashtorr the Arkifane is a newly risen entity of the Warp, a demigod of chaotic invention and corrupted technology. He seeks to become a fifth Chaos God by gathering ancient artifacts to forge terrifying superweapons.",
+                "Lucius the Eternal is a Champion of Slaanesh with a terrifying curse. Whenever he is killed, he resurrects inside the body of his killer, bursting out of them if they felt even a microsecond of pride or satisfaction in striking him down."
             ],
             "Tyranids & Genestealers": [
                 "The Tyranid Hive Mind doesn't just consume biomass; its sheer presence creates a 'Shadow in the Warp,' a psychic static that drives psykers mad and cuts off entire star systems from astropathic communication and travel.",
                 "Genestealer Cults spend generations secretly infecting a planet's population and infiltrating its governments. They believe they are preparing for the arrival of 'Star Saviors', only to be eagerly consumed by the Tyranid Hive Fleet they attracted.",
                 "When the Tyranids conquer a world, they don't just eat the people. They consume all flora, fauna, oceans, and even the atmosphere itself, leaving nothing but a dead, barren rock floating in space.",
                 "The galaxy is currently facing the Fourth Tyrannic War. Hive Fleet Leviathan has launched an unprecedented assault from the Galactic West, attacking from beneath the galactic plane and pushing directly towards Terra.",
+                "Lictors are Tyranid vanguard organisms used for stealth. They don't just eat their victims; they devour their brains to instantly absorb memories, passcodes, and enemy troop movements, broadcasting them directly back to the Hive Mind."
             ],
             "Necrons": [
                 "The terrifying Necrons were once a flesh-and-blood race called the Necrontyr. Desperate for immortality and victory in war, they traded their souls to the C'tan (Star Gods), becoming soulless machines of living metal.",
                 "Trazyn the Infinite, the kleptomaniac Necron Overlord, has a massive museum on Solemnace. Among his exhibits, he secretly possesses a perfect, uncorrupted clone of the Primarch Fulgrim.",
                 "The Necrons are currently building the 'Pariah Nexus', a vast region of space where their Blackstone pylons completely sever the Warp from realspace. Any humans entering it suffer the 'Stilling', becoming mindless, soulless husks.",
+                "Orikan the Diviner is a Necron chronomancer who predicts the future. He is so petty that if his predictions are proven wrong, he simply travels back in time to alter events so that he was right all along.",
+                "The Flayed Ones are Necrons infected by a virus from a dying C'tan. The virus drives them insane with the desire to feel flesh again, causing them to drape the gruesome, bloody skins of their victims over their metallic bodies."
             ],
             "Aeldari, T'au & Other Xenos": [
                 "Commorragh, the Dark City of the Drukhari (Dark Eldar), is not a planet. It is a massive, impossibly complex realm hidden deep within the Webway, powered by stolen suns and feeding on the pain of millions of slaves.",
@@ -117,10 +129,14 @@ class DailyTasks(commands.Cog):
                 "The Webway is a labyrinthine network of ancient tunnels between reality and the Warp. Built millions of years ago by the Old Ones, it is now primarily used by the Aeldari to travel safely without risking demonic possession.",
                 "The T'au Empire utilizes the 'Kroot', a carnivorous mercenary race. The Kroot are biologically capable of absorbing the DNA of whatever they eat, directing their own evolution based on their diet.",
                 "The Supreme Ethereal of the T'au Empire, Aun'Va, was assassinated by an Imperial Culexus Assassin years ago. To prevent mass panic, the T'au leadership replaced him with an AI hologram, keeping his death a complete secret.",
+                "Aeldari must wear special gems called 'Spirit Stones'. When an Aeldari dies, the stone catches their soul. If the stone is destroyed or lost, their soul is immediately dragged into the Warp and consumed by Slaanesh in eternal torment.",
+                "The Harlequins are a mysterious faction of Aeldari who follow Cegorach, the Laughing God. Cegorach is the only Aeldari god to survive the birth of Slaanesh by hiding deep within the Webway."
             ],
             "Ancient Lore": [
                 "Long before the Imperium, humanity had a golden age relying on advanced AI called the 'Men of Iron'. These machines eventually rebelled, causing a galaxy-wide war so devastating that it made the Horus Heresy look like a skirmish.",
                 "The 'War in Heaven' was a conflict fought 60 million years ago between the Old Ones and the Necrontyr. The weapons used were so cataclysmic that they permanently broke the calm dimension of the Immaterium, creating the chaotic Warp we know today.",
+                "Legend says that during the Dark Age of Technology, humanity possessed weapons capable of eating the data of space and time, essentially deleting things from ever having existed.",
+                "In ancient times, the Emperor of Mankind battled a massive C'tan shard known as the 'Void Dragon' on ancient Earth. He defeated it and secretly imprisoned it beneath the surface of Mars, an act that eventually inspired the birth of the Adeptus Mechanicus."
             ]
         }
         
@@ -160,7 +176,26 @@ class DailyTasks(commands.Cog):
             "Victory needs no explanation, defeat allows none.",
             "Mercy is a sign of weakness.",
             "To question is to doubt.",
-            "A logical argument must be dismissed with absolute conviction!"
+            "A logical argument must be dismissed with absolute conviction!",
+            "Burn the heretic. Kill the mutant. Purge the unclean.",
+            "A moment of laxity spawns a lifetime of heresy.",
+            "Life is the Emperor's coin, spend it well.",
+            "Wisdom is the beginning of fear.",
+            "He who allows the alien to live shares in the crime of its existence.",
+            "My armor is contempt, my shield is disgust, my sword is hatred.",
+            "Serve the Emperor today, tomorrow you may be dead.",
+            "No man that died in the Emperor's service died in vain.",
+            "Fear denies faith.",
+            "Ignorance is a virtue.",
+            "Ruthlessness is the kindness of the wise.",
+            "By the manner of our death we shall be judged.",
+            "Excuses are the refuge of the weak.",
+            "For those who seek perfection there can be no rest on this side of the grave.",
+            "Examine your thoughts! Report treason!",
+            "Damnation is eternal, but death is only a moment.",
+            "True faith is blind and justified.",
+            "Work earns salvation.",
+            "To compromise is to err."
         ]
         self.imperial_quotes.sort()
 

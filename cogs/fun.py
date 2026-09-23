@@ -318,7 +318,7 @@ class FunCommands(commands.Cog):
     # --- ΕΝΤΟΛΗ: MATHHAMMER ---
     @commands.command(name="math")
     async def mathhammer(self, ctx, attacks: int = 0, skill: int = 0, strength: int = 0, toughness: int = 0):
-        if attacks <= 0 or skill < 2 or skill > 6 or strength <= 0 or toughness <= 0:
+        if attacks <= 0 or skill < 1 or skill > 6 or strength <= 0 or toughness <= 0:
             await ctx.send("❌ Λάθος! Δοκίμασε: `!math [A] [BS/WS] [S] [T]`")
             return
 

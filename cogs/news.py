@@ -57,7 +57,7 @@ class NewsFeed(commands.Cog):
         # --- ΜΑΥΡΗ ΛΙΣΤΑ ---
         self.blocked_keywords = [
             "marvel", "crisis protocol", "mcp", "shatterpoint", "star wars", 
-            "armada", "x-wing", "d&d", "dungeons and dragons", 
+            "armada", "x-wing", "d&d", "dungeons and dragons", "legion", 
             "mtg", "magic the gathering", "lorcana"
         ]
         
@@ -88,7 +88,7 @@ class NewsFeed(commands.Cog):
                     print(f"⚠️ Δεν βρέθηκαν άρθρα στο feed: {source['name']}")
                     continue
 
-                recent_entries = reversed(feed.entries[:15])
+                recent_entries = reversed(feed.entries[:9])
                 
                 for entry in recent_entries:
                     title = entry.title
