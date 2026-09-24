@@ -115,6 +115,10 @@ def load_count():
 # ==========================================
 # 4. EVENTS (ON READY & ON MESSAGE)
 # ==========================================
+
+# ID του καναλιού που μιλάμε με τον Servitor
+AI_CHANNEL_ID = 1546168842496114818
+
 @bot.event
 async def on_ready():
     global glorious_count
@@ -131,8 +135,8 @@ async def on_ready():
         glorious_count = saved_count
         print(f"Το σκορ βρέθηκε στο MongoDB! Ο μετρητής φορτώθηκε: {glorious_count}", flush=True)
     else:
-        print("Δεν βρέθηκε σκορ στη βάση. Ρύθμιση αρχικού σκορ σε 19...", flush=True)
-        glorious_count = 19
+        print("Δεν βρέθηκε σκορ στη βάση. Ρύθμιση αρχικού σκορ σε 50...", flush=True)
+        glorious_count = 50
         save_count(glorious_count)
 
 @bot.event
@@ -147,10 +151,13 @@ async def on_message(message):
 
     msg_lower = message.content.lower()
 
+    # Ελέγχουμε αν βρισκόμαστε στο κανάλι που μιλάμε με το AI
+    is_ai_channel = (message.channel.id == AI_CHANNEL_ID)
+
     # --- 5% User React ---
     if message.author.id == SPECIFIC_USER_ID:
-        # Ορίζουμε 5 συγκεκριμένα νούμερα (από το 0 έως το 99)
-        magic_numbers = [5, 25, 45, 69, 99]
+        
+        magic_numbers = [13, 69]
         
         roll = secrets.randbelow(100)
         
@@ -166,15 +173,18 @@ async def on_message(message):
         save_count(glorious_count)
         print(f"Το είπε ξανά! Νέο σύνολο: {glorious_count} (Σώθηκε στο MongoDB)", flush=True)
 
+    # ==========================================
+    # MEMES & TRIGGERS (Μπλοκαρισμένα στο AI channel / Reactions επιτρέπονται)
+
     # --- Hello World ---
-    if bot.user in message.mentions:
+    if bot.user in message.mentions and not is_ai_channel:
         if re.search(r'\b(hi|hello|γεια|γειά|hello there)\b', msg_lower):
             await message.channel.send("Imperial greetings! The Emperor protects.") 
 
-    if re.search(r'\b(gay|gays)\b', msg_lower):
+    if re.search(r'\b(gay|gays)\b', msg_lower) and not is_ai_channel:
         await message.reply("https://tenor.com/view/abster-abstract-abstractchain-green-pudgy-gif-5688303286939671857")
             
-    if re.search(r'wa+gh', msg_lower):
+    if re.search(r'wa+gh', msg_lower) and not is_ai_channel:
         a_count = random.randint(7, 21)
         waaagh_text = f"# W{'A' * a_count}GH! <:Waaagh:1432414641123885257>"
         await message.channel.send(waaagh_text) 
@@ -191,13 +201,14 @@ async def on_message(message):
 
     if re.search(r'\b(heresy|heretic|heretics)\b', msg_lower):
         try:
-            await message.add_reaction("👁️")
+            await message.add_reaction("👁️") # Το reaction μπαίνει κανονικά παντού
         except:
             pass
 
     if re.search(r'\b(charge|charges|charged)\b', msg_lower):
         if random.randint(1, 2) == 1:
-            await message.reply("https://tenor.com/view/orc-boyz-total-war-warhammer-greenskins-charge-warhammer-total-war-gif-19312099")
+            if not is_ai_channel: # Το GIF στέλνεται ΜΟΝΟ αν δεν είμαστε στο AI channel
+                await message.reply("https://tenor.com/view/orc-boyz-total-war-warhammer-greenskins-charge-warhammer-total-war-gif-19312099")
         else:
             try:
                 await message.add_reaction("🏇")
@@ -207,12 +218,13 @@ async def on_message(message):
     if re.search(r'\b(femboy|femboys)\b', msg_lower):
         try:
             await message.add_reaction("<:scream:829005859727212547>")
-            if random.randint(1, 100) <= 75:
+            # Το GIF στέλνεται ΜΟΝΟ αν δεν είμαστε στο AI channel
+            if random.randint(1, 100) <= 75 and not is_ai_channel:
                 await message.reply("https://tenor.com/view/the-office-no-angry-steve-carell-michael-scott-gif-5606969")
         except:
             pass
             
-    if re.search(r'\bcruel sun\b', msg_lower):
+    if re.search(r'\bcruel sun\b', msg_lower) and not is_ai_channel:
         await message.reply("https://klipy.com/gifs/seven-deadly-sins-escanor")
             
     await bot.process_commands(message)
