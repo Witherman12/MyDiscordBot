@@ -47,7 +47,7 @@ class NewsFeed(commands.Cog):
             },
             {
                 "name": "Official Warhammer",
-                "url": "https://www.youtube.com/feeds/videos.xml?user=WarhammerTV",
+                "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCwdh3MTrFq3sXlB4ct8B-Fg",
                 "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1541033367854780547/vecteezy_youtube-logo-png-youtube-logo-transparent-png-youtube-icon_23986704.png?ex=6ac4cf29&is=6ac37da9&hm=42d05a3170c57c75a960df128bf1896d8720029c45010bd4b5fdc8149d9fd5d1&",
                 "thumbnail": "https://cdn.discordapp.com/attachments/1523030976782143645/1542466665361707098/Warhammer-logo.png?ex=6ac4c006&is=6ac36e86&hm=f6b5140eebab1bc02b01e7c604cd70bb60cb212e3aa43bfe6ed3237c944769e2&"
             }
