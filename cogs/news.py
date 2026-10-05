@@ -6,6 +6,8 @@ import pymongo
 import certifi
 import os
 import time
+import datetime
+from zoneinfo import ZoneInfo
 
 # Σύνδεση με τη βάση
 MONGO_URI = os.environ.get("MONGODB_URI")
@@ -39,6 +41,12 @@ class NewsFeed(commands.Cog):
                 "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1542484519192625242/Wargamer_logo.jpg?ex=6a916627&is=6a9014a7&hm=639efbc0381ad4c6da379645deb4e365bac0586056d386c4bee3a60b96f64d41&",
                 "thumbnail": "https://cdn.discordapp.com/attachments/1523030976782143645/1542466665361707098/Warhammer-logo.png?ex=6a915586&is=6a900406&hm=8620ff726f1c14357e52c51d5d897b8349080539c0a36e414e2d68870464140b&"
             }
+            {
+                "name": "Official Warhammer",
+                "url": "https://www.youtube.com/feeds/videos.xml?user=WarhammerTV",
+                "footer_icon": "https://cdn.discordapp.com/attachments/1523030976782143645/1541033367854780547/vecteezy_youtube-logo-png-youtube-logo-transparent-png-youtube-icon_23986704.png?ex=6ac4cf29&is=6ac37da9&hm=42d05a3170c57c75a960df128bf1896d8720029c45010bd4b5fdc8149d9fd5d1&",
+                "thumbnail": "https://cdn.discordapp.com/attachments/1523030976782143645/1542466665361707098/Warhammer-logo.png?ex=6ac4c006&is=6ac36e86&hm=f6b5140eebab1bc02b01e7c604cd70bb60cb212e3aa43bfe6ed3237c944769e2&"
+            }
         ]
         
         # --- ΛΙΣΤΑ ΕΓΚΡΙΣΗΣ ---
@@ -67,13 +75,17 @@ class NewsFeed(commands.Cog):
     def cog_unload(self):
         self.check_news.cancel()
 
-    @tasks.loop(minutes=60)
+    # Ορίζουμε ακριβώς κάθε 1 ώρα του 24ώρου (00:00, 01:00, ..., 23:00)
+    tz_greece = ZoneInfo("Europe/Athens")
+    news_times = [datetime.time(hour=h, minute=30, tzinfo=tz_greece) for h in range(24)]
+
+    @tasks.loop(time=news_times)
     async def check_news(self):
         print("\n--- 📡 ΞΕΚΙΝΑΕΙ ΣΑΡΩΣΗ ΑΡΘΡΩΝ ---")
         
         for source in self.news_sources:
             try:
-                print(f"🔄 Ανάγνωση πηγής: {source['name']}")
+                print(f"📳 Ανάγνωση πηγής: {source['name']}")
                 
                 # Cache busting logic
                 if "?" in source['url']:
@@ -88,7 +100,7 @@ class NewsFeed(commands.Cog):
                     print(f"⚠️ Δεν βρέθηκαν άρθρα στο feed: {source['name']}")
                     continue
 
-                recent_entries = reversed(feed.entries[:9])
+                recent_entries = reversed(feed.entries[:5])
                 
                 for entry in recent_entries:
                     title = entry.title
