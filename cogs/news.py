@@ -13,7 +13,11 @@ from zoneinfo import ZoneInfo
 MONGO_URI = os.environ.get("MONGODB_URI")
 client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where(), tlsAllowInvalidCertificates=True)
 db = client["GloriousDatabase"]
-news_col = db["News"] 
+news_col = db["News"]
+
+# Ορίζουμε ακριβώς κάθε 1 ώρα του 24ώρου (00:00, 01:00, ..., 23:00)
+tz_greece = ZoneInfo("Europe/Athens")
+news_times = [datetime.time(hour=h, minute=30, tzinfo=tz_greece) for h in range(24)]
 
 class NewsFeed(commands.Cog):
     def __init__(self, bot):
@@ -74,10 +78,6 @@ class NewsFeed(commands.Cog):
 
     def cog_unload(self):
         self.check_news.cancel()
-
-    # Ορίζουμε ακριβώς κάθε 1 ώρα του 24ώρου (00:00, 01:00, ..., 23:00)
-    tz_greece = ZoneInfo("Europe/Athens")
-    news_times = [datetime.time(hour=h, minute=30, tzinfo=tz_greece) for h in range(24)]
 
     @tasks.loop(time=news_times)
     async def check_news(self):
