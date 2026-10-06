@@ -38,7 +38,7 @@ TOKEN = os.environ.get("DISCORD_TOKEN")
 MONGO_URI = os.environ.get("MONGODB_URI")
 TARGET_USER_ID = 994930770542084227
 TARGET_GUILD_ID = 801753238662676500
-TARGET_PHRASE = "glorious melee combat"
+TARGET_PHRASE = "glorious melee"
 
 # ID του συγκεκριμένου χρήστη για το 5% emoji reaction
 SPECIFIC_USER_ID = 469508503266918400
@@ -91,6 +91,12 @@ class WitherBot(commands.Bot):
             print("✅ [6] Το cogs.chat φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο chat: {e}", flush=True)
+        
+        try:
+            await self.load_extension("cogs.logs")
+            print("✅ [7] Το cogs.logs φορτώθηκε!", flush=True)
+        except Exception as e:
+            print(f"❌ Σφάλμα στο logs: {e}", flush=True)
 
 bot = WitherBot()
 
