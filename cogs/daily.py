@@ -7,6 +7,7 @@
  - Daily Quote     : Στέλνει ένα "Thought of the Day" κάθε πρωί (11:00 τοπική).
  - Birthday System : Ελέγχει για γενέθλια (10:00 τοπική) & Εντολές.
  - Weather Report  : Στέλνει δελτίο καιρού Administratum style (08:00 τοπική).
+ - Painting Tithe  : Ζητάει φωτογραφία βαψίματος Τρίτη & Παρασκευή (18:30 τοπική).
 ========================================
 """
 
@@ -40,6 +41,26 @@ class DailyTasks(commands.Cog):
         self.quote_channel_id = 1416479181860110436
         self.bday_channel_id = 1416479181860110436
         self.weather_channel_id = 801802411592253510 
+        self.painting_channel_id = 1416871845486919792
+
+        # ==========================================
+        # ΔΕΔΟΜΕΝΑ: PAINTING
+        # ==========================================
+        self.last_chosen_painter_id = None
+        
+        # Λίστα Ζωγράφων: Weight 10 = Πάει συνέχεια, Weight 2-5 = Πάει πιο σπάνια
+        self.painters = [
+            {"id": 994930770542084227, "weight": 10}, # GayBoi
+            {"id": 320969109456027650, "weight": 9},  # Larper
+            {"id": 1527361904912367841, "weight": 8}, # Crabman
+            {"id": 1372518928282026055, "weight": 5}, # Sav05
+            {"id": 1219726201321558121, "weight": 4}, # Yas0
+            {"id": 1209525374338203668, "weight": 3}, # Broski
+            {"id": 522869870178729985, "weight": 1},  # Brόεδρος
+            {"id": 225171492734894080, "weight": 1},  # John Green Tide
+            
+            # {"id": , "weight": 10},  # 
+        ]
 
         # ==========================================
         # ΔΕΔΟΜΕΝΑ: LORE FACTS
@@ -210,12 +231,14 @@ class DailyTasks(commands.Cog):
         self.send_daily_quote.start()
         self.check_birthdays.start()
         self.daily_weather_report.start()
+        self.painting_tithe.start()
 
     def cog_unload(self):
         self.daily_lore.cancel()
         self.send_daily_quote.cancel()
         self.check_birthdays.cancel()
         self.daily_weather_report.cancel()
+        self.painting_tithe.cancel()
     
     # ==========================================
     # TASK 1: DAILY LORE FACT (18:00 Ώρα Ελλάδος)
@@ -391,6 +414,51 @@ class DailyTasks(commands.Cog):
 
     @daily_weather_report.before_loop
     async def before_daily_weather_report(self):
+        await self.bot.wait_until_ready()
+
+    # ==========================================
+    # TASK 5: PAINTING (Τρίτη & Παρασκευή 18:30)
+    # ==========================================
+    painting_time = datetime.time(hour=18, minute=30, tzinfo=tz_greece)
+    
+    @tasks.loop(time=painting_time)
+    async def painting_tithe(self):
+        # Ελέγχουμε την ημέρα της εβδομάδας: 0 = Δευτέρα, 1 = Τρίτη, 4 = Παρασκευή
+        if datetime.datetime.now(tz_greece).weekday() not in [1, 4]:
+            return
+
+        channel = self.bot.get_channel(self.painting_channel_id)
+        if not channel:
+            return
+
+        # Αφαιρούμε τον χρήστη που κληρώθηκε την προηγούμενη φορά για να μην τον επιλέξει σερί
+        available_painters = [p for p in self.painters if p["id"] != self.last_chosen_painter_id]
+        
+        # Αν για κάποιο λόγο η λίστα αδειάσει (π.χ. αν έχεις μόνο 1 άτομο στη λίστα) κάνουμε επαναφορά.
+        if not available_painters:
+            available_painters = self.painters
+
+        # Φτιάχνουμε λίστα μόνο με τα βάρη των διαθέσιμων χρηστών
+        weights = [p["weight"] for p in available_painters]
+        
+        # Διαλέγουμε έναν τυχαία επηρεασμένοι από το βάρος
+        chosen = random.choices(available_painters, weights=weights, k=1)[0]
+        
+        # Αποθηκεύουμε τον νικητή για την επόμενη φορά
+        self.last_chosen_painter_id = chosen["id"]
+
+        # Το μήνυμα του Servitor
+        msg = (
+            f"🚨 **MANDATORY PICT-CAPTURE REQUEST** 🚨\n\n"
+            f"<@{chosen['id']}>, τα αρχεία δείχνουν ότι σήμερα εκτελούνται εργασίες συντήρησης εξοπλισμού 🖌️\n"
+            f"Το Administratum απαιτεί άμεση οπτική επιβεβαίωση 👀\n"
+            f"**Στείλε φωτογραφία τι βάφεις τώρα!** αλλιώς προετοιμάσου για Lobotomy <:Lobotomy:1483210026280816671>"
+        )
+
+        await channel.send(msg)
+
+    @painting_tithe.before_loop
+    async def before_painting_tithe(self):
         await self.bot.wait_until_ready()
 
     # ==========================================
