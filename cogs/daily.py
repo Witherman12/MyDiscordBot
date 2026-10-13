@@ -41,7 +41,7 @@ class DailyTasks(commands.Cog):
         self.quote_channel_id = 1416479181860110436
         self.bday_channel_id = 1416479181860110436
         self.weather_channel_id = 801802411592253510 
-        self.painting_channel_id = 1416871845486919792
+        self.painting_channel_id = 1416775397940531220
 
         # ==========================================
         # ΔΕΔΟΜΕΝΑ: PAINTING
