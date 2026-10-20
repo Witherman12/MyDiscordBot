@@ -41,7 +41,7 @@ class DailyTasks(commands.Cog):
         self.quote_channel_id = 1416479181860110436
         self.bday_channel_id = 1416479181860110436
         self.weather_channel_id = 801802411592253510 
-        self.painting_channel_id = 1416775397940531220
+        self.painting_channel_id = 1416871845486919792
 
         # ==========================================
         # ΔΕΔΟΜΕΝΑ: PAINTING
@@ -55,9 +55,6 @@ class DailyTasks(commands.Cog):
             {"id": 1527361904912367841, "weight": 8}, # Crabman
             {"id": 1372518928282026055, "weight": 5}, # Sav05
             {"id": 1219726201321558121, "weight": 4}, # Yas0
-            {"id": 1209525374338203668, "weight": 3}, # Broski
-            {"id": 522869870178729985, "weight": 1},  # Brόεδρος
-            {"id": 225171492734894080, "weight": 1},  # John Green Tide
             
             # {"id": , "weight": 10},  # 
         ]
