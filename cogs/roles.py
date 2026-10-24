@@ -63,7 +63,7 @@ EMOJIS = {
     "Warhammer": "<:Warhammer_1:1416864475520438302>",
     "Admech": "<:AdeptusMechanicus:1455895386530254993>", 
     "Astra Militarum": "<:AstraMilitarum:1435349542768869578>", 
-    "Chaos Daemons": "<:Daemons:1416864472932421782>",
+    "Chaos Daemons": "<:Daemons:1563572127314223225>",
     "Custodes": "<:Custode:1439332561468920132>", 
     "Knights": "<:Knight:1439331932109279468>", 
     "Salamanders": "<:Salamander:1458223866634571907>", 
