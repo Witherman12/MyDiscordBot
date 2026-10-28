@@ -267,7 +267,7 @@ class DailyTasks(commands.Cog):
     @daily_lore.before_loop
     async def before_daily_lore(self):
         await self.bot.wait_until_ready()
-'''
+    '''
     # ==========================================
     # TASK 2: THOUGHT OF THE DAY (11:00 Ώρα Ελλάδος)
     # ==========================================
@@ -298,7 +298,7 @@ class DailyTasks(commands.Cog):
     @send_daily_quote.before_loop
     async def before_send_daily_quote(self):
         await self.bot.wait_until_ready()
-'''
+    '''
     # ==========================================
     # TASK 3: BIRTHDAY LOOP (10:00 Ώρα Ελλάδος)
     # ==========================================
