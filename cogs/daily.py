@@ -225,14 +225,14 @@ class DailyTasks(commands.Cog):
     # ==========================================
     async def cog_load(self):
         self.daily_lore.start()
-        self.send_daily_quote.start()
+      # self.send_daily_quote.start()
         self.check_birthdays.start()
         self.daily_weather_report.start()
         self.painting_tithe.start()
 
     def cog_unload(self):
         self.daily_lore.cancel()
-        self.send_daily_quote.cancel()
+      # self.send_daily_quote.cancel()
         self.check_birthdays.cancel()
         self.daily_weather_report.cancel()
         self.painting_tithe.cancel()
