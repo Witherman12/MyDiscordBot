@@ -263,11 +263,11 @@ class DailyTasks(commands.Cog):
                 f"-# Category: **{category}**\n\n"
                 f"*{fact}*{next_timer_str}"
             )
-'''
+
     @daily_lore.before_loop
     async def before_daily_lore(self):
         await self.bot.wait_until_ready()
-
+'''
     # ==========================================
     # TASK 2: THOUGHT OF THE DAY (11:00 Ώρα Ελλάδος)
     # ==========================================
