@@ -263,7 +263,7 @@ class DailyTasks(commands.Cog):
                 f"-# Category: **{category}**\n\n"
                 f"*{fact}*{next_timer_str}"
             )
-
+'''
     @daily_lore.before_loop
     async def before_daily_lore(self):
         await self.bot.wait_until_ready()
@@ -298,7 +298,7 @@ class DailyTasks(commands.Cog):
     @send_daily_quote.before_loop
     async def before_send_daily_quote(self):
         await self.bot.wait_until_ready()
-
+'''
     # ==========================================
     # TASK 3: BIRTHDAY LOOP (10:00 Ώρα Ελλάδος)
     # ==========================================
@@ -421,7 +421,7 @@ class DailyTasks(commands.Cog):
     @tasks.loop(time=painting_time)
     async def painting_tithe(self):
         # Ελέγχουμε την ημέρα της εβδομάδας: 0 = Δευτέρα, 1 = Τρίτη, 4 = Παρασκευή
-        if datetime.datetime.now(tz_greece).weekday() not in [1, 4]:
+        if datetime.datetime.now(tz_greece).weekday() not in [4]:
             return
 
         channel = self.bot.get_channel(self.painting_channel_id)
