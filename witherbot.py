@@ -97,6 +97,19 @@ class WitherBot(commands.Bot):
             print("✅ [7] Το cogs.logs φορτώθηκε!", flush=True)
         except Exception as e:
             print(f"❌ Σφάλμα στο logs: {e}", flush=True)
+            
+        try:
+            await self.load_extension("cogs.stats")
+            print("✅ [8] Το cogs.stats φορτώθηκε!", flush=True)
+        except Exception as e:
+            print(f"❌ Σφάλμα στο matches: {e}", flush=True)
+
+        # Συγχρονισμός των Slash Commands
+        try:
+            synced = await self.tree.sync()
+            print(f"✅ Συγχρονίστηκαν {len(synced)} Slash Commands με το Discord!", flush=True)
+        except Exception as e:
+            print(f"❌ Αποτυχία συγχρονισμού Slash Commands: {e}", flush=True)
 
 bot = WitherBot()
 
@@ -107,7 +120,6 @@ print("Σύνδεση με τη βάση δεδομένων...", flush=True)
 client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where(), tlsAllowInvalidCertificates=True)
 db = client["GloriousDatabase"]
 collection = db["Counters"]
-factions_col = db["Factions"]
 
 def save_count(count):
     collection.update_one({"_id": "glorious_score"}, {"$set": {"count": count}}, upsert=True)
@@ -241,81 +253,5 @@ async def on_message(message):
 @bot.command(name="counter")
 async def show_counter(ctx):
     await ctx.send(f"Ο <@{TARGET_USER_ID}> έχει πει τη φράση '{TARGET_PHRASE}' {glorious_count} φορές! <:Custode:1439332561468920132>")
-
-@bot.command(name="report")
-async def report_match(ctx, *, match_data: str):
-    is_tie = False
-    if match_data.lower().startswith("tie "):
-        is_tie = True
-        match_data = match_data[4:]
-
-    if " vs " not in match_data.lower():
-        await ctx.send("❌ Λάθος μορφή! Χρησιμοποίησε: `!report FactionA vs FactionB` ή `!report tie FactionA vs FactionB`")
-        return
-
-    parts = re.split(r'\s+vs\s+', match_data, flags=re.IGNORECASE)
-    if len(parts) != 2:
-        await ctx.send("❌ Λάθος μορφή! Παρακαλώ γράψε μόνο δύο Factions.")
-        return
-
-    faction1 = parts[0].strip()
-    if not faction1.startswith("<"): faction1 = faction1.title()
-
-    faction2 = parts[1].strip()
-    if not faction2.startswith("<"): faction2 = faction2.title()
-
-    if is_tie:
-        factions_col.update_one({"name": faction1}, {"$inc": {"ties": 1, "wins": 0, "losses": 0}}, upsert=True)
-        factions_col.update_one({"name": faction2}, {"$inc": {"ties": 1, "wins": 0, "losses": 0}}, upsert=True)
-        await ctx.send(f"⚔️ Καταγράφηκε Ισοπαλία ανάμεσα σε **{faction1}** και **{faction2}**!")
-    else:
-        factions_col.update_one({"name": faction1}, {"$inc": {"wins": 1, "losses": 0, "ties": 0}}, upsert=True)
-        factions_col.update_one({"name": faction2}, {"$inc": {"losses": 1, "wins": 0, "ties": 0}}, upsert=True)
-        await ctx.send(f"🏆 Καταγράφηκε Νίκη για τους **{faction1}** εναντίον των **{faction2}**!")
-
-@bot.command(name="stats")
-async def faction_stats(ctx, *, faction_name: str):
-    faction_name = faction_name.strip()
-    if not faction_name.startswith("<"): faction_name = faction_name.title()
-    
-    data = factions_col.find_one({"name": faction_name})
-    if not data:
-        await ctx.send(f"⚠️ Δεν βρέθηκαν στατιστικά για το Faction: **{faction_name}**.")
-        return
-
-    wins = data.get("wins", 0)
-    losses = data.get("losses", 0)
-    ties = data.get("ties", 0)
-    total_games = wins + losses + ties
-
-    win_rate = 0 if total_games == 0 else (wins / total_games) * 100
-
-    await ctx.send(
-        f"📊 **Στατιστικά: {faction_name}**\n"
-        f"Win Rate: **{win_rate:.1f}%**\n"
-        f"Wins: **{wins}** | Losses: **{losses}** | Ties: **{ties}**"
-    )
-    
-@bot.command(name="top")
-async def top_factions(ctx):
-    if factions_col.count_documents({}) == 0:
-        await ctx.send("⚠️ Δεν υπάρχουν ακόμα καταγεγραμμένοι αγώνες στην ΒΔ!")
-        return
-
-    top_data = factions_col.find().sort("wins", -1).limit(5)
-    message = "🏆 **Top 5 Factions (Με βάση τις Νίκες)** 🏆\n\n"
-    
-    for index, data in enumerate(top_data, 1):
-        name = data.get("name", "Άγνωστο")
-        wins = data.get("wins", 0)
-        losses = data.get("losses", 0)
-        ties = data.get("ties", 0)
-        
-        total_games = wins + losses + ties
-        win_rate = (wins / total_games * 100) if total_games > 0 else 0
-        
-        message += f"**{index}.** {name} - Wins: **{wins}** | WR: **{win_rate:.1f}%**\n"
-
-    await ctx.send(message)
 
 bot.run(TOKEN)
