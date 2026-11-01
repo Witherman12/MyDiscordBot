@@ -91,9 +91,12 @@ FACTION_ALIASES = {
     "<:Knight:1439331932109279468>": "<:Knight:1439331932109279468>"
 }
 
+# Δημιουργεί αυτόματα ένα κρυφό λεξικό όπου όλα τα αριστερά κλειδιά είναι με μικρά γράμματα
+FACTION_ALIASES_LOWER = {k.lower(): v for k, v in FACTION_ALIASES.items()}
+
 def get_standard_faction(user_input):
     cleaned = user_input.strip().lower()
-    return FACTION_ALIASES.get(cleaned, None)
+    return FACTION_ALIASES_LOWER.get(cleaned, None)
 
 class MatchTracker(commands.Cog):
     def __init__(self, bot):
