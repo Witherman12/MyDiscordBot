@@ -149,12 +149,13 @@ class FunCommands(commands.Cog):
             inline=False
         )
 
-        # Κατηγορία 2: Tabletop & Match Tracking
+        # Κατηγορία 2: Tabletop & Match Tracking (Ανανεωμένο με Slash Commands)
         embed.add_field(
             name="⚔️ **Καταγραφή Μαχών & Factions**",
             value=(
-                "**`!stats [Faction]`** - Win Rate & ιστορικό αγώνων ενός Faction.\n"
-                "**`!top`** - Leaderboard με τα 5 καλύτερα Factions του server."
+                "**`/report`** - Κατάγραψε εύκολα τον νικητή/ηττημένο (Slash Command).\n"
+                "**`/stats [Faction]`** - Win Rate & ιστορικό αγώνων (Slash Command).\n"
+                "**`/top`** - Leaderboard με τα 5 καλύτερα Factions (Slash Command)."
             ),
             inline=False
         )
@@ -198,6 +199,7 @@ class FunCommands(commands.Cog):
         embed.set_footer(text=f"Αίτημα από τον {ctx.author.display_name} - The Emperor Protects.")
         await ctx.send(embed=embed)
 
+
     # --- ΕΝΤΟΛΗ: ADMIN HELP ---
     @commands.command(name="adminhelp")
     @commands.check_any(
@@ -215,8 +217,8 @@ class FunCommands(commands.Cog):
             name="⚙️ **Σύστημα & Δεδομένα**",
             value=(
                 "**`!setlevel [@user] [level]`** - Ορίζει χειροκίνητα το Level κάποιου παίκτη.\n"
-                "**`!setbday [ΗΗ/ΜΜ] [@user]`** - Ορίζει ή αλλάζει τα γενέθλια κάποιου μέλους.\n"
-                "**`!report [FactionA] vs [FactionB]`** - Καταγράφει το αποτέλεσμα μιας μάχης στη ΒΔ.\n"
+                "**`!setbday [ΗΗ/ΜΜ] [@user]`** - Ορίζει/αλλάζει τα γενέθλια κάποιου μέλους.\n"
+                "**`/undo_report`** - Διαγράφει έναν αγώνα που καταγράφηκε λάθος (Slash Command).\n"
                 "**`!setup_roles`** - Δημιουργεί/Ενημερώνει το Live Panel καταμέτρησης των Factions."
             ),
             inline=False

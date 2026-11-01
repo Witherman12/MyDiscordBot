@@ -100,7 +100,7 @@ class NewsFeed(commands.Cog):
                     print(f"⚠️ Δεν βρέθηκαν άρθρα στο feed: {source['name']}")
                     continue
 
-                recent_entries = reversed(feed.entries[:5])
+                recent_entries = reversed(feed.entries[:3])
                 
                 for entry in recent_entries:
                     title = entry.title
