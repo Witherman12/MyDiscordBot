@@ -102,27 +102,27 @@ def get_standard_faction(user_input):
 # ΛΙΣΤΑ ΓΙΑ ΤΙΣ ΠΡΟΤΑΣΕΙΣ (AUTOCOMPLETE)
 # ==========================================
 FACTION_CHOICES = [
-    app_commands.Choice(name="Space Marines", value="<:SpaceMarine:1520706897332670537>"),
-    app_commands.Choice(name="Ultramarines", value="<:Ultramarine:1432413619567460522>"),
-    app_commands.Choice(name="Dark Angels", value="🗡️"),
-    app_commands.Choice(name="Salamanders", value="<:Salamander:1458223866634571907>"),
-    app_commands.Choice(name="White Scars", value="🇲🇳"),
-    app_commands.Choice(name="Chaos Space Marines", value="<:BlackLegion:1495073025660420212>"),
-    app_commands.Choice(name="Death Guard", value="<:DeathGuard:1439330955079717150>"),
-    app_commands.Choice(name="Thousand Sons", value="<:ThousandSons:1505870183666028574>"),
-    app_commands.Choice(name="Emperor's Children", value="<:Mogrim:1465674684690337927>"),
-    app_commands.Choice(name="Chaos Daemons", value="<:Daemons:1563572127314223225>"),
-    app_commands.Choice(name="Orks", value="<:Ork:1416864462798983228>"),
-    app_commands.Choice(name="Tyranids", value="<:Tyranid:1545493790318661662>"),
-    app_commands.Choice(name="Necrons", value="<:Necron:1439333592802005174>"),
-    app_commands.Choice(name="T'au Empire", value="<:Tau:1520707105105907753>"),
-    app_commands.Choice(name="Aeldari", value="<:Aeldari:1501193876487274506>"),
-    app_commands.Choice(name="Drukhari", value="<:Drukhari:1543897513201901579>"),
-    app_commands.Choice(name="Astra Militarum", value="<:AstraMilitarum:1435349542768869578>"),
     app_commands.Choice(name="Adepta Sororitas", value="⚜️"),
-    app_commands.Choice(name="Adeptus Mechanicus", value="<:AdeptusMechanicus:1455895386530254993>"),
     app_commands.Choice(name="Adeptus Custodes", value="<:Custode:1439332561468920132>"),
-    app_commands.Choice(name="Imperial Knights", value="<:Knight:1439331932109279468>")
+    app_commands.Choice(name="Adeptus Mechanicus", value="<:AdeptusMechanicus:1455895386530254993>"),
+    app_commands.Choice(name="Aeldari", value="<:Aeldari:1501193876487274506>"),
+    app_commands.Choice(name="Astra Militarum", value="<:AstraMilitarum:1435349542768869578>"),
+    app_commands.Choice(name="Chaos Daemons", value="<:Daemons:1563572127314223225>"),
+    app_commands.Choice(name="Chaos Space Marines", value="<:BlackLegion:1495073025660420212>"),
+    app_commands.Choice(name="Dark Angels", value="🗡️"),
+    app_commands.Choice(name="Death Guard", value="<:DeathGuard:1439330955079717150>"),
+    app_commands.Choice(name="Drukhari", value="<:Drukhari:1543897513201901579>"),
+    app_commands.Choice(name="Emperor's Children", value="<:Mogrim:1465674684690337927>"),
+    app_commands.Choice(name="Imperial Knights", value="<:Knight:1439331932109279468>"),
+    app_commands.Choice(name="Necrons", value="<:Necron:1439333592802005174>"),
+    app_commands.Choice(name="Orks", value="<:Ork:1416864462798983228>"),
+    app_commands.Choice(name="Salamanders", value="<:Salamander:1458223866634571907>"),
+    app_commands.Choice(name="Space Marines", value="<:SpaceMarine:1520706897332670537>"),
+    app_commands.Choice(name="T'au Empire", value="<:Tau:1520707105105907753>"),
+    app_commands.Choice(name="Thousand Sons", value="<:ThousandSons:1505870183666028574>"),
+    app_commands.Choice(name="Tyranids", value="<:Tyranid:1545493790318661662>"),
+    app_commands.Choice(name="Ultramarines", value="<:Ultramarine:1432413619567460522>"),
+    app_commands.Choice(name="White Scars", value="🇲🇳")
 ]
 
 async def faction_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
