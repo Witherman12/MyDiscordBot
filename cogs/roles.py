@@ -45,6 +45,7 @@ FACTION_ROLES = {
     "Xenos": {
         "Aeldari": 1501194059052744855,
         "Drukhari": 1450233943357001801,
+        "Leagues of Votann": 1567264468403093554,
         "Necrons": 1439280799017992354,
         "Orks": 1439256437317570590,
         "Tau": 1450231929705332837,
@@ -62,7 +63,7 @@ FACTION_ROLES = {
 EMOJIS = {
     "Warhammer": "<:Warhammer_1:1416864475520438302>",
     "Admech": "<:AdeptusMechanicus:1455895386530254993>", 
-    "Astra Militarum": "<:AstraMilitarum:1435349542768869578>", 
+    "Astra Militarum": "🪖", 
     "Chaos Daemons": "<:Daemons:1563572127314223225>",
     "Custodes": "<:Custode:1439332561468920132>", 
     "Knights": "<:Knight:1439331932109279468>", 
@@ -78,6 +79,7 @@ EMOJIS = {
     "Emperor's Children": "<:Mogrim:1465674684690337927>",
     "Aeldari": "<:Aeldari:1501193876487274506>", 
     "Drukhari": "<:Drukhari:1543897513201901579>", 
+    "Leagues of Votann": "<:Votann:1567263378626322574>",
     "Necrons": "<:Necron:1439333592802005174>", 
     "Orks": "<:Ork:1416864462798983228>",
     "Tau": "<:Tau:1520707105105907753>",
