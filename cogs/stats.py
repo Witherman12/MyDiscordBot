@@ -4,6 +4,8 @@ from discord import app_commands
 import os
 import pymongo
 import certifi
+import json
+import io
 
 # Σύνδεση με τη βάση
 MONGO_URI = os.environ.get("MONGODB_URI")
@@ -68,7 +70,7 @@ class MatchTracker(commands.Cog):
     @app_commands.autocomplete(faction_a=faction_autocomplete, faction_b=faction_autocomplete)
     async def report_match(self, interaction: discord.Interaction, faction_a: str, faction_b: str, is_tie: bool = False):
         
-        # Αν κάποιος έγραψε χειροκίνητα άκυρο κείμενο (π.χ. asdads) και δεν διάλεξε από τη λίστα
+        # Αν κάποιος έγραψε χειροκίνητα άκυρο κείμενο και δεν διάλεξε από τη λίστα
         if faction_a not in VALID_VALUES:
             await interaction.response.send_message(f"❌ Παρακαλώ επίλεξε τον 1ο στρατό **από τη λίστα** που εμφανίζεται όταν πληκτρολογείς.", ephemeral=True)
             return
