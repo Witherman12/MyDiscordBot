@@ -219,6 +219,7 @@ class FunCommands(commands.Cog):
                 "**`!setlevel [@user] [level]`** - Ορίζει χειροκίνητα το Level κάποιου παίκτη.\n"
                 "**`!setbday [ΗΗ/ΜΜ] [@user]`** - Ορίζει/αλλάζει τα γενέθλια κάποιου μέλους.\n"
                 "**`/undo_report`** - Διαγράφει έναν αγώνα που καταγράφηκε λάθος (Slash Command).\n"
+                "**`/backup`** - Κατεβάζει όλη τη βάση δεδομένων σε JSON αρχείο (Slash Command).\n"
                 "**`!setup_roles`** - Δημιουργεί/Ενημερώνει το Live Panel καταμέτρησης των Factions."
             ),
             inline=False

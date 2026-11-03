@@ -19,7 +19,7 @@ FACTION_CHOICES = [
     app_commands.Choice(name="Adeptus Custodes", value="<:Custode:1439332561468920132>"),
     app_commands.Choice(name="Adeptus Mechanicus", value="<:AdeptusMechanicus:1455895386530254993>"),
     app_commands.Choice(name="Aeldari", value="<:Aeldari:1501193876487274506>"),
-    app_commands.Choice(name="Astra Militarum", value="🪖")
+    app_commands.Choice(name="Astra Militarum", value="🪖"),
     app_commands.Choice(name="Chaos Daemons", value="<:Daemons:1563572127314223225>"),
     app_commands.Choice(name="Chaos Space Marines", value="<:BlackLegion:1495073025660420212>"),
     app_commands.Choice(name="Dark Angels", value="🗡️"),
@@ -166,5 +166,24 @@ class MatchTracker(commands.Cog):
             factions_col.update_one({"name": faction_b}, {"$inc": {"losses": -1}})
             await interaction.response.send_message(f"⏪ Έγινε αναίρεση της Νίκης του {faction_a} εναντίον του {faction_b}.", ephemeral=False)
 
+    # ----------------------------------------------------
+    # /backup : Λήψη αντιγράφου ασφαλείας
+    # ----------------------------------------------------
+    @app_commands.command(name="backup", description="Κατεβάζει όλη τη βάση σε αρχείο (Μόνο Admins)")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def backup_database(self, interaction: discord.Interaction):
+        # Βάζουμε defer() γιατί το bot χρειαστεί λίγο χρόνο να διαβάσει τη βάση
+        await interaction.response.defer(ephemeral=True)
+        
+        # Τραβάμε τα δεδομένα αφαιρώντας το "_id" γιατί δημιουργεί πρόβλημα στο JSON
+        factions_data = list(factions_col.find({}, {"_id": 0}))
+        
+        # Μετατροπή σε όμορφο JSON κείμενο
+        json_data = json.dumps({"Factions": factions_data}, indent=4, ensure_ascii=False)
+        
+        # Δημιουργία αρχείου στη μνήμη και αποστολή
+        file = discord.File(fp=io.BytesIO(json_data.encode('utf-8')), filename="glorious_factions_backup.json")
+        await interaction.followup.send("✅ Το αντίγραφο ασφαλείας είναι έτοιμο:", file=file)
+        
 async def setup(bot):
     await bot.add_cog(MatchTracker(bot))
