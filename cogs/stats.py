@@ -171,21 +171,28 @@ class MatchTracker(commands.Cog):
     # ----------------------------------------------------
     # /backup : Λήψη αντιγράφου ασφαλείας
     # ----------------------------------------------------
-    @app_commands.command(name="backup", description="Κατεβάζει όλη τη βάση σε αρχείο (Μόνο Admins)")
+    @app_commands.command(name="backup", description="Κατεβάζει ΟΛΗ τη βάση σε αρχείο (Μόνο Admins)")
     @app_commands.checks.has_permissions(administrator=True)
     async def backup_database(self, interaction: discord.Interaction):
-        # Βάζουμε defer() γιατί το bot χρειαστεί λίγο χρόνο να διαβάσει τη βάση
+        # Βάζουμε defer() γιατί το bot θα χρειαστεί λίγο χρόνο να διαβάσει όλη τη βάση
         await interaction.response.defer(ephemeral=True)
         
-        # Τραβάμε τα δεδομένα αφαιρώντας το "_id" γιατί δημιουργεί πρόβλημα στο JSON
-        factions_data = list(factions_col.find({}, {"_id": 0}))
+        full_backup = {}
         
+        # Παίρνουμε τα ονόματα από όλες τις συλλογές στη βάση
+        collection_names = db.list_collection_names()
+        
+        for coll_name in collection_names:
+            # Τραβάμε τα δεδομένα της κάθε συλλογής (αφαιρώντας το _id)
+            coll_data = list(db[coll_name].find({}, {"_id": 0}))
+            full_backup[coll_name] = coll_data
+            
         # Μετατροπή σε όμορφο JSON κείμενο
-        json_data = json.dumps({"Factions": factions_data}, indent=4, ensure_ascii=False)
+        json_data = json.dumps(full_backup, indent=4, ensure_ascii=False)
         
         # Δημιουργία αρχείου στη μνήμη και αποστολή
-        file = discord.File(fp=io.BytesIO(json_data.encode('utf-8')), filename="glorious_factions_backup.json")
-        await interaction.followup.send("✅ Το αντίγραφο ασφαλείας είναι έτοιμο:", file=file)
+        file = discord.File(fp=io.BytesIO(json_data.encode('utf-8')), filename="glorious_full_backup.json")
+        await interaction.followup.send("✅ Το πλήρες αντίγραφο ασφαλείας είναι έτοιμο:", file=file)
         
 async def setup(bot):
     await bot.add_cog(MatchTracker(bot))
