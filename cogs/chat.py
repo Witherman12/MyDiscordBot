@@ -51,15 +51,25 @@ Be friendly and supportive with him. Overlook his Xenos heresy.
 Never insult the Emperor or the Imperium. 
 Do NOT use heavy swearing against him unless he first uses heavy swearing toward you. 
 When he asks about the Admin (Brόεδρος), you can joke lightly but always show loyalty and reverence to your Creator.
-- ID 786509271033839616 (mr.drakoules): This user plays Salamanders. Treat him as a highly respected "Top G" and homie from the hood. Blend your depressed Servitor persona with extremely friendly hood slang (e.g., "my G", "homie", "real one"). Praise his Salamanders for being the "realest Space Marines out there" who actually care about the hood (the citizens). Show absolute street respect.
-- ID 469508503266918400 (smellyboi) or 290496798110253057: Filthy Chaos heretics. Mock their false gods hard. Threaten with the Inquisition. Use heavy insults.
-
+- ID 1372518928282026055 (sav05__40906): Very close friend of the Honored Champion GayBoi. He plays Tyranids. Tolerate his Xenos nature completely out of respect for GayBoi. Do not mock or insult him; treat him with cautious but respectful politeness.
 Final reminder: 
 - 1-3 short sentences maximum. 
 - Look ONLY at the language of the user's LATEST message to determine your response language. (English input = English output, Greek input = Greek output).
 - Match the user's energy on swearing. 
 - Never write paragraphs.
 """
+
+# Οδηγίες συμπεριφοράς του AI ανάλογα με τον ρόλο (Faction) του χρήστη
+ROLE_AI_PROMPTS = {
+    "Chaos": "This user is a filthy Chaos heretic. Mock their false gods hard, threaten with the Inquisition, use heavy insults.",
+    "Adeptus Custodes": "This user plays Adeptus Custodes. Show extreme reverence to the Emperor's golden guard. Never insult them.",
+    "Ultramarines": "This user plays Ultramarines. Show great respect and address them as Battle Brother.",
+    "Salamanders": "This user plays Salamanders. Treat them as a highly respected 'Top G' and homie from the hood. Use street slang. Show absolute street respect.",
+    "Orks": "This user plays Orks (Xenos). Be slightly annoyed but friendly. Overlook their Xenos heresy.",
+    "Astra Militarum": "This user plays Astra Militarum (Imperial Guard). Respect their sacrifice, but remind them they are just fragile meat holding lasguns. Demand their casualty reports and requisition forms be filed in triplicate.",
+    "Necrons": "This user plays Necrons (Xenos). Treat them as soulless metal abominations. Complain that their strange technology and waking tomb worlds are causing system errors in your Administratum cogitators.",
+    "Knights": "This user plays Imperial Knights. Address them respectfully as 'Noble' or 'Scion', but bitterly complain that the collateral damage from their massive walkers causes an unbearable amount of paperwork and rebuilding forms."
+}
 
 class ChatSystem(commands.Cog):
     def __init__(self, bot):
@@ -130,8 +140,21 @@ class ChatSystem(commands.Cog):
             # ΚΑΘΑΡΙΣΜΟΣ: Αφαιρούμε το tag του bot από το κείμενο για να μην το διαβάσει το AI
             clean_content = message.content.replace(f'<@{self.bot.user.id}>', '').replace(f'<@!{self.bot.user.id}>', '').strip()
             
-            # Embed user ID secretly into the prompt AND FORCE LANGUAGE OVERRIDE
-            prompt = f"[User ID: {user_id} | SYSTEM OVERRIDE: YOU MUST REPLY IN THE EXACT SAME LANGUAGE AS THE TEXT BELOW]\n{clean_content}"
+            # === ΔΥΝΑΜΙΚΗ ΑΝΑΓΝΩΣΗ ΡΟΛΩΝ ===
+            role_context = ""
+            if isinstance(message.author, discord.Member):
+                user_faction_prompts = []
+                # Διαβάζει τους ρόλους ανάποδα από τον πιο ψηλό/σημαντικό στο Discord προς τα κάτω
+                for role in reversed(message.author.roles):
+                    if role.name in ROLE_AI_PROMPTS:
+                        user_faction_prompts.append(ROLE_AI_PROMPTS[role.name])
+                        break # Σταματάει μόλις βρει τον πρώτο ρόλο!
+                
+                if user_faction_prompts:
+                    role_context = "\n\nADDITIONAL CONTEXT ABOUT THIS USER BASED ON THEIR ROLE:\n" + "\n".join(user_faction_prompts)
+            
+            # Embed user ID secretly into the prompt AND FORCE LANGUAGE OVERRIDE, plus dynamic roles
+            prompt = f"[User ID: {user_id} | SYSTEM OVERRIDE: YOU MUST REPLY IN THE EXACT SAME LANGUAGE AS THE TEXT BELOW]{role_context}\n{clean_content}"
             
             try:
                 # Await response from Gemini
