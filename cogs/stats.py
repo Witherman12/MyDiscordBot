@@ -171,7 +171,7 @@ class MatchTracker(commands.Cog):
     # ----------------------------------------------------
     # /backup : Λήψη αντιγράφου ασφαλείας
     # ----------------------------------------------------
-    @app_commands.command(name="backup", description="Κατεβάζει ΟΛΗ τη βάση σε αρχείο (Μόνο Admins)")
+    @app_commands.command(name="backup", description="DB Backup (Admins Only)")
     @app_commands.checks.has_permissions(administrator=True)
     async def backup_database(self, interaction: discord.Interaction):
         # Βάζουμε defer() γιατί το bot θα χρειαστεί λίγο χρόνο να διαβάσει όλη τη βάση
@@ -183,6 +183,10 @@ class MatchTracker(commands.Cog):
         collection_names = db.list_collection_names()
         
         for coll_name in collection_names:
+            # Προσπερνάμε το collection "news"
+            if coll_name.lower() == "news":
+                continue
+                
             # Τραβάμε τα δεδομένα της κάθε συλλογής (αφαιρώντας το _id)
             coll_data = list(db[coll_name].find({}, {"_id": 0}))
             full_backup[coll_name] = coll_data
@@ -191,8 +195,8 @@ class MatchTracker(commands.Cog):
         json_data = json.dumps(full_backup, indent=4, ensure_ascii=False)
         
         # Δημιουργία αρχείου στη μνήμη και αποστολή
-        file = discord.File(fp=io.BytesIO(json_data.encode('utf-8')), filename="glorious_full_backup.json")
-        await interaction.followup.send("✅ Το πλήρες αντίγραφο ασφαλείας είναι έτοιμο:", file=file)
+        file = discord.File(fp=io.BytesIO(json_data.encode('utf-8')), filename="glorious_db_backup.json")
+        await interaction.followup.send("✅ Το αντίγραφο ασφαλείας είναι έτοιμο (χωρίς το News):", file=file)
         
 async def setup(bot):
     await bot.add_cog(MatchTracker(bot))
