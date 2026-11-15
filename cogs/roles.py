@@ -37,10 +37,11 @@ FACTION_ROLES = {
     },
     "Chaos": {
         "Black Legion": 1495072660634210518,
+        "Chaos Daemons": 1563572170452377802,
         "Death Guard": 1439256956081799210,
         "Thousand Sons": 1505870287923843092,
-        "Emperor's Children": 1550578609972846733,
-        "Chaos Daemons": 1563572170452377802
+        "Emperor's Children": 1550578609972846733,      
+        "World Eaters": 1571469567211868160
     },
     "Xenos": {
         "Aeldari": 1501194059052744855,
@@ -84,6 +85,7 @@ EMOJIS = {
     "Orks": "<:Ork:1416864462798983228>",
     "Tau": "<:Tau:1520707105105907753>",
     "Tyranids": "<:Tyranid:1545493790318661662>",
+    "World Eaters": ":japanese_ogre:", 
     # Άλλα παιχνίδια
     "Campaign": "<:Warhammer_1:1416864475520438302>", 
     "Age Of Sigmar": "<:Age_of_Sigmar:1439331241693286600>",

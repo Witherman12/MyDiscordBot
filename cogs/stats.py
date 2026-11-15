@@ -39,6 +39,7 @@ FACTION_CHOICES = [
     app_commands.Choice(name="Tyranids", value="<:Tyranid:1545493790318661662>"),
     app_commands.Choice(name="Ultramarines", value="<:Ultramarine:1432413619567460522>"),
     app_commands.Choice(name="White Scars", value="🇲🇳")
+    app_commands.Choice(name="World Eaters", value=":japanese_ogre:")
 ]
 
 # Αυτό εξασφαλίζει ότι το input του χρήστη 
