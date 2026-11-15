@@ -85,7 +85,7 @@ EMOJIS = {
     "Orks": "<:Ork:1416864462798983228>",
     "Tau": "<:Tau:1520707105105907753>",
     "Tyranids": "<:Tyranid:1545493790318661662>",
-    "World Eaters": ":japanese_ogre:", 
+    "World Eaters": "👹", 
     # Άλλα παιχνίδια
     "Campaign": "<:Warhammer_1:1416864475520438302>", 
     "Age Of Sigmar": "<:Age_of_Sigmar:1439331241693286600>",
