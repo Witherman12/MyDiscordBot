@@ -170,34 +170,27 @@ class MatchTracker(commands.Cog):
             await interaction.response.send_message(f"⏪ Έγινε αναίρεση της Νίκης του {faction_a} εναντίον του {faction_b}.", ephemeral=False)
 
     # ----------------------------------------------------
-    # /backup : Λήψη αντιγράφου ασφαλείας
+    # /backup : Λήψη αντιγράφου ασφαλείας (Standard API)
     # ----------------------------------------------------
     @app_commands.command(name="backup", description="DB Backup (Admins Only)")
     @app_commands.checks.has_permissions(administrator=True)
     async def backup_database(self, interaction: discord.Interaction):
-        # Βάζουμε defer() γιατί το bot θα χρειαστεί λίγο χρόνο να διαβάσει όλη τη βάση
-        await interaction.response.defer(ephemeral=True)
+        # Ephemeral απάντηση για να κλείσει το interaction χωρίς να στείλει αρχείο από εδώ
+        await interaction.response.send_message("⏳ Ετοιμάζω το backup. Το αρχείο θα σταλεί ακριβώς από κάτω...", ephemeral=True)
         
         full_backup = {}
-        
-        # Παίρνουμε τα ονόματα από όλες τις συλλογές στη ΒΔ
         collection_names = db.list_collection_names()
         
         for coll_name in collection_names:
-            # Προσπερνάμε το collection "news"
             if coll_name.lower() == "news":
                 continue
-                
-            # Τραβάμε τα δεδομένα της κάθε συλλογής - αφαιρώντας το _id
-            coll_data = list(db[coll_name].find({}, {"_id": 0}))
-            full_backup[coll_name] = coll_data
+            full_backup[coll_name] = list(db[coll_name].find({}, {"_id": 0}))
             
-        # Μετατροπή σε JSON κείμενο
         json_data = json.dumps(full_backup, indent=4, ensure_ascii=False)
-        
-        # Δημιουργία αρχείου στη μνήμη και αποστολή
         file = discord.File(fp=io.BytesIO(json_data.encode('utf-8')), filename="glorious_db_backup.json")
-        await interaction.followup.send("✅ Το αντίγραφο ασφαλείας είναι έτοιμο:", file=file)
         
+        # Στέλνουμε το αρχείο ως μήνυμα στο κανάλι.
+        await interaction.channel.send(content=f"✅ Το backup ζητήθηκε από τον {interaction.user.mention}:", file=file)
+
 async def setup(bot):
     await bot.add_cog(MatchTracker(bot))
