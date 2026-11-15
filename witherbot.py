@@ -102,7 +102,7 @@ class WitherBot(commands.Bot):
             await self.load_extension("cogs.stats")
             print("✅ [8] Το cogs.stats φορτώθηκε!", flush=True)
         except Exception as e:
-            print(f"❌ Σφάλμα στο matches: {e}", flush=True)
+            print(f"❌ Σφάλμα στο stats: {e}", flush=True)
 
         # Συγχρονισμός των Slash Commands
         try:

@@ -51,6 +51,7 @@ class DailyTasks(commands.Cog):
         # Λίστα Ζωγράφων: Weight 10 = Πάει συνέχεια, Weight 2-5 = Πάει πιο σπάνια
         self.painters = [
             {"id": 994930770542084227, "weight": 10}, # GayBoi
+            {"id": 469508503266918400, "weight": 9},  # Smelly
             {"id": 320969109456027650, "weight": 9},  # Larper
             {"id": 1527361904912367841, "weight": 8}, # Crabman
             {"id": 1372518928282026055, "weight": 5}, # Sav05
