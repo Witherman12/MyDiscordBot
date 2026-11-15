@@ -1,0 +1,20 @@
+# === Μυστικά & Κωδικοί ===
+.env
+
+# === Αρχεία Backup  ===
+*.json
+
+# === Ρυθμίσεις του VS Code ===
+.vscode/
+
+# === Python & Περιβάλλοντα (Virtual Environments) ===
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# === Προσωρινά Αρχεία & Logs ===
+*.log
+.DS_Store

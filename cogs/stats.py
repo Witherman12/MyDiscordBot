@@ -180,7 +180,7 @@ class MatchTracker(commands.Cog):
         
         full_backup = {}
         
-        # Παίρνουμε τα ονόματα από όλες τις συλλογές στη βάση
+        # Παίρνουμε τα ονόματα από όλες τις συλλογές στη ΒΔ
         collection_names = db.list_collection_names()
         
         for coll_name in collection_names:
@@ -188,16 +188,16 @@ class MatchTracker(commands.Cog):
             if coll_name.lower() == "news":
                 continue
                 
-            # Τραβάμε τα δεδομένα της κάθε συλλογής (αφαιρώντας το _id)
+            # Τραβάμε τα δεδομένα της κάθε συλλογής - αφαιρώντας το _id
             coll_data = list(db[coll_name].find({}, {"_id": 0}))
             full_backup[coll_name] = coll_data
             
-        # Μετατροπή σε όμορφο JSON κείμενο
+        # Μετατροπή σε JSON κείμενο
         json_data = json.dumps(full_backup, indent=4, ensure_ascii=False)
         
         # Δημιουργία αρχείου στη μνήμη και αποστολή
         file = discord.File(fp=io.BytesIO(json_data.encode('utf-8')), filename="glorious_db_backup.json")
-        await interaction.followup.send("✅ Το αντίγραφο ασφαλείας είναι έτοιμο (χωρίς το News):", file=file)
+        await interaction.followup.send("✅ Το αντίγραφο ασφαλείας είναι έτοιμο:", file=file)
         
 async def setup(bot):
     await bot.add_cog(MatchTracker(bot))
