@@ -29,23 +29,51 @@ class AuditLogs(commands.Cog):
             embed.set_footer(text=f"Time: {self.get_time()} | ID: {message.author.id}")
             await channel.send(embed=embed)
 
-    # --- 2. ΕΠΕΞΕΡΓΑΣΙΑ ΜΗΝΥΜΑΤΟΣ ---
+    # --- 2. ΕΠΕΞΕΡΓΑΣΙΑ ΜΗΝΥΜΑΤΟΣ (RAW ΕΛΕΓΧΟΣ ΓΙΑ ΠΑΛΙΑ ΜΗΝΥΜΑΤΑ) ---
     @commands.Cog.listener()
-    async def on_message_edit(self, before, after):
-        if before.author.bot or before.content == after.content:
+    async def on_raw_message_edit(self, payload):
+        # Αν η αλλαγή δεν περιλαμβάνει κείμενο (π.χ. απλά φόρτωσε το preview ενός link) το αγνοούμε
+        if 'content' not in payload.data:
             return
 
-        channel = self.bot.get_channel(self.log_channel_id)
-        if channel:
-            embed = discord.Embed(
-                title="✏️ [EDITED] Μήνυμα Επεξεργάστηκε",
-                description=f"**Χρήστης:** {before.author.mention} ({before.author.name})\n**Κανάλι:** {before.channel.mention}\n[🔗 Μετάβαση στο μήνυμα]({after.jump_url})",
-                color=discord.Color.orange()
-            )
-            embed.add_field(name="Πριν:", value=before.content[:1000] or "*[Κενό]*", inline=False)
-            embed.add_field(name="Μετά:", value=after.content[:1000] or "*[Κενό]*", inline=False)
-            embed.set_footer(text=f"Time: {self.get_time()} | ID: {before.author.id}")
-            await channel.send(embed=embed)
+        log_channel = self.bot.get_channel(self.log_channel_id)
+        if not log_channel:
+            return
+
+        edit_channel = self.bot.get_channel(payload.channel_id)
+        if not edit_channel:
+            return
+
+        try:
+            # Το payload.cached_message υπάρχει μόνο αν το bot θυμάται το μήνυμα. 
+            # Αν δεν το θυμάται το κατεβάζει εκείνη την στιγμή από το Discord.
+            message = payload.cached_message or await edit_channel.fetch_message(payload.message_id)
+        except discord.NotFound:
+            return
+
+        # Αγνοούμε τα bots
+        if message.author.bot:
+            return
+
+        after_content = payload.data['content']
+        before_content = "*[Το παλιό κείμενο χάθηκε επειδή έγινε restart στο bot]*"
+
+        # Αν το μήνυμα ήταν στη μνήμη του bot μπορούμε να δούμε ακριβώς τι έγραφε πριν
+        if payload.cached_message:
+            if payload.cached_message.content == after_content:
+                return # Δεν άλλαξε το κείμενο
+            before_content = payload.cached_message.content
+
+        embed = discord.Embed(
+            title="✏️ [EDITED] Μήνυμα Επεξεργάστηκε",
+            description=f"**Χρήστης:** {message.author.mention} ({message.author.name})\n**Κανάλι:** {edit_channel.mention}\n[🔗 Μετάβαση στο μήνυμα]({message.jump_url})",
+            color=discord.Color.orange()
+        )
+        embed.add_field(name="Πριν:", value=before_content[:1000] or "*[Κενό]*", inline=False)
+        embed.add_field(name="Μετά:", value=after_content[:1000] or "*[Κενό]*", inline=False)
+        embed.set_footer(text=f"Time: {self.get_time()} | ID: {message.author.id}")
+        
+        await log_channel.send(embed=embed)
 
     # --- 3. ΑΠΟΧΩΡΗΣΗ ΜΕΛΟΥΣ (LEAVE/KICK) ---
     @commands.Cog.listener()
