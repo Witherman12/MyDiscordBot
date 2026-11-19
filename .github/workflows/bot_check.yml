@@ -1,0 +1,32 @@
+name: Servitor Code Inspection
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  syntax-and-imports:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Κατέβασμα κώδικα
+        uses: actions/checkout@v4
+
+      - name: Ρύθμιση Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Έλεγχος Σύνταξης (Κόμματα, Παρενθέσεις, Εσοχές)
+        run: python -m compileall -q .
+
+      - name: Εγκατάσταση Ruff
+        run: pip install ruff
+
+      - name: Έλεγχος για χαμένα Imports & άγνωστες μεταβλητές
+        run: ruff check --select=F63,F7,F82 .
+
+      - name: Έλεγχος Discord Emojis
+        run: python tests/check_emojis.py
